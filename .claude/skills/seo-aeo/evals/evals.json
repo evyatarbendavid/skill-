@@ -1,0 +1,44 @@
+{
+  "skill_name": "seo-aeo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm about to publish a blog post explaining tinnitus relief techniques for people who are blind. What should I do so it has the best shot at ranking on Google and getting cited by ChatGPT/Perplexity? Also give me an audit checklist to run once it's live.",
+      "expected_output": "Reads references/reference.md for authoring guidance and references/audit-checklist.md for the audit. Works crawl/index -> technical SEO -> content/E-E-A-T -> structured data -> Core Web Vitals -> AEO in that gated order. Keeps [OFFICIAL]/[CONSENSUS]/[UNCERTAIN] labels attached to claims, especially the AEO honesty caveat (no guaranteed citation) and the llms.txt/FAQ-schema skepticism. Produces a literal PASS/FAIL/N/A-style checklist (not prose) with Sections A and D called out as gates.",
+      "assertions": [
+        "Reads and uses reference.md for authoring advice",
+        "Reads and uses audit-checklist.md for the checklist",
+        "Preserves OFFICIAL/CONSENSUS/UNCERTAIN labels on claims",
+        "States the AEO honesty caveat (no guaranteed AI citation)",
+        "Flags llms.txt / FAQ schema as unproven, not a citation lever",
+        "Output checklist is literal PASS/FAIL/N/A items, not paraphrased prose",
+        "Identifies Sections A (Crawlability) and D (Performance/CWV) as gates checked before B/C/E/F"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Can you audit https://example.com/our-guide against SEO and AEO best practices and tell me what's failing?",
+      "expected_output": "Loads references/audit-checklist.md and walks it section by section (A-F plus proof artifacts), reporting PASS/FAIL/N/A per item using whatever tools are available (fetch/browser) rather than guessing. If a check needs access the skill doesn't have (e.g. Search Console data, field CWV), it says so explicitly and asks the user to supply it rather than marking it PASS. Ends with a fix-first list ordered by the gate-before-multiplier rule.",
+      "assertions": [
+        "Uses the literal audit-checklist.md items rather than generic SEO knowledge",
+        "Attempts to actually check items via available tools instead of assuming PASS",
+        "Explicitly flags checks it cannot perform (e.g. GSC-only data) instead of guessing",
+        "Orders remediation with gate sections (A, D) before quality-multiplier sections (B, C, E, F)"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Should I add FAQPage schema to my site to get more citations from ChatGPT?",
+      "expected_output": "Should not endorse this as an effective AEO lever. Cites that FAQPage rich results were restricted in 2023 and deprecated in 2026, and that structured data does not directly influence AI citation - correctly labeled per the source's confidence tags. Redirects toward what's actually shown to raise citation odds (indexability, answer-first structure, trust signals).",
+      "assertions": [
+        "Correctly states FAQPage rich results are restricted/deprecated, not a citation lever",
+        "Does not claim schema markup causes AI citations",
+        "Redirects to actually-supported AEO levers from the reference",
+        "Preserves the relevant confidence label(s) rather than stating flatly"
+      ],
+      "files": []
+    }
+  ]
+}
