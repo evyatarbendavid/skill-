@@ -1,0 +1,14 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "TODO: organization name",
+  "url": "TODO: https://example.com/",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "TODO: https://example.com/logo.png"
+  },
+  "description": "TODO: one-sentence description of the organization",
+  "sameAs": [
+    "TODO: real profile URL, e.g. https://www.linkedin.com/company/..., or remove this array entirely"
+  ]
+}

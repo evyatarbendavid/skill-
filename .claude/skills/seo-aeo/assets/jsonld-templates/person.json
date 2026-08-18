@@ -1,0 +1,11 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "TODO: author full name",
+  "url": "TODO: https://example.com/about",
+  "jobTitle": "TODO: job title or credential",
+  "description": "TODO: short bio establishing relevant expertise",
+  "sameAs": [
+    "TODO: real profile URL, or remove this array entirely"
+  ]
+}

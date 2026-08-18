@@ -1,0 +1,27 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "TODO: page headline, under 110 characters, matching the visible h1",
+  "image": [
+    "TODO: https://example.com/hero.jpg"
+  ],
+  "datePublished": "TODO: 2026-01-01",
+  "dateModified": "TODO: 2026-01-01",
+  "author": {
+    "@type": "Person",
+    "name": "TODO: author full name",
+    "url": "TODO: https://example.com/about"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TODO: site or organization name",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "TODO: https://example.com/logo.png"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "TODO: canonical URL of this page"
+  }
+}
