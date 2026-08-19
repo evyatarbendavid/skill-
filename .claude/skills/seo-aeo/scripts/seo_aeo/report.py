@@ -10,11 +10,15 @@ import sys
 from typing import List
 
 from .models import (
+    CRITICAL,
     FAIL,
     GATE_SECTIONS,
     HUMAN_JUDGMENT,
     NA,
     PASS,
+    HIGH,
+    LOW,
+    MEDIUM,
     SECTION_TITLES,
     WARN,
     AuditResult,
@@ -97,6 +101,29 @@ def render_text(result: AuditResult, stream=None) -> str:
     if result.final_url and result.final_url != result.url:
         out.append(f"  final URL: {result.final_url}")
     out.append(_RULE)
+
+    # Severity-ranked punch list first. A flat dump of 60 findings buries the
+    # three that actually matter; this is the part a human acts on.
+    punch = result.punch_list()
+    if punch:
+        out.append("")
+        out.append("PUNCH LIST (most severe first)")
+        current_severity = None
+        for finding in punch:
+            if finding.severity != current_severity:
+                current_severity = finding.severity
+                label = current_severity.upper()
+                out.append("")
+                out.append(f"  {label}")
+            marker = _MARKERS.get(finding.status, finding.status)
+            summary = finding.detail or finding.reason or ""
+            first_sentence = summary.split(". ")[0]
+            if len(first_sentence) > 96:
+                first_sentence = first_sentence[:93] + "..."
+            gate = " [GATE]" if finding.is_gate else ""
+            out.append(f"    {finding.id:<4} {marker}{gate}  {first_sentence}")
+        out.append("")
+        out.append(_RULE)
 
     sections = result.by_section()
     # Gates first — a FAIL there means nothing below it can help yet.

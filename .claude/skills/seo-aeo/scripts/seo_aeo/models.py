@@ -27,7 +27,30 @@ SECTION_TITLES = {
     "D": "Performance / Core Web Vitals",
     "E": "Accessibility & Mobile",
     "F": "AEO-readiness",
+    "G": "Content quality, RTL & site hygiene",
     "P": "Proof artifacts",
+}
+
+# Severity ranks the punch list independently of PASS/FAIL: a gate failure and
+# a missing meta description are both FAILs, but only one blocks ranking.
+CRITICAL = "critical"
+HIGH = "high"
+MEDIUM = "medium"
+LOW = "low"
+
+SEVERITY_ORDER = {CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3, "": 4}
+
+# Default severity per checklist item, used when a finding does not set its own.
+DEFAULT_SEVERITY = {
+    "A1": CRITICAL, "A2": CRITICAL, "A3": CRITICAL, "A8": CRITICAL,
+    "A4": HIGH, "A5": HIGH, "A6": HIGH, "A7": MEDIUM,
+    "B4": MEDIUM, "B8": HIGH, "B9": LOW, "B6": MEDIUM,
+    "C1": MEDIUM, "C2": HIGH, "C3": MEDIUM, "C4": MEDIUM, "C5": LOW, "C7": LOW,
+    "D1": HIGH, "D2": HIGH, "D3": HIGH, "D4": HIGH,
+    "E2": HIGH, "E3": CRITICAL, "E5": MEDIUM, "E9": MEDIUM, "E4": LOW,
+    "F1": HIGH, "F2": MEDIUM, "F4": MEDIUM, "F7": LOW,
+    "G1": HIGH, "G2": MEDIUM, "G3": MEDIUM, "G4": HIGH, "G5": MEDIUM,
+    "G6": MEDIUM, "G7": HIGH, "G8": MEDIUM,
 }
 
 
@@ -42,7 +65,12 @@ class Finding:
     fixable: bool = False  # can fixers.py act on this automatically?
     fixed: bool = False  # was a fix actually written?
     reason: str = ""  # why N/A, or why it needs a human
+    severity: str = ""  # critical | high | medium | low; defaults by item id
     evidence: Dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        if not self.severity:
+            self.severity = DEFAULT_SEVERITY.get(self.id, MEDIUM)
 
     @property
     def section(self) -> str:
@@ -92,6 +120,24 @@ class AuditResult:
         for f in self.findings:
             c[f.status] = c.get(f.status, 0) + 1
         return c
+
+    def punch_list(self) -> List["Finding"]:
+        """Actionable findings, most severe first — the report's headline."""
+        actionable = [f for f in self.findings
+                      if f.status in (FAIL, WARN, HUMAN_JUDGMENT)]
+        # Within a severity band, an outright failure outranks a warning or a
+        # question: severity says how much the item matters, status says how
+        # badly it is currently doing.
+        status_rank = {FAIL: 0, HUMAN_JUDGMENT: 1, WARN: 2}
+        return sorted(
+            actionable,
+            key=lambda f: (
+                SEVERITY_ORDER.get(f.severity, 4),
+                status_rank.get(f.status, 3),
+                0 if f.is_gate else 1,
+                _id_sort_key(f.id),
+            ),
+        )
 
     def gate_failed(self) -> bool:
         return any(f.is_gate and f.status == FAIL for f in self.findings)

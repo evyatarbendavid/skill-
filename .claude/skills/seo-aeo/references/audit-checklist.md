@@ -149,6 +149,37 @@ a snippet.*
   any "guaranteed citation" trick is **not** the plan (harmless to have, but not
   counted on).
 
+## G. Content quality, RTL & site hygiene (איכות תוכן ובאגים)
+
+*The "boring but costly" category. Several of these are accessibility bugs
+first and SEO bugs second — fixing them pays twice.*
+
+- [ ] **G1. No placeholder text in production.** No `Lorem ipsum`, `TODO`,
+  `undefined`, `[object Object]`, `NaN`, or untranslated strings in visible copy.
+- [ ] **G2. Title length** ~50–60 chars. Longer gets truncated in results;
+  much shorter wastes the slot.
+- [ ] **G3. Meta description length** ~140–160 chars, written as CTR copy.
+  It does not affect ranking directly — it affects whether anyone clicks.
+- [ ] **G4. Single-hop redirects.** No A→B→C chains; collapse to A→C and link
+  to the final URL.
+- [ ] **G5. Descriptive anchor text.** No "click here" / "read more" /
+  "לחץ כאן". Anchor text is both a ranking signal and a screen-reader cue.
+- [ ] **G6. Image attributes.** Explicit `width`/`height` (prevents CLS),
+  hero image **not** lazy-loaded (protects LCP), modern formats (WebP/AVIF).
+- [ ] **G7. RTL / bidi correctness.** `html lang="he" dir="rtl"` both set and
+  agreeing; Latin text, numbers, and brand names inside RTL runs isolated with
+  `bdi` or `dir="auto"` so they do not render in the wrong visual order.
+  Check nested components too — LTR-authored component libraries often hardcode
+  their own `dir`.
+- [ ] **G8. No orphan pages.** Every sitemap URL is reachable by following
+  internal links. Orphans are live and declared but accumulate no internal
+  signal.
+- [ ] **G9. No duplicate content at scale.** On templated/programmatic page
+  sets, pages that differ only by a swapped noun share the same fate: search
+  engines may index only one. *(Reported via crawl duplicate detection.)*
+- [ ] **G10. One canonical host.** http→https and www↔non-www 301-redirect to
+  a single host rather than dual-serving the same content.
+
 ---
 
 ### Proof artifacts to capture

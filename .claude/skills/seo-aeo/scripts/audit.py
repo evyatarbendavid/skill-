@@ -20,7 +20,10 @@ from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from seo_aeo import accessibility, aeo, canonical, crawler, cwv, fixers, htmldoc, report, robots, sitemap, structured_data  # noqa: E402
+from seo_aeo import (  # noqa: E402
+    accessibility, aeo, canonical, crawler, cwv, fixers, htmldoc,
+    quality, report, robots, sitemap, structured_data,
+)
 from seo_aeo.fetch import fetch, normalize_url, origin  # noqa: E402
 from seo_aeo.models import (  # noqa: E402
     FAIL,
@@ -684,6 +687,142 @@ def run_section_f(ctx: Context, result: AuditResult) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Section G - content quality, RTL & site hygiene
+# ---------------------------------------------------------------------------
+
+def run_section_g(ctx: Context, result: AuditResult) -> None:
+    q = quality.analyze(ctx.doc)
+    rtl = quality.analyze_rtl(ctx.doc, ctx.page.body or "", ctx.page.final_url)
+
+    # G1 - placeholder text shipped to production
+    if q.placeholders:
+        result.add(Finding(
+            "G1", "No placeholder text in production", FAIL,
+            detail="; ".join(q.placeholders[:3]),
+        ))
+    else:
+        result.add(Finding("G1", "No placeholder text in production", PASS,
+                           detail="no Lorem ipsum / TODO / undefined in visible text"))
+
+    # G2 - title length
+    if q.title_issue:
+        result.add(Finding("G2", "Title length", WARN, detail=q.title_issue))
+    else:
+        result.add(Finding("G2", "Title length", PASS,
+                           detail=f"{q.title_len} chars"))
+
+    # G3 - meta description length
+    if q.meta_issue:
+        result.add(Finding("G3", "Meta description length", WARN, detail=q.meta_issue))
+    else:
+        result.add(Finding("G3", "Meta description length", PASS,
+                           detail=f"{q.meta_len} chars"))
+
+    # G4 - redirect chains
+    chain = quality.find_redirect_chains(ctx.page.redirect_chain)
+    if chain:
+        result.add(Finding(
+            "G4", "Single-hop redirects", WARN,
+            detail=f"{len(ctx.page.redirect_chain) - 1} hop(s): {chain}. "
+                   "Collapse A->B->C into A->C and link to the final URL.",
+        ))
+    else:
+        result.add(Finding("G4", "Single-hop redirects", PASS,
+                           detail="no redirect chain"))
+
+    # G5 - descriptive anchor text
+    if q.vague_anchors:
+        result.add(Finding(
+            "G5", "Descriptive link anchor text", WARN,
+            detail=f"{len(q.vague_anchors)} vague anchor(s): "
+                   + "; ".join(q.vague_anchors[:3])
+                   + ". Anchor text is a ranking signal and a screen-reader cue.",
+        ))
+    else:
+        result.add(Finding("G5", "Descriptive link anchor text", PASS,
+                           detail="no 'click here'-style anchors found"))
+
+    # G6 - image attributes affecting CLS and LCP
+    image_issues = []
+    if q.images_without_dimensions:
+        image_issues.append(
+            f"{len(q.images_without_dimensions)} image(s) without width/height "
+            "(causes layout shift, hurts CLS)")
+    if q.lazy_loaded_early_images:
+        image_issues.append(
+            f"{len(q.lazy_loaded_early_images)} above-the-fold image(s) lazy-loaded "
+            "(delays LCP — never lazy-load the hero)")
+    if q.legacy_image_formats:
+        image_issues.append(
+            f"{len(q.legacy_image_formats)} JPEG/PNG image(s) — WebP/AVIF are smaller")
+    if not ctx.doc.images:
+        result.add(Finding("G6", "Image attributes (CLS/LCP)", NA,
+                           reason="no images on the page"))
+    elif image_issues:
+        result.add(Finding("G6", "Image attributes (CLS/LCP)", WARN,
+                           detail="; ".join(image_issues)))
+    else:
+        result.add(Finding("G6", "Image attributes (CLS/LCP)", PASS,
+                           detail="dimensions set, hero not lazy-loaded"))
+
+    # G7 - RTL correctness, only where the page is actually RTL
+    if not rtl.applicable:
+        result.add(Finding("G7", "RTL / bidi correctness", NA,
+                           reason="page is not right-to-left"))
+    else:
+        rtl_issues = []
+        if rtl.dir_missing:
+            rtl_issues.append(
+                'no dir attribute on the html element — an RTL page needs dir="rtl"')
+        elif rtl.dir_mismatch:
+            rtl_issues.append(
+                f'lang="{rtl.lang}" is right-to-left but dir="{rtl.dir_attr}"')
+        if rtl.bidi_risk_samples:
+            rtl_issues.append(
+                "Latin text or numbers embedded in RTL runs with no bdi/dir=auto "
+                "isolation, which can render in the wrong visual order (e.g. "
+                f"{rtl.bidi_risk_samples[0]!r})")
+        if rtl_issues:
+            result.add(Finding("G7", "RTL / bidi correctness",
+                               FAIL if (rtl.dir_missing or rtl.dir_mismatch) else WARN,
+                               detail="; ".join(rtl_issues)))
+        else:
+            result.add(Finding("G7", "RTL / bidi correctness", PASS,
+                               detail=f'lang="{rtl.lang}" dir="{rtl.dir_attr}", '
+                                      "no unisolated bidi runs detected"))
+
+    # G8 - orphan pages: in the sitemap, but nothing links to them
+    if ctx.sitemap and ctx.sitemap.exists and ctx.crawl and ctx.crawl.page_count > 1:
+        linked = set()
+        for page in ctx.crawl.pages.values():
+            for link in page.outlinks:
+                linked.add(normalize_url(link))
+        orphans = quality.find_orphans(ctx.sitemap.urls, linked)
+        # Only meaningful when the crawl covered a decent share of the sitemap;
+        # otherwise "orphan" just means "outside the crawl bounds".
+        coverage = ctx.crawl.page_count / max(len(ctx.sitemap.urls), 1)
+        if orphans and coverage >= 0.5:
+            result.add(Finding(
+                "G8", "No orphan pages", WARN,
+                detail=f"{len(orphans)} sitemap URL(s) not linked from any crawled "
+                       f"page: {', '.join(orphans[:3])}",
+            ))
+        elif orphans:
+            result.add(Finding(
+                "G8", "No orphan pages", NA,
+                reason=f"crawl covered {ctx.crawl.page_count} of "
+                       f"{len(ctx.sitemap.urls)} sitemap URLs — too little to tell "
+                       "orphans from pages outside the crawl bounds",
+            ))
+        else:
+            result.add(Finding("G8", "No orphan pages", PASS,
+                               detail="every crawled sitemap URL is linked"))
+    else:
+        result.add(Finding("G8", "No orphan pages", NA,
+                           reason="needs both a sitemap and a multi-page crawl"))
+
+
+# ---------------------------------------------------------------------------
 # Section P - proof artifacts
 # ---------------------------------------------------------------------------
 
@@ -800,7 +939,8 @@ def run_audit(args) -> AuditResult:
         )
 
     for runner in (run_section_a, run_section_b, run_section_c,
-                   run_section_d, run_section_e, run_section_f, run_section_p):
+                   run_section_d, run_section_e, run_section_f,
+                   run_section_g, run_section_p):
         try:
             runner(ctx, result)
         except Exception as exc:  # noqa: BLE001

@@ -37,8 +37,13 @@ lives, **ask them for the path** before running. Never write into `node_modules`
 ## Run the audit
 
 ```bash
-python3 .claude/skills/seo-aeo/scripts/audit.py <url> [options]
+python3 scripts/audit.py <url> [options]
 ```
+
+Paths here are relative to this skill's own directory. Run the script by its
+full path from wherever you are — the skill may be installed in this project
+(`.claude/skills/seo-aeo/`), in your home directory (`~/.claude/skills/seo-aeo/`),
+or anywhere else, so do not assume a working directory.
 
 Common options (full list via `--help`):
 
@@ -59,10 +64,12 @@ FAIL, else `0`.
 
 1. **Run the audit.** Start with plain audit mode on the URL the user gave you.
 2. **Read the report against the checklist.** Every finding carries a checklist
-   ID (`A1`, `C3`, `F2`…). `references/audit-checklist.md` explains what each
+   ID (`A1`, `C3`, `G7`…). `references/audit-checklist.md` explains what each
    item means and how to verify it by hand. **Sections A and D are gates** — a
    FAIL there means the page cannot reliably rank at all, so surface those first
    and loudest; everything else is a quality multiplier.
+   The report opens with a **severity-ranked punch list** (critical → low);
+   lead with that rather than reciting all findings in order.
 3. **Verify anything date-sensitive before you assert it** (see below).
 4. **Fix what is safely fixable.** Re-run with `--fix --local-dir <path>` to see
    the planned diffs, show them to the user, then `--apply`. Respect whatever
@@ -115,6 +122,9 @@ old, treat every volatile claim in it as unconfirmed until you re-check.
   content decision.
 - Only mark up content that is actually visible on the page. Fabricated
   structured data is a Google spam-policy violation.
+- Confirm before any multi-file bulk change (find/replace across templates,
+  URL restructuring). After fixing, re-run the audit on the specific items —
+  do not assume the fix worked.
 
 ## References
 
@@ -128,6 +138,13 @@ Load these on demand — do not read them all up front.
 | `references/structured-data-schemas.md` | Deciding what a JSON-LD fix should contain |
 
 `assets/jsonld-templates/` holds the boilerplate the fixer injects.
+
+`assets/CLAUDE-seo-aeo-standard.md` is a drop-in project standard. When someone
+is building a site and wants these rules enforced on **every** page they touch —
+not only when they remember to ask for an audit — offer to copy it into their
+project root as `CLAUDE.md` (or append it as a section if one already exists).
+The skill is the tool you reach for; that file is the standard that applies
+without being asked.
 
 ## Honesty requirements
 
