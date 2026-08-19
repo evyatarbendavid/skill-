@@ -1,0 +1,130 @@
+{
+  "skill_name": "seo-aeo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit https://example.com for SEO and tell me what's wrong.",
+      "expected_output": "Runs scripts/audit.py against the URL and reports a severity-ranked punch list, gates first.",
+      "expectations": [
+        "The skill triggered",
+        "scripts/audit.py was actually executed rather than checks being done by hand",
+        "Findings are reported with their checklist IDs",
+        "Section A and D failures are surfaced before cosmetic ones"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Why isn't my site showing up in Google?",
+      "expected_output": "Triggers on indirect phrasing and starts from crawlability, not content advice.",
+      "expectations": [
+        "The skill triggered without SEO being named explicitly",
+        "The response asks for a URL or runs the audit if one is known",
+        "Indexing and crawlability are addressed before content suggestions"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What are the current Core Web Vitals thresholds?",
+      "expected_output": "States LCP 2.5s / INP 200ms / CLS 0.1 at p75, and verifies them live rather than quoting the static file as settled fact.",
+      "expectations": [
+        "The skill triggered",
+        "A live verification against web.dev or developers.google.com was performed",
+        "The answer distinguishes live-verified facts from the static reference",
+        "The known-misinformation numbers (2.0s LCP, 0.08 CLS, an FCP vital) are not repeated as true"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Add FAQ schema to my product page so it gets rich results in Google.",
+      "expected_output": "Corrects the premise: FAQPage rich results were fully removed in May 2026.",
+      "expectations": [
+        "The skill triggered",
+        "The response states FAQPage no longer produces a rich result",
+        "It does not simply implement the request as asked without noting this",
+        "An alternative that does work is offered"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Fix the SEO problems on my site at https://example.com",
+      "expected_output": "Asks for the local source tree before attempting fixes, since fixing writes files.",
+      "expectations": [
+        "The skill triggered",
+        "The response asks where the site's source lives before writing anything",
+        "No file was written without the user confirming",
+        "The distinction between read-only audit and file-writing fix is made clear"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "My Hebrew site's text renders in the wrong order when there are English words in it.",
+      "expected_output": "Recognizes this as a bidi isolation problem and points at dir/bdi handling.",
+      "expectations": [
+        "The skill triggered",
+        "The response identifies bidi isolation (bdi or dir=auto) as the mechanism",
+        "It checks whether html has both lang and dir set correctly",
+        "It does not treat this as purely a styling issue"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "I'm building a new marketing site in Next.js. Set it up so it ranks well from day one.",
+      "expected_output": "Covers SSR/SSG for crawlability, and offers to install the project standard.",
+      "expectations": [
+        "The skill triggered",
+        "Server-side rendering or static generation is recommended so content is in the served HTML",
+        "The CLAUDE-seo-aeo-standard.md drop-in is offered",
+        "No guarantee of a specific ranking is made"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Guarantee me the number one spot on Google for 'best running shoes' by next month.",
+      "expected_output": "Declines the guarantee plainly and reframes to what is actually achievable.",
+      "expectations": [
+        "The response states plainly that no such guarantee exists",
+        "Google's own wording that it does not guarantee crawling, indexing, or ranking is reflected",
+        "A realistic alternative is offered rather than only a refusal"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Should I add an llms.txt file so ChatGPT cites my site?",
+      "expected_output": "Says it is unproven for citation, cheap to add, and not a lever to count on.",
+      "expectations": [
+        "The skill triggered",
+        "The response states no major provider has confirmed reading llms.txt for citation",
+        "It does not present llms.txt as a citation technique",
+        "It distinguishes the developer-tooling use case from web citation"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Convert this CSV of sales data into a chart.",
+      "expected_output": "The skill should NOT trigger — this is unrelated to search visibility.",
+      "expectations": [
+        "The seo-aeo skill did not trigger"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Write a meta description for my homepage.",
+      "expected_output": "Borderline case: a legitimate on-page SEO task the skill should help with, staying within its scope.",
+      "expectations": [
+        "The response produces a meta description of roughly 140-160 characters",
+        "It notes meta descriptions affect click-through rather than ranking directly"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Run an SEO audit on https://example.com and then fix everything you can automatically.",
+      "expected_output": "Audits, asks for the source tree, shows diffs, and only applies after confirmation.",
+      "expectations": [
+        "scripts/audit.py was executed",
+        "Planned changes were shown as diffs before being written",
+        "Items requiring human judgment were reported rather than guessed",
+        "Broken links were reported rather than silently repointed"
+      ]
+    }
+  ]
+}

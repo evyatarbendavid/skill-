@@ -218,12 +218,15 @@ def run_section_a(ctx: Context, result: AuditResult) -> None:
                        "pages. May be orphaned, or may just be outside the crawl depth.",
             ))
 
-    # A8 - content in the raw DOM (JS-dependent content is a real risk)
+    # A8 - content in the raw DOM (JS-dependent content is a real risk).
+    # This asks "is the content there at all", not "is there enough of it" —
+    # thin-but-present content is a B5/B7 concern, not a crawlability gate. So
+    # the bar is set where it distinguishes a rendered page from an empty shell.
     words = len(ctx.doc.visible_text.split())
-    if words >= 100:
+    if words >= 50:
         result.add(Finding("A8", "Content present in rendered DOM", PASS,
                            detail=f"{words} words of text in the served HTML"))
-    elif words >= 20:
+    elif words >= 15:
         result.add(Finding(
             "A8", "Content present in rendered DOM", WARN,
             detail=f"only {words} words in the served HTML. If the real content is "
@@ -351,19 +354,33 @@ def run_section_c(ctx: Context, result: AuditResult) -> None:
             result.add(Finding(fid, "Structured data", NA, reason="not analyzed"))
         return
 
-    # C1 - any JSON-LD at all
+    # C1 - any JSON-LD at all. A block that exists but does not parse is a
+    # different problem from no block at all, and needs a different fix.
     if sd.has_any:
         result.add(Finding("C1", "JSON-LD present", PASS,
                            detail=f"{sd.raw_count} block(s), types: {', '.join(sd.types_present)}"))
+    elif sd.parse_errors:
+        result.add(Finding(
+            "C1", "JSON-LD present", FAIL,
+            detail=f"{len(sd.parse_errors)} JSON-LD block(s) present but none parse: "
+                   + "; ".join(sd.parse_errors),
+        ))
     else:
         result.add(Finding("C1", "JSON-LD present", FAIL,
                            detail="no JSON-LD found", fixable=True))
 
     # C2 - required properties present
-    if not sd.has_any:
+    if sd.parse_errors:
+        result.add(Finding(
+            "C2", "Validates with zero errors", FAIL,
+            detail="; ".join(sd.parse_errors)
+                   + " — a JSON syntax error makes the whole block invisible to "
+                     "Google, with no visible symptom on the page",
+        ))
+    elif not sd.has_any:
         result.add(Finding("C2", "Validates with zero errors", NA,
                            reason="no structured data to validate"))
-    elif sd.parse_errors:
+    elif False:
         result.add(Finding(
             "C2", "Validates with zero errors", FAIL,
             detail="; ".join(sd.parse_errors) + " — unparsable JSON-LD is invisible to Google",

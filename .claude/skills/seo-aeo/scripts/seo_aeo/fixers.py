@@ -205,6 +205,20 @@ def plan_sitemap(
     ))
 
 
+def _match_indent(html: str, line_start: int) -> str:
+    """Indentation to give an injected tag.
+
+    Match the last real element inside head rather than the `</head>` line
+    itself — closing tags usually sit at the parent's indent level, so copying
+    that would place the new tag a level out from its siblings.
+    """
+    preceding = html[:line_start].rstrip("\n")
+    for line in reversed(preceding.splitlines()):
+        if line.strip():
+            return line[: len(line) - len(line.lstrip())]
+    return "  "
+
+
 # --------------------------------------------------------------------------
 # canonical
 # --------------------------------------------------------------------------
@@ -245,10 +259,8 @@ def plan_canonical(
         )
         return None
 
-    # Match the indentation of the line </head> sits on.
     line_start = html.rfind("\n", 0, offset) + 1
-    indent = html[line_start:offset]
-    indent = indent if indent.strip() == "" else "  "
+    indent = _match_indent(html, line_start)
 
     tag = f'{indent}<link rel="canonical" href="{canonical_url}">\n'
     new_content = html[:line_start] + tag + html[line_start:]
@@ -343,8 +355,7 @@ def plan_jsonld(
 
     body = json.dumps(template, indent=2, ensure_ascii=False)
     line_start = html.rfind("\n", 0, offset) + 1
-    indent = html[line_start:offset]
-    indent = indent if indent.strip() == "" else "  "
+    indent = _match_indent(html, line_start)
     indented_body = "\n".join(f"{indent}{line}" for line in body.splitlines())
 
     block = (
