@@ -293,9 +293,13 @@ What actually raises the odds:
   `references/examples.md` has a before/after of exactly this edit — it is
   the highest-leverage change on most pages, and the easiest to agree with
   in principle while still getting wrong.
-- **Question-shaped headings** matching how people actually ask. AI systems
-  run "query fan-out" — several related sub-queries — before composing an
-  answer, so a cluster of related sub-questions beats one narrow answer.
+- **Question-shaped headings, covering the neighbourhood.** Before
+  composing an answer, these systems run "query fan-out" — decomposing the
+  question into several related sub-queries and retrieving passages for
+  each. So headings should match how people actually ask, *and* the page
+  should pre-answer what they'd ask next: the comparison, the price, the
+  setup steps. A page that answers "which one should I buy" and stops
+  hands the adjacent retrievals to somebody else's page.
 - **One clear claim per passage**, with concrete specifics — numbers,
   dates, named entities. Vague prose can't be grounded, so it isn't quoted.
 - **Lists and tables** wherever content is comparative or sequential.
@@ -314,11 +318,6 @@ What actually raises the odds:
   top third of the page**, and only about 21% from the bottom 40%. The
   intro-fluff-then-answer pattern costs citations twice: once within the
   section, once across the page.
-- **Pre-answer the next question.** Fan-out retrieves passages for
-  *adjacent* sub-questions — comparisons, pricing, steps, specs — not only
-  the literal query. A page that answers "which one should I buy" and stops
-  loses the retrievals for "how much does it cost" and "how do I set it up"
-  to somebody else's page.
 
 ### The platforms don't agree with each other
 
