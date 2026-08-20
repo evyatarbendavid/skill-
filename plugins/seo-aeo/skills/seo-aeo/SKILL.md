@@ -43,6 +43,22 @@ fact as current, verify it:
 Check `developers.google.com/search` and `web.dev` first — they settle it.
 Say which facts you verified live and which came from this file.
 
+Queries that get there fast:
+
+```
+"Core Web Vitals" thresholds site:web.dev
+structured data deprecated OR retired site:developers.google.com
+"AI Overviews" OR "AI Mode" how it works site:developers.google.com
+Google core update site:developers.google.com/search/blog
+```
+
+Two traps. **A search result agreeing with a number is not confirmation** —
+SEO content farms copy each other, so a wrong figure propagates across a
+hundred pages that all look like independent sources. Only the primary docs
+settle it. And **no announcement does not mean no change**: the May 2026
+FAQPage removal shipped as a quiet documentation edit with no blog post, so
+check the docs page itself, not just the blog.
+
 **Baseline verified 2026-08-18.** Past ~90 days, treat every volatile row as
 unconfirmed.
 
