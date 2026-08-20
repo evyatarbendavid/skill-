@@ -490,6 +490,7 @@ Load on demand — don't read them up front.
 
 | File | When |
 |---|---|
+| `references/situations.md` | The site is large, e-commerce, multilingual, full of thin pages, mid-migration, or chasing entity recognition — depth that only applies in those cases |
 | `references/ai-crawlers.md` | Any question about blocking AI bots, `robots.txt` and AI, or why a site isn't appearing in an AI engine |
 | `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL, and how to report a finding |
 | `references/audit-checklist.md` | Running a formal audit — every item as PASS/FAIL/N/A |
