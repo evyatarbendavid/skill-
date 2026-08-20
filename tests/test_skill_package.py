@@ -70,8 +70,9 @@ class TestSkillManifest(unittest.TestCase):
             self.assertIn(cue, desc, f"description should mention {cue!r}")
 
     def test_exactly_one_skill_md(self):
-        found = [p for p in ROOT.rglob("SKILL.md")
-                 if ".git" not in p.parts and "tools-seo-audit-cli" not in p.parts]
+        # No exclusions: a second SKILL.md anywhere in the repo can be
+        # loaded as a rival skill manifest, so there must not be one.
+        found = [p for p in ROOT.rglob("SKILL.md") if ".git" not in p.parts]
         self.assertEqual(len(found), 1, f"expected one SKILL.md, found {found}")
 
 
