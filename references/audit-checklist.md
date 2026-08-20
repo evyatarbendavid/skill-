@@ -129,24 +129,42 @@ mobile first. Lab scores are for debugging only.*
 Google's AI features is simply: the page passes A–E and is eligible to show with
 a snippet.*
 
+- [ ] **F0. AI retrieval crawlers are not blocked** (GATE for AEO). Check
+  `robots.txt` for `OAI-SearchBot`, `Claude-SearchBot`, `PerplexityBot`. These
+  are **not** the training crawlers — blocking `GPTBot` or `ClaudeBot` opts out
+  of model training and changes nothing about AI answers, while blocking the
+  retrieval bots removes the site from those answers entirely. Sites do this to
+  themselves by accident. Say which kind you found; don't lump them together.
+  See [`ai-crawlers.md`](./ai-crawlers.md).
 - [ ] **F1. Retrievable** — passes all of Section A (an AI cannot cite what it
   can't retrieve/index). *(For Google AI Overviews/AI Mode this is the whole
-  official requirement.)*
+  official requirement. Note that eligibility is not selection: ranking top-10
+  no longer predicts citation the way it did.)*
 - [ ] **F2. Extractable answer chunks** — self-contained answers under
   question-shaped headings (ties to B3/B4); short paragraphs, lists, tables for
   facts/steps.
 - [ ] **F3. One clear claim per passage**, with concrete specifics (facts,
   numbers, dates, named entities) that a model can ground a citation on.
 - [ ] **F4. Question-phrased content** matching how people actually ask (natural
-  long-tail phrasing appears in visible text).
+  long-tail phrasing appears in visible text), **and the adjacent questions
+  answered too** — comparison, price, setup steps. Fan-out retrieves passages
+  for the sub-questions, not only the literal query.
+- [ ] **F4b. The answer is high on the page**, not only early in its section.
+  Citations cluster heavily in the top third of a page.
 - [ ] **F5. Trust signals present** — named expert author, credentials, primary
   sources cited, clear "last updated" (ties to B6).
 - [ ] **F6. External corroboration exists or is being built** — the page's key
   facts are consistent with, and ideally referenced by, other reputable sources.
   *(Weakest for a brand-new site; expect AI citation to lag the Google ranking.)*
-- [ ] **F7. Not relying on unproven levers** — `llms.txt`, FAQ/HowTo schema, or
-  any "guaranteed citation" trick is **not** the plan (harmless to have, but not
-  counted on).
+- [ ] **F7. Not relying on unproven or contradicted levers** — `llms.txt`
+  (Google has said Search does not use it), FAQ/HowTo schema (switched off at
+  the platform level), structured data as a citation driver (one controlled
+  study found no gain and a small decline), or any "guaranteed citation"
+  service. Harmless to have; not the plan.
+- [ ] **F8. Realistic target chosen.** On general consumer queries a handful of
+  large community and reference platforms take most citations, and a business
+  page will not displace them. The winnable ground is specific, technical, or
+  branded questions. Say so rather than promising head terms.
 
 ## G. Content quality, RTL & site hygiene (איכות תוכן ובאגים)
 
