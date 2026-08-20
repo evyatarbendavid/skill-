@@ -64,9 +64,8 @@ unconfirmed.
 
 > **Known false claims circulating in SEO blogs — do not repeat:** that
 > Google tightened LCP to 2.0s, cut CLS to 0.08, added an "FCP" Core Web
-> Vital, or set a January 2026 compliance deadline. None appear in Google's
-> documentation. A search result echoing them is not confirmation — content
-> farms copy each other.
+> Vital, or set a January 2026 compliance deadline. None of these appear in
+> Google's documentation.
 
 ## The gates — nothing else matters until these pass
 
