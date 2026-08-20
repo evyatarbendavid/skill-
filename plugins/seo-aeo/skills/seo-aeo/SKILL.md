@@ -297,6 +297,20 @@ many of the same things.
 
 ## How to work
 
+**First, establish what you can actually touch.** It changes what you can
+promise:
+
+| What you were given | What's possible |
+|---|---|
+| A live URL only | Diagnose everything. Fix nothing — you can't write to their server. Say so up front rather than ending an audit with fixes you can't apply. |
+| A local project or repo | The full loop: find, fix, verify. |
+| Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. |
+| Nothing yet, page being written | Build mode. Use these sections as the spec while writing, not as an audit afterwards. |
+
+If someone asks to "make my site rank" with nothing attached, ask for the
+URL or the project path — one question, then proceed. Don't stall on
+details you can infer.
+
 **Reviewing an existing page or site:** work the gates first, then
 everything else. Report findings ranked **Critical / High / Medium / Low**,
 each naming the exact element or line and *why it matters* — ranking,
