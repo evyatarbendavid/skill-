@@ -62,10 +62,51 @@ check the docs page itself, not just the blog.
 **Baseline verified 2026-08-18.** Past ~90 days, treat every volatile row as
 unconfirmed.
 
-> **Known false claims circulating in SEO blogs — do not repeat:** that
-> Google tightened LCP to 2.0s, cut CLS to 0.08, added an "FCP" Core Web
-> Vital, or set a January 2026 compliance deadline. None of these appear in
-> Google's documentation.
+> **Known false claims circulating in SEO blogs — do not repeat:**
+>
+> - That Google tightened LCP to 2.0s, cut CLS to 0.08, added an "FCP" Core
+>   Web Vital, or set a January 2026 compliance deadline. None of these
+>   appear in Google's documentation.
+> - **"Google penalizes AI-written content."** It doesn't. The spam policy
+>   targets mass-produced unreviewed content made to game rankings —
+>   regardless of how it was written. A human with real expertise directing,
+>   verifying, and owning the result is the line that matters, not the tool.
+> - **"Schema markup makes you 2.5x more likely to be cited by AI."** Traces
+>   to studies with no control group. See the structured-data section.
+> - **"You need an `llms.txt` to appear in ChatGPT or AI search."** Google
+>   has said the opposite outright.
+> - **"Domain Authority / Domain Rating is a Google ranking factor."** Those
+>   are third-party metrics invented by SEO tool vendors. Google has never
+>   used them. Useful as a rough competitive comparison; not a thing to
+>   optimize.
+> - **"A page needs at least 300 words to rank."** No such threshold exists.
+>   Thin content is a judgment about whether the page answers the question,
+>   not a word count.
+> - **"FAQ and HowTo rich results still work if you format the schema
+>   correctly."** They were switched off at the platform level. No markup
+>   change brings them back.
+
+## Where the honest answer is "it's contested"
+
+Say so, rather than picking a side and sounding confident.
+
+**Do clicks and dwell time affect ranking?** Google's spokespeople have
+denied it repeatedly and bluntly. Antitrust disclosures describe an internal
+system that does use click and session behavior as a re-ranking input. Both
+of those are true at once, and the resolution is probably that there is no
+simple "dwell time signal" while aggregated satisfaction signals are used
+somewhere in the stack. Practical upshot: don't sell "optimize for dwell
+time" as a lever — it isn't directly controllable — but don't claim user
+behavior is irrelevant either.
+
+**Does structured data help AI citation?** Vendor studies say yes; the one
+controlled study says no. Weight the controlled one, and say the evidence
+is thin either way.
+
+**Should a site block AI crawlers?** Blocking has a measured traffic cost
+and frequently fails to prevent citation anyway. That makes it a business
+and legal decision rather than an optimization. See
+`references/ai-crawlers.md`.
 
 ## The gates — nothing else matters until these pass
 

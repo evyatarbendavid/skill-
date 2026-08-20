@@ -119,9 +119,14 @@ class TestFactualGuardrails(unittest.TestCase):
         self.assertRegex(self.text, r"HowTo.{0,400}(deprecat|2023)")
 
     def test_howto_dated_2023_not_2026(self):
-        # The source document had this wrong; the error must not come back.
-        window = self.text[self.text.find("HowTo"):][:400]
-        self.assertIn("2023", window)
+        # The source document dated HowTo's deprecation to 2026; it was 2023.
+        # Check every mention rather than the first — the first is whichever
+        # section happens to come earliest in the file, which moves as the
+        # skill is edited, and a test that moves with it tests nothing.
+        self.assertRegex(self.text, r"HowTo.{0,300}?2023",
+                         "HowTo's 2023 deprecation date must be stated somewhere")
+        self.assertNotRegex(self.text, r"HowTo[^.]{0,120}deprecated[^.]{0,40}2026",
+                            "HowTo must never be dated to 2026")
 
     def test_refuses_to_promise_rankings(self):
         self.assertRegex(self.text, r"does not guarantee|doesn't guarantee")
