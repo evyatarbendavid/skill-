@@ -148,13 +148,16 @@ class TestAgentSkillAgreement(unittest.TestCase):
     def setUp(self):
         self.auditor = (AGENTS / "seo-page-auditor.md").read_text(encoding="utf-8")
 
-    def test_auditor_does_not_recommend_dead_rich_result_types(self):
-        # Listing FAQPage/HowTo among types to add, while the skill calls
-        # them dead, is the exact contradiction this guards.
-        self.assertRegex(
-            self.auditor,
-            r"FAQPage.{0,200}(removed|dead|deprecat)",
-            "auditor must mark FAQPage as dead for rich results")
+    def test_auditor_marks_dead_rich_result_types(self):
+        # Assert the correction is present rather than that the claim is
+        # absent. Absence-testing prose with a regex fails on word order —
+        # "Dead for rich results: FAQPage" reads the opposite way round from
+        # "FAQPage is dead" and means the same thing.
+        line = next((l for l in self.auditor.splitlines()
+                     if "FAQPage" in l and "Dead for rich results" in l), None)
+        self.assertIsNotNone(
+            line, "auditor must list FAQPage under dead rich-result types")
+        self.assertIn("2026", self.auditor)
 
     def test_auditor_does_not_treat_top_10_as_predicting_citation(self):
         self.assertRegex(
@@ -166,9 +169,14 @@ class TestAgentSkillAgreement(unittest.TestCase):
             self.assertIn(bot, self.auditor,
                           "auditor should check whether AI engines can fetch the page")
 
-    def test_auditor_does_not_claim_schema_drives_citation(self):
-        self.assertNotRegex(
-            self.auditor, r"schema[^.]{0,80}(increases?|improves?|boosts?)[^.]{0,40}citation")
+    def test_auditor_carries_the_schema_citation_correction(self):
+        # Same reasoning: the previous version of this test matched the
+        # correction itself, since "do not claim schema improves AI citation"
+        # contains the phrase it was scanning for.
+        self.assertRegex(
+            self.auditor,
+            r"[Dd]o not claim schema improves AI citation",
+            "auditor must carry the schema/citation correction verbatim")
 
 
 class TestAgents(unittest.TestCase):
