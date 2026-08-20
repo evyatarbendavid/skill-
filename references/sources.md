@@ -425,18 +425,38 @@ then generates an answer grounded in that retrieved text, attaching citations.**
 - **Adding `FAQPage`/`HowTo` schema "for AI"** — see §5; these no longer produce
   rich results and are not a demonstrated citation trigger. Structure the actual
   Q&A in visible content instead. **[CONSENSUS]**
+- **Structured data as a citation lever, generally.** This has moved from
+  unproven to contradicted. A controlled study of roughly 1,900 pages that
+  added JSON-LD, measured against matched control pages, found no citation
+  gain and a small statistically significant decline. The widely-quoted "2.5x
+  more likely to be cited" figures come from studies with no control group,
+  where the likely real driver is that sites capable of implementing schema
+  were already authoritative. Recommend schema for rich-result eligibility and
+  machine-readable clarity — not for citation. **[CONSENSUS — one controlled
+  study against several uncontrolled ones; evolving, not settled]**
 - **"Guaranteed AI citation" services, or a secret schema that forces
   citation** — do not exist. **[UNCERTAIN → treat as false]**
 
 ### 7.5 SEO ↔ AEO relationship
 
-For Google specifically, **AEO is a superset of good SEO, not a separate
-discipline** — Google says its normal best practices are what make you eligible
-for AI features **[OFFICIAL]**. For non-Google engines, the *same* fundamentals
-(retrievable, structured, trustworthy, corroborated) do most of the work
-**[CONSENSUS]**. So it is one strategy: **build an excellent, technically
-flawless, genuinely authoritative page, and both goals are served by the same
-work.**
+Google says its normal best practices are what make a page eligible for AI
+features — there is no separate AEO checklist to satisfy **[OFFICIAL]**. The
+same fundamentals (retrievable, structured, trustworthy, corroborated) do most
+of the work for non-Google engines too **[CONSENSUS]**.
+
+**But eligibility is not selection, and the two have come apart.** Citation
+research through 2025–2026 found the share of AI Overview citations coming
+from top-10 organic results fell from roughly 76% to 38% within about a year,
+with the remainder spread across pages ranking 11–100 and beyond
+**[CONSENSUS — industry tracking, not Google documentation; treat figures as
+approximate]**.
+
+So the accurate framing is: classic SEO is the **entry ticket** — retrieval
+requires indexing, and nothing else matters if the page can't be fetched. It
+is no longer a reliable **predictor**. A page ranking 40th gets cited; a page
+ranking 3rd often isn't. Ranking work and passage-level work are related but
+no longer interchangeable, and advising someone to fix AEO by ranking better
+is advice that has stopped being true.
 
 ---
 

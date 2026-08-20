@@ -132,6 +132,18 @@ class TestFactualGuardrails(unittest.TestCase):
         self.assertRegex(self.text, r"does not guarantee|doesn't guarantee")
         self.assertRegex(self.text, r"[Nn]othing forces an AI engine to cite|no guaranteed")
 
+    def test_all_files_agree_top_10_no_longer_predicts_citation(self):
+        # SKILL.md, sources.md and the auditor each state this independently.
+        # The correction is worthless if one of the three still teaches the
+        # old assumption — whichever file the reader happens to open wins.
+        for path in (SKILL_MD,
+                     ROOT / "references" / "sources.md",
+                     AGENTS / "seo-page-auditor.md"):
+            text = path.read_text(encoding="utf-8")
+            self.assertRegex(
+                text, r"(76%|entry ticket|not.{0,20}predictor)",
+                f"{path.name} must carry the corrected top-10 framing")
+
     def test_llms_txt_not_sold_as_a_lever(self):
         # Check every mention, not just the first — the first is the
         # volatile-facts table, the claim itself lives further down.
