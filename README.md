@@ -4,35 +4,45 @@ A Claude skill that applies Google's actual ranking rules and AI
 answer-engine citation principles to any website work — building a page,
 reviewing one, or fixing one that isn't performing.
 
-It loads itself whenever you touch a site, even if you never say the word
-"SEO."
+Once installed it loads itself whenever you touch a site, even if you never
+say the word "SEO."
 
 ## Install
 
-### Claude Desktop / claude.ai
+Download this repo (green **Code** button → **Download ZIP**, then unzip),
+or clone it:
 
-Download **[`seo-aeo.zip`](seo-aeo.zip)** from this repo, then:
-
-**Settings → Capabilities → Skills → Upload skill** → pick the zip.
-
-That's it. No terminal, no setup.
-
-### Claude Code
-
-```
-/plugin marketplace add evyatarbendavid/skill-
-/plugin install seo-aeo@evyatar-tools
+```bash
+git clone https://github.com/evyatarbendavid/skill-.git
 ```
 
-Installed once, available in every project on that machine.
-`/plugin update seo-aeo` pulls later changes.
+**Claude Desktop / claude.ai** — Settings → Capabilities → Skills → upload
+the folder containing `SKILL.md`.
 
-> The trailing hyphen in `skill-` is part of the repository name.
+**Claude Code** — copy the skill where Claude Code looks for skills:
 
-Claude Code also gets two subagents the Desktop version doesn't:
-`seo-page-auditor` (read-only, one page at a time, in parallel) and
-`seo-fixer` (the only one with edit access). The skill works either way —
-it just does full-site passes faster where subagents exist.
+```bash
+mkdir -p ~/.claude/skills/seo-aeo
+cp -r SKILL.md references ~/.claude/skills/seo-aeo/
+cp -r agents/* ~/.claude/agents/          # optional, see below
+```
+
+For one project instead of every project, use `.claude/skills/seo-aeo/`
+inside that project.
+
+## What's here
+
+| Path | What it is |
+|---|---|
+| `SKILL.md` | The skill. Everything it knows, in one file. |
+| `references/ai-crawlers.md` | Which AI bot does what, and why blocking the wrong one backfires |
+| `references/examples.md` | Before/after for the edits people get wrong |
+| `references/audit-checklist.md` | Every item as PASS / FAIL / N/A |
+| `references/sources.md` | The cited reasoning, labelled OFFICIAL / CONSENSUS / UNCERTAIN |
+| `agents/` | Optional. Two Claude Code subagents — a read-only auditor and a fixer — for full-site passes. Not needed on Desktop. |
+
+The references load on demand, so the skill stays light until it needs the
+depth.
 
 ## What it knows
 
@@ -41,39 +51,44 @@ blocked in robots.txt, no `noindex`, content actually present in the served
 HTML, and Core Web Vitals passing. Everything else is a multiplier on a
 page that already clears these.
 
-**Core Web Vitals** — LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1, at the 75th
-percentile of real users, all three, mobile and desktop separately. Plus
-what actually causes each one to fail, and how to measure a live URL
-through the free PageSpeed Insights API instead of guessing from code.
+**Core Web Vitals** — the real thresholds, what actually causes each to
+fail, and how to measure a live URL through the free PageSpeed Insights API
+instead of guessing from code. Including the part most guidance misses:
+single-page apps no longer get a free pass, because Chrome now measures
+in-app route changes too.
 
-**Crawlability** — canonical tags, sitemaps, redirect chains, hreflang
-reciprocity, and the faceted-navigation URL explosion that quietly eats
-crawl budget on any site with filters.
+**Crawlability** — canonical, sitemaps, redirect chains, hreflang
+reciprocity, faceted-navigation URL explosion, and the sharp version of the
+JavaScript problem: `canonical` and `meta robots` injected client-side may
+never be seen before indexing decisions are already made.
 
 **Structured data** — what to implement, and what's dead. `FAQPage` rich
-results were removed entirely in May 2026 and `HowTo` in 2023; seven more
-types went in June 2025. The skill knows not to recommend them, and knows
-the most common self-inflicted bug is marking up content that isn't
-visible on the page.
+results were removed entirely in May 2026, `HowTo` in 2023, seven more
+types in June 2025. It also refuses to claim schema drives AI citation,
+because the one controlled study on that found it doesn't.
 
 **AEO** — why the unit that gets cited is a *passage*, not a page, and how
-to write one: a direct self-contained answer in 40–60 words before the
-background, under a question-shaped heading. Plus E-E-A-T, freshness, and
-why `llms.txt` is not the lever it's sold as.
+to write one. Plus the correction that matters most: "rank top-10 and
+citations follow" no longer holds, and the four major engines agree with
+each other on only about 12% of what they cite.
 
-**Hebrew and RTL** — `lang`/`dir` correctness, and the bidi bugs where
-English words or numbers inside Hebrew text render in the wrong visual
-order. Also the opportunity: AI engines have far thinner Hebrew data, so a
+**AI crawlers** — the three different bots each vendor runs, and why
+blocking `GPTBot` doesn't remove you from ChatGPT's answers while blocking
+`OAI-SearchBot` does.
+
+**Hebrew and RTL** — `lang`/`dir` correctness and the bidi bugs where
+English words or numbers inside Hebrew render in the wrong visual order.
+Also the opportunity: AI engines have far thinner Hebrew data, so a
 well-structured Hebrew page competes against a much weaker field.
 
-**Quality bugs** — duplicate content at scale, `Lorem ipsum` and `TODO`
-shipped to production, broken and orphan links, inconsistent navigation,
-buttons that don't go where their label promises.
+**Quality bugs** — duplicate content at scale, `Lorem ipsum` shipped to
+production, orphan pages nothing links to, buttons that don't go where
+their label promises.
 
 ## Two things it will never tell you
 
 **Google does not guarantee crawling, indexing, or ranking.** That's
-Google's own wording, and it holds for a page that follows every rule here.
+Google's own wording, and it holds for a page following every rule here.
 
 **Nothing forces an AI engine to cite you.** Retrieval is
 non-deterministic and proprietary.
@@ -89,34 +104,17 @@ Search behavior shifts every few months, so the skill separates what's
 stable from what isn't. The crawl model and how canonical tags work don't
 move; Core Web Vitals thresholds, which schema types still produce rich
 results, and how AI Overviews select sources do. For anything in the second
-group the skill verifies against `developers.google.com/search` and
-`web.dev` before stating it, and tells you which facts it checked live.
+group it verifies against `developers.google.com/search` and `web.dev`
+before stating it, and tells you which facts it checked live.
 
-It also carries a list of **false claims currently circulating** — that
-Google cut LCP to 2.0s, tightened CLS to 0.08, added an "FCP" vital, or set
-a January 2026 deadline — so a search result echoing them doesn't get
+It also carries a list of **false claims currently circulating** — the
+invented Core Web Vitals numbers, "Google penalizes AI-written content,"
+"you need an llms.txt to appear in ChatGPT," third-party Domain Authority
+as a Google ranking factor — so a search result echoing them doesn't get
 mistaken for confirmation.
 
-The baseline was verified 2026-08-18. Past roughly 90 days, the skill
-treats its own volatile claims as unconfirmed until re-checked.
-
-## Repo layout
-
-```
-plugins/seo-aeo/
-  skills/seo-aeo/          the skill itself — one copy, the source of truth
-    SKILL.md
-    references/
-      audit-checklist.md   every item as PASS / FAIL / N/A
-      sources.md           cited, labelled OFFICIAL / CONSENSUS / UNCERTAIN
-  agents/                  Claude Code only: the auditor and the fixer
-seo-aeo.zip                built from the skill folder, for Desktop upload
-build.sh                   regenerates the zip
-tests/                     package integrity + the standalone CLI's tests
-```
-
-Run `./build.sh` after editing the skill, or the zip goes stale — there's a
-test that fails if you forget.
+Baseline verified 2026-08-18. Past roughly 90 days, the skill treats its
+own volatile claims as unconfirmed until re-checked.
 
 ## Tests
 
@@ -124,10 +122,10 @@ test that fails if you forget.
 ./tests/run_tests.sh
 ```
 
-Checks the package stays installable (frontmatter the loader accepts, no
-dangling reference links, zip in sync with source, the auditor agent still
-read-only) and that the factual corrections don't get edited back out — if
-someone removes the FAQPage or the no-guarantees language, a test fails.
+Checks the skill stays loadable (frontmatter, no dangling reference links,
+the auditor agent still read-only) and that the factual corrections don't
+get edited back out — remove the FAQPage line or the no-guarantees
+language and a test fails.
 
 ## Also here
 

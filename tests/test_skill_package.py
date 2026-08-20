@@ -10,17 +10,14 @@ points at that isn't there, or a claim the skill is supposed to correct.
 
 import json
 import re
-import subprocess
 import sys
 import unittest
-import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PLUGIN = ROOT / "plugins" / "seo-aeo"
-SKILL_DIR = PLUGIN / "skills" / "seo-aeo"
-SKILL_MD = SKILL_DIR / "SKILL.md"
-ZIP = ROOT / "seo-aeo.zip"
+SKILL_DIR = ROOT
+SKILL_MD = ROOT / "SKILL.md"
+AGENTS = ROOT / "agents"
 
 # Mirrors the loader's own limits.
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
@@ -55,8 +52,7 @@ class TestSkillManifest(unittest.TestCase):
         name = self.fm["name"]
         self.assertTrue(NAME_RE.fullmatch(name), f"{name!r} is not kebab-case")
         self.assertLessEqual(len(name), MAX_NAME)
-        self.assertEqual(name, SKILL_DIR.name,
-                         "skill name must match its directory name")
+        self.assertEqual(name, "seo-aeo")
 
     def test_description_within_limits(self):
         desc = self.fm["description"].strip("'\" >|")
@@ -74,7 +70,8 @@ class TestSkillManifest(unittest.TestCase):
             self.assertIn(cue, desc, f"description should mention {cue!r}")
 
     def test_exactly_one_skill_md(self):
-        found = [p for p in PLUGIN.rglob("SKILL.md")]
+        found = [p for p in ROOT.rglob("SKILL.md")
+                 if ".git" not in p.parts and "tools-seo-audit-cli" not in p.parts]
         self.assertEqual(len(found), 1, f"expected one SKILL.md, found {found}")
 
 
@@ -87,7 +84,7 @@ class TestReferences(unittest.TestCase):
 
     def test_no_dangling_internal_links(self):
         # Reference files must not point at files that were left behind.
-        for ref in (SKILL_DIR / "references").glob("*.md"):
+        for ref in (ROOT / "references").glob("*.md"):
             for target in re.findall(r"\]\(\./([\w.-]+\.md)\)", ref.read_text(encoding="utf-8")):
                 self.assertTrue((ref.parent / target).is_file(),
                                 f"{ref.name} links to missing {target}")
@@ -95,7 +92,7 @@ class TestReferences(unittest.TestCase):
     def test_no_references_to_removed_tooling(self):
         # The packaged skill ships no scripts; pointing at one would strand
         # a Desktop user with an instruction they cannot follow.
-        for path in SKILL_DIR.rglob("*.md"):
+        for path in [SKILL_MD] + list((ROOT / "references").glob("*.md")):
             text = path.read_text(encoding="utf-8")
             for stale in ("scripts/audit.py", "audit_site.py", "live-verification-map.md"):
                 self.assertNotIn(stale, text, f"{path.name} references {stale}")
@@ -107,7 +104,7 @@ class TestFactualGuardrails(unittest.TestCase):
 
     def setUp(self):
         self.text = " ".join(p.read_text(encoding="utf-8")
-                             for p in SKILL_DIR.rglob("*.md"))
+                             for p in [SKILL_MD] + list((ROOT / "references").glob("*.md")))
 
     def test_states_correct_cwv_thresholds(self):
         for value in ("2.5", "200", "0.1"):
@@ -138,75 +135,21 @@ class TestFactualGuardrails(unittest.TestCase):
                                     r"no major provider has confirmed)")
 
 
-class TestPluginManifest(unittest.TestCase):
-    def test_plugin_json_valid(self):
-        data = json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text())
-        self.assertEqual(data["name"], "seo-aeo")
-        self.assertTrue(NAME_RE.fullmatch(data["name"]))
+class TestAgents(unittest.TestCase):
+    """The agents are optional (Claude Code only) but must stay loadable."""
 
-    def test_marketplace_json_valid(self):
-        data = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
-        for field in ("name", "owner", "plugins"):
-            self.assertIn(field, data)
-        self.assertIn("name", data["owner"])
-        self.assertTrue(NAME_RE.fullmatch(data["name"]))
-
-    def test_marketplace_sources_resolve(self):
-        data = json.loads((ROOT / ".claude-plugin" / "marketplace.json").read_text())
-        for entry in data["plugins"]:
-            src = entry["source"]
-            self.assertTrue(src.startswith("./"), "relative sources must start with ./")
-            path = ROOT / src
-            self.assertTrue(path.is_dir(), f"{src} does not exist")
-            self.assertTrue((path / ".claude-plugin" / "plugin.json").is_file(),
-                            f"{src} has no plugin.json")
-
-    def test_agents_are_loadable(self):
-        for agent in (PLUGIN / "agents").glob("*.md"):
+    def test_agents_have_valid_frontmatter(self):
+        for agent in AGENTS.glob("*.md"):
             fm = frontmatter(agent)
             self.assertIn("name", fm)
             self.assertTrue(NAME_RE.fullmatch(fm["name"]), agent.name)
 
-    def test_auditor_agent_cannot_write(self):
-        # The read-only guarantee is the reason the split exists.
-        fm = frontmatter(PLUGIN / "agents" / "seo-page-auditor.md")
-        tools = fm.get("tools", "")
+    def test_auditor_cannot_write(self):
+        # The read-only guarantee is the whole reason the split exists.
+        fm = frontmatter(AGENTS / "seo-page-auditor.md")
         for forbidden in ("Edit", "Write"):
-            self.assertNotIn(forbidden, tools,
+            self.assertNotIn(forbidden, fm.get("tools", ""),
                              "the auditor must stay read-only")
-
-
-class TestDesktopZip(unittest.TestCase):
-    def test_zip_exists(self):
-        self.assertTrue(ZIP.is_file(), "run ./build.sh to produce seo-aeo.zip")
-
-    def test_zip_matches_source(self):
-        # A stale zip means Desktop users install an older skill than the repo
-        # shows — the failure mode nobody notices until it matters.
-        with zipfile.ZipFile(ZIP) as z:
-            names = {n for n in z.namelist() if not n.endswith("/")}
-            packaged = z.read("seo-aeo/SKILL.md").decode("utf-8")
-        expected = {
-            "seo-aeo/" + str(p.relative_to(SKILL_DIR)).replace("\\", "/")
-            for p in SKILL_DIR.rglob("*") if p.is_file()
-        }
-        self.assertEqual(names, expected, "zip contents differ from source; run ./build.sh")
-        self.assertEqual(packaged, SKILL_MD.read_text(encoding="utf-8"),
-                         "zipped SKILL.md is stale; run ./build.sh")
-
-    def test_zip_has_no_nested_extra_root(self):
-        # Uploads fail if the archive doesn't have exactly one top-level dir.
-        with zipfile.ZipFile(ZIP) as z:
-            roots = {n.split("/")[0] for n in z.namelist()}
-        self.assertEqual(roots, {"seo-aeo"})
-
-    def test_build_script_is_reproducible(self):
-        before = ZIP.read_bytes() if ZIP.is_file() else None
-        subprocess.run([str(ROOT / "build.sh")], check=True,
-                       capture_output=True, cwd=ROOT)
-        with zipfile.ZipFile(ZIP) as z:
-            self.assertIn("seo-aeo/SKILL.md", z.namelist())
-        self.assertIsNotNone(before)
 
 
 if __name__ == "__main__":

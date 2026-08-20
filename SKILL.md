@@ -81,6 +81,13 @@ A page failing any of these cannot rank, no matter how good the content is.
    renders JS, but on a second deferred pass that can lag or fail. Use SSR
    or static generation. To check, fetch the raw URL and look for the real
    headings and text in what comes back.
+
+   **The sharper version of this bug:** `canonical`, `meta robots`, and
+   `hreflang` injected by client-side JS. The first crawl pass reads the raw
+   HTML and can act on it — decide indexing, pick a canonical — before the
+   render pass ever runs. Head tags that only exist after hydration may
+   simply never be seen in time. These four tags must be in the server
+   response, whatever else is client-rendered.
 5. **Core Web Vitals pass** — all three, at the 75th percentile of real
    users, on mobile and desktop separately.
 
@@ -111,6 +118,14 @@ lab run. A green Lighthouse score is not the same as passing.
   are the quiet killer.
 - **CLS**: explicit `width`/`height` or `aspect-ratio` on every image and
   embed, reserved space for anything injected, `font-display: swap`.
+
+**Single-page apps no longer get a free pass.** Core Web Vitals used to be
+measured only on hard page loads, which meant a sluggish client-side route
+change was invisible to field data. Chrome shipped native measurement of
+in-app "soft navigations" during 2026, and the `web-vitals` library
+supports them. An SPA where the first load is fast and every subsequent
+route change is slow can no longer assume that second half goes unmeasured
+— audit route transitions, not just initial load.
 
 To measure a live URL, fetch:
 ```
@@ -330,7 +345,17 @@ follows the AEO section competes against a much thinner field.
   page.
 - **Broken and orphan links.** Broken internal links, redirect chains
   reintroduced during reorganization, and pages that are live but
-  unreachable from any nav, sitemap, or internal link.
+  unreachable from any nav, sitemap, or internal link. Orphan pages get a
+  fraction of the traffic of equivalent linked pages, and may never be
+  discovered independently of the sitemap. Find them by crawling the site
+  and filtering to pages with zero internal inbound links — the ones you
+  forgot exist are exactly the ones nothing links to.
+- **Internal links are how authority moves around a site.** Pages that make
+  money — pricing, key categories, conversion pages — should sit within
+  about three clicks of the homepage and be linked from the pages that
+  already have the most authority, not survive on a single footer link. A
+  strong internal link from an established page often does more for a
+  page's indexing priority than a weak external one.
 - **Navigation and transition consistency.** Nav or footer differing
   page-to-page without reason, broken breadcrumbs, dead-end pages with no
   next action, route-transition state leaking between pages, and modals or
