@@ -153,6 +153,16 @@ class TestFactualGuardrails(unittest.TestCase):
                                     r"no major provider has confirmed)")
 
 
+class TestReadme(unittest.TestCase):
+    def test_readme_lists_every_reference_file(self):
+        # The README's table is how someone decides whether this skill covers
+        # their problem. A reference it doesn't mention is one nobody opens.
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        for ref in sorted((ROOT / "references").glob("*.md")):
+            self.assertIn(f"references/{ref.name}", readme,
+                          f"README does not mention {ref.name}")
+
+
 class TestAgentSkillAgreement(unittest.TestCase):
     """The agents ship in the same package as the skill and carry their own
     copy of the checklist. When the skill is corrected and they are not, the
