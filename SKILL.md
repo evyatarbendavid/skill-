@@ -323,25 +323,14 @@ What actually raises the odds:
 ### The platforms don't agree with each other
 
 Only about **12% of cited sources overlap across platforms** for the same
-query. "Optimize for AI citation" is not one target:
-
-| Engine | What it favors |
-|---|---|
-| **Google AI Overviews** | Strongest preference for recognized brands and established domains. Most clickable citations of any engine. |
-| **ChatGPT** | Older domains — a large share of what it cites is 15+ years old. Prefers claims corroborated across several sources over a single assertion. |
-| **Perplexity** | Searches the live web on nearly every query, so freshness counts most here. Leans hardest on community sources; an institutional tone underperforms a well-sourced practitioner answer. |
-| **Copilot** | Cites markedly younger domains than the others — the most realistic target for a new site. |
-
-*(Citation-tracking research, not vendor documentation. Directionally
-consistent across trackers; specific percentages vary by study.)*
-
-**Where the citations actually go.** A handful of domains — Reddit,
-Wikipedia, YouTube, LinkedIn — capture a large majority of all AI citations
-across engines, with Reddit alone a substantial share. For a typical
-business site, competing head-on with a Reddit thread on a general query is
-not a winnable goal. The realistic target is the remainder: specific,
-technical, branded, or niche queries where no such thread exists. Say that
-plainly rather than promising visibility on head terms.
+query, so "optimize for AI citation" is at minimum four different targets —
+Google AI Overviews favours established brands, ChatGPT favours old domains
+and corroborated claims, Perplexity favours freshness and practitioner
+voice, Copilot cites the youngest domains and is the most realistic target
+for a new site. A handful of platforms — Reddit, Wikipedia, YouTube — take
+most citations on general queries, so the winnable ground is specific,
+technical, or branded questions where no such thread exists.
+`references/platforms.md` has the detail and the caveats.
 
 **`llms.txt` is not a citation lever.** Google has explicitly said Search
 does not use it, and its AI-features guidance states no special
@@ -490,6 +479,7 @@ Load on demand — don't read them up front.
 
 | File | When |
 |---|---|
+| `references/platforms.md` | Someone asks about a specific AI engine, or why they're cited in one and not another |
 | `references/situations.md` | The site is large, e-commerce, multilingual, full of thin pages, mid-migration, or chasing entity recognition — depth that only applies in those cases |
 | `references/ai-crawlers.md` | Any question about blocking AI bots, `robots.txt` and AI, or why a site isn't appearing in an AI engine |
 | `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL, and how to report a finding |
