@@ -188,8 +188,17 @@ Video, Special Announcement, Vehicle Listing. Existing markup is harmless to
 keep; adding it as a *strategy* is not. Assume the pruning continues and
 re-verify any type before recommending it for its rich result.
 
-`Speakable` is worth suggesting when a page has a short self-contained
-answer block — it's directly AEO-relevant, though support is uneven.
+**Schema does not drive AI citation — don't imply it does.** A controlled
+study comparing ~1,900 pages that added JSON-LD against matched controls
+found no citation gain and a small decline. The widely-repeated "2.5x more
+likely to be cited" claims come from studies without control groups, where
+the likely real driver is that sites sophisticated enough to add schema were
+already authoritative. Recommend schema for what it actually does — rich
+result eligibility and machine-readable clarity — and stop there.
+
+`Speakable` is narrower than it's usually presented: limited release,
+US English, news-like content, surfacing on Assistant devices. Worth
+mentioning to a news publisher; not a general AEO lever.
 
 ## AEO — getting cited by AI answer engines
 
@@ -201,11 +210,24 @@ for a blue link optimizes for a shrinking surface.
 
 *(That framing is the most volatile claim in this file — verify it.)*
 
-The good news: the prerequisite is unchanged. **You cannot be cited from a
-page the engine can't retrieve.** Google states there are no special
-requirements and no special markup for AI features — a page needs to be
-indexed and eligible to show with a snippet. Classic SEO *is* the AEO
-groundwork.
+The prerequisite is unchanged: **you cannot be cited from a page the engine
+can't retrieve.** Google states there are no special requirements and no
+special markup for AI features — a page needs to be indexed and eligible to
+show with a snippet.
+
+But "rank top-10 and citation follows" no longer holds the way it did. One
+large study of AI Overview citations found the share coming from pages
+ranking in the top 10 organically fell from roughly **76% to 38%** over
+about a year, with the rest split fairly evenly between pages ranking
+11–100 and pages ranking beyond 100. *(Industry research, not Google
+documentation — direction is well corroborated, treat the exact figures as
+approximate.)*
+
+What that changes: classic SEO is still the **entry ticket**, because
+retrieval requires indexing. It is no longer a good **predictor**. A page
+that ranks 40th can be cited, and a page that ranks 3rd often isn't. So
+don't tell someone their AEO problem will be solved by ranking better — the
+passage-level work below is doing most of the lifting.
 
 What actually raises the odds:
 
@@ -231,11 +253,52 @@ What actually raises the odds:
 - **Corroboration off-site.** Being referenced consistently elsewhere
   correlates with being surfaced. A brand-new site starts with none —
   expect AI citation to lag any ranking.
+- **Put the answer high on the page, not just early in the section.** One
+  citation study found roughly **55% of AI Overview citations came from the
+  top third of the page**, and only about 21% from the bottom 40%. The
+  intro-fluff-then-answer pattern costs citations twice: once within the
+  section, once across the page.
+- **Pre-answer the next question.** Fan-out retrieves passages for
+  *adjacent* sub-questions — comparisons, pricing, steps, specs — not only
+  the literal query. A page that answers "which one should I buy" and stops
+  loses the retrievals for "how much does it cost" and "how do I set it up"
+  to somebody else's page.
 
-**`llms.txt` is not a citation lever.** As of 2026 no major provider has
-confirmed reading it for web citation, and adoption sits near 10% of
-domains. It does have real use by coding agents on documentation sites.
-Cheap to add; don't count it, and don't flag its absence as critical.
+### The platforms don't agree with each other
+
+Only about **12% of cited sources overlap across platforms** for the same
+query. "Optimize for AI citation" is not one target:
+
+| Engine | What it favors |
+|---|---|
+| **Google AI Overviews** | Strongest preference for recognized brands and established domains. Most clickable citations of any engine. |
+| **ChatGPT** | Older domains — a large share of what it cites is 15+ years old. Prefers claims corroborated across several sources over a single assertion. |
+| **Perplexity** | Searches the live web on nearly every query, so freshness counts most here. Leans hardest on community sources; an institutional tone underperforms a well-sourced practitioner answer. |
+| **Copilot** | Cites markedly younger domains than the others — the most realistic target for a new site. |
+
+*(Citation-tracking research, not vendor documentation. Directionally
+consistent across trackers; specific percentages vary by study.)*
+
+**Where the citations actually go.** A handful of domains — Reddit,
+Wikipedia, YouTube, LinkedIn — capture a large majority of all AI citations
+across engines, with Reddit alone a substantial share. For a typical
+business site, competing head-on with a Reddit thread on a general query is
+not a winnable goal. The realistic target is the remainder: specific,
+technical, branded, or niche queries where no such thread exists. Say that
+plainly rather than promising visibility on head terms.
+
+**`llms.txt` is not a citation lever.** Google has explicitly said Search
+does not use it, and its AI-features guidance states no special
+machine-readable file is needed. Adoption sits near 10% of domains after
+18 months, and one study found the overwhelming majority of published files
+receive no AI requests at all. It does have real use by **coding agents**
+reading documentation — a developer-tooling case, worth framing separately.
+Never present it as a search or citation tactic.
+
+**Whether AI crawlers can reach the site at all** is upstream of everything
+here, and it's where people accidentally lock themselves out — blocking
+`GPTBot` does not remove you from ChatGPT's answers, but blocking
+`OAI-SearchBot` does. See `references/ai-crawlers.md`.
 
 ## Hebrew and RTL
 
@@ -361,6 +424,7 @@ Load on demand — don't read them up front.
 
 | File | When |
 |---|---|
+| `references/ai-crawlers.md` | Any question about blocking AI bots, `robots.txt` and AI, or why a site isn't appearing in an AI engine |
 | `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL, and how to report a finding |
 | `references/audit-checklist.md` | Running a formal audit — every item as PASS/FAIL/N/A |
 | `references/sources.md` | Citing a claim, or checking whether something is official vs. practitioner consensus vs. contested |
