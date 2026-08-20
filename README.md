@@ -129,7 +129,7 @@ language and a test fails.
 
 ## Also here
 
-`tools-seo-audit-cli/` is a standalone Python tool (see its own README) (standard library only)
+`tools-seo-audit-cli/` is a standalone Python tool (standard library only)
 that measures the mechanically-checkable subset and exits non-zero when a
 gate fails, so it drops into CI. Not required by the skill.
 
