@@ -2,6 +2,9 @@
 # Run the full seo-aeo test suite. No network, no dependencies.
 set -euo pipefail
 cd "$(dirname "$0")"
+echo "== skill package =="
+python3 test_skill_package.py "$@"
+echo
 echo "== unit + integration =="
 python3 test_seo_aeo.py "$@"
 echo

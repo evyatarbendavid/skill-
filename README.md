@@ -1,132 +1,140 @@
-# seo-aeo-audit
+# seo-aeo
 
-A Claude Code plugin that audits and fixes a website's **SEO** (classic
-Google/Bing ranking) and **AEO/GEO** (visibility and citation in AI answer
-engines — Google AI Overviews, ChatGPT, Perplexity, Copilot, Gemini,
-Claude). Works on an existing site (audit + fix) or a brand-new one being
-built (build spec, checked as you go).
+A Claude skill that applies Google's actual ranking rules and AI
+answer-engine citation principles to any website work — building a page,
+reviewing one, or fixing one that isn't performing.
 
-It doesn't just hand you a checklist — it dispatches subagents to actually
-review every page and, once you confirm findings, implement the fixes in
-code directly.
+It loads itself whenever you touch a site, even if you never say the word
+"SEO."
 
 ## Install
 
+### Claude Desktop / claude.ai
+
+Download **[`seo-aeo.zip`](seo-aeo.zip)** from this repo, then:
+
+**Settings → Capabilities → Skills → Upload skill** → pick the zip.
+
+That's it. No terminal, no setup.
+
+### Claude Code
+
 ```
 /plugin marketplace add evyatarbendavid/skill-
-/plugin install seo-aeo-audit@evyatar-tools
+/plugin install seo-aeo@evyatar-tools
 ```
 
-That's it. After this the skill is available in every session, on this
-machine, in any project. No per-project setup, no copying files.
+Installed once, available in every project on that machine.
+`/plugin update seo-aeo` pulls later changes.
 
-If the install summary says `Run /reload-plugins to activate.`, run that.
-To pull in later updates:
+> The trailing hyphen in `skill-` is part of the repository name.
 
-```
-/plugin update seo-aeo-audit
-```
+Claude Code also gets two subagents the Desktop version doesn't:
+`seo-page-auditor` (read-only, one page at a time, in parallel) and
+`seo-fixer` (the only one with edit access). The skill works either way —
+it just does full-site passes faster where subagents exist.
 
-> The trailing hyphen in `evyatarbendavid/skill-` is part of the repository
-> name, not a typo.
+## What it knows
 
-## Usage
+**The gates.** Five things a page cannot rank without: HTTP 200, not
+blocked in robots.txt, no `noindex`, content actually present in the served
+HTML, and Core Web Vitals passing. Everything else is a multiplier on a
+page that already clears these.
 
-**Audit a live site** (report only — no code access, so it can diagnose but
-not fix):
-```
-/seo-aeo-audit https://example.com
-```
+**Core Web Vitals** — LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1, at the 75th
+percentile of real users, all three, mobile and desktop separately. Plus
+what actually causes each one to fail, and how to measure a live URL
+through the free PageSpeed Insights API instead of guessing from code.
 
-**Audit and fix a local project** (the full loop: find, fix, verify) — run
-from inside the project directory:
-```
-/seo-aeo-audit
-```
-or point at it explicitly:
-```
-/seo-aeo-audit /path/to/project
-```
+**Crawlability** — canonical tags, sitemaps, redirect chains, hreflang
+reciprocity, and the faceted-navigation URL explosion that quietly eats
+crawl budget on any site with filters.
 
-**Build a new page correctly from the start**, when there's nothing to
-audit yet:
-```
-/seo-aeo-audit build me a landing page for [whatever you're building]
-```
-The same checklist runs as a build spec instead of a retroactive audit —
-each page is checked against it while it's being written.
+**Structured data** — what to implement, and what's dead. `FAQPage` rich
+results were removed entirely in May 2026 and `HowTo` in 2023; seven more
+types went in June 2025. The skill knows not to recommend them, and knows
+the most common self-inflicted bug is marking up content that isn't
+visible on the page.
 
-You don't have to use the slash command. The skill is written to trigger on
-its own when you paste a URL or a project path and ask to check, audit,
-improve, or "make sure it's ready."
+**AEO** — why the unit that gets cited is a *passage*, not a page, and how
+to write one: a direct self-contained answer in 40–60 words before the
+background, under a question-shaped heading. Plus E-E-A-T, freshness, and
+why `llms.txt` is not the lever it's sold as.
 
-## What each file does
+**Hebrew and RTL** — `lang`/`dir` correctness, and the bidi bugs where
+English words or numbers inside Hebrew text render in the wrong visual
+order. Also the opportunity: AI engines have far thinner Hebrew data, so a
+well-structured Hebrew page competes against a much weaker field.
 
-| File | Role |
-|---|---|
-| **`skills/seo-aeo-audit/SKILL.md`** | The orchestrator. Figures out what you gave it (a URL, a local project, or "build me a new page"), enumerates pages, and dispatches the other two in the right order. It doesn't check anything itself. |
-| **`agents/seo-page-auditor.md`** | The inspector. Reviews one page at a time against the full checklist. **Read-only** — it reports, it never touches code. One copy runs per page, in parallel. |
-| **`agents/seo-fixer.md`** | The implementer. Takes a confirmed findings list and makes the actual code changes, then re-reads the file to confirm the fix worked. Has edit access; the inspector doesn't. |
+**Quality bugs** — duplicate content at scale, `Lorem ipsum` and `TODO`
+shipped to production, broken and orphan links, inconsistent navigation,
+buttons that don't go where their label promises.
 
-Three files rather than one because Claude Code subagents each get their
-own permissions. The inspector is deliberately read-only so it can't change
-your code while reviewing it; only the fixer can edit, and only after
-you've seen what it's about to change.
+## Two things it will never tell you
 
-## What it actually checks
+**Google does not guarantee crawling, indexing, or ranking.** That's
+Google's own wording, and it holds for a page that follows every rule here.
 
-Full detail lives in `agents/seo-page-auditor.md`. Briefly:
+**Nothing forces an AI engine to cite you.** Retrieval is
+non-deterministic and proprietary.
 
-- **Technical SEO** — crawlability, indexing, canonical tags, hreflang,
-  pagination, faceted-navigation crawl traps, sitemap/robots.txt, redirects
-- **Performance** — real Core Web Vitals via the PageSpeed Insights API
-  (measured, not guessed from code), TTFB, third-party script bloat
-- **Structured data** — schema.org/JSON-LD correctness, including
-  AEO-relevant `Speakable` markup
-- **Security and trust** — HSTS, CSP, exposed config files
-- **Mobile and accessibility** — tap targets, contrast, keyboard nav, ARIA
-- **AEO/GEO** — answer-block structure, E-E-A-T, freshness, and
-  per-platform notes for each major answer engine
-- **Hebrew/RTL** — `lang`/`dir` correctness, bidi bugs, Israeli local
-  search signals
-- **Content quality** — duplicate content at scale, broken and orphan
-  links, navigation consistency, leaked placeholder text
-
-## Two things it will never claim
-
-**Google does not guarantee crawling, indexing, or ranking** — that's
-Google's own wording, and it holds even for a page that follows every
-guideline. **No technique forces an AI engine to cite you** either; AI
-retrieval is non-deterministic and proprietary.
-
-What this plugin does is remove every technical reason to be excluded and
+What the skill does is remove every technical reason to be excluded and
 maximize the odds. Anyone promising a specific position by a date is
-selling certainty that doesn't exist.
+selling certainty that doesn't exist — and this skill is built to say so
+rather than play along.
 
-## Staying current
+## Staying honest as things change
 
-Search-engine and AI-answer-engine behavior shifts every few months, so the
-checklist carries its own expiry warning: the auditor is instructed to
-verify current Core Web Vitals thresholds and AEO practices against primary
-sources before a real pre-launch audit, rather than trusting the numbers in
-the file. If it finds something outdated, tell it to update the relevant
-file in place.
+Search behavior shifts every few months, so the skill separates what's
+stable from what isn't. The crawl model and how canonical tags work don't
+move; Core Web Vitals thresholds, which schema types still produce rich
+results, and how AI Overviews select sources do. For anything in the second
+group the skill verifies against `developers.google.com/search` and
+`web.dev` before stating it, and tells you which facts it checked live.
 
----
+It also carries a list of **false claims currently circulating** — that
+Google cut LCP to 2.0s, tightened CLS to 0.08, added an "FCP" vital, or set
+a January 2026 deadline — so a search result echoing them doesn't get
+mistaken for confirmation.
 
-## Also in this repo
+The baseline was verified 2026-08-18. Past roughly 90 days, the skill
+treats its own volatile claims as unconfirmed until re-checked.
 
-`tools-seo-audit-cli/` is a standalone Python audit tool (standard library
-only, no install) that measures the mechanically-checkable subset —
-status codes, redirect chains, robots.txt, canonical, sitemap membership,
-JSON-LD property validation, broken links, duplicate titles and content,
-RTL correctness, Core Web Vitals. It predates the plugin and isn't required
-by it, but it's useful when you want deterministic numbers rather than an
-agent's read, or a CI gate:
+## Repo layout
+
+```
+plugins/seo-aeo/
+  skills/seo-aeo/          the skill itself — one copy, the source of truth
+    SKILL.md
+    references/
+      audit-checklist.md   every item as PASS / FAIL / N/A
+      sources.md           cited, labelled OFFICIAL / CONSENSUS / UNCERTAIN
+  agents/                  Claude Code only: the auditor and the fixer
+seo-aeo.zip                built from the skill folder, for Desktop upload
+build.sh                   regenerates the zip
+tests/                     package integrity + the standalone CLI's tests
+```
+
+Run `./build.sh` after editing the skill, or the zip goes stale — there's a
+test that fails if you forget.
+
+## Tests
+
+```bash
+./tests/run_tests.sh
+```
+
+Checks the package stays installable (frontmatter the loader accepts, no
+dangling reference links, zip in sync with source, the auditor agent still
+read-only) and that the factual corrections don't get edited back out — if
+someone removes the FAQPage or the no-guarantees language, a test fails.
+
+## Also here
+
+`tools-seo-audit-cli/` is a standalone Python tool (standard library only)
+that measures the mechanically-checkable subset and exits non-zero when a
+gate fails, so it drops into CI. Not required by the skill.
 
 ```bash
 python3 tools-seo-audit-cli/scripts/audit.py https://example.com/
-./tests/run_tests.sh   # 106 tests, no network needed
 ```
-
-Exit code is `1` when a gate section fails, so it drops into CI as-is.
