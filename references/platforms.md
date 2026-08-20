@@ -10,18 +10,12 @@ Only about **12% of cited sources overlap across platforms** for the same
 query. That single number is the reason this file exists: a page tuned for
 one engine is not thereby tuned for the others.
 
-Only about **12% of cited sources overlap across platforms** for the same
-query. "Optimize for AI citation" is not one target:
-
 | Engine | What it favors |
 |---|---|
 | **Google AI Overviews** | Strongest preference for recognized brands and established domains. Most clickable citations of any engine. |
 | **ChatGPT** | Older domains — a large share of what it cites is 15+ years old. Prefers claims corroborated across several sources over a single assertion. |
 | **Perplexity** | Searches the live web on nearly every query, so freshness counts most here. Leans hardest on community sources; an institutional tone underperforms a well-sourced practitioner answer. |
 | **Copilot** | Cites markedly younger domains than the others — the most realistic target for a new site. |
-
-*(Citation-tracking research, not vendor documentation. Directionally
-consistent across trackers; specific percentages vary by study.)*
 
 **Where the citations actually go.** A handful of domains — Reddit,
 Wikipedia, YouTube, LinkedIn — capture a large majority of all AI citations
