@@ -197,6 +197,9 @@ What actually raises the odds:
 - **The unit that gets cited is a passage, not the page.** Open every
   answerable section with a direct, self-contained answer in ~40–60 words,
   *before* the background and caveats. Buried answers get passed over.
+  `references/examples.md` has a before/after of exactly this edit — it is
+  the highest-leverage change on most pages, and the easiest to agree with
+  in principle while still getting wrong.
 - **Question-shaped headings** matching how people actually ask. AI systems
   run "query fan-out" — several related sub-queries — before composing an
   answer, so a cluster of related sub-questions beats one narrow answer.
@@ -329,5 +332,6 @@ Load on demand — don't read them up front.
 
 | File | When |
 |---|---|
+| `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL, and how to report a finding |
 | `references/audit-checklist.md` | Running a formal audit — every item as PASS/FAIL/N/A |
 | `references/sources.md` | Citing a claim, or checking whether something is official vs. practitioner consensus vs. contested |
