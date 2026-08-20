@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SKILL_SCRIPTS = REPO_ROOT / ".claude" / "skills" / "seo-aeo" / "scripts"
+SKILL_SCRIPTS = REPO_ROOT / "tools-seo-audit-cli" / "scripts"
 sys.path.insert(0, str(SKILL_SCRIPTS))
 
 from seo_aeo import (  # noqa: E402

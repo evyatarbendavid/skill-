@@ -20,7 +20,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-AUDIT = REPO_ROOT / ".claude" / "skills" / "seo-aeo" / "scripts" / "audit.py"
+AUDIT = REPO_ROOT / "tools-seo-audit-cli" / "scripts" / "audit.py"
 sys.path.insert(0, str(AUDIT.parent))
 
 import json  # noqa: E402

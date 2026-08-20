@@ -1,0 +1,15 @@
+{
+  "name": "evyatar-tools",
+  "owner": {
+    "name": "Evyatar Ben David",
+    "url": "https://github.com/evyatarbendavid"
+  },
+  "description": "Claude Code plugins for building and shipping sites that rank in search and get cited by AI answer engines.",
+  "plugins": [
+    {
+      "name": "seo-aeo-audit",
+      "source": "./plugins/seo-aeo-audit",
+      "description": "Audits an entire site for SEO and AEO/GEO, then fixes what it finds in code. Works on a live URL, a local project, or as a build spec for a page being written from scratch."
+    }
+  ]
+}
