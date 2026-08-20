@@ -145,16 +145,21 @@ killer — flag any that clearly outweigh their value.
 
 - Schema type matches what's actually on the page. Sitewide:
   `Organization`/`WebSite`, `BreadcrumbList` for nav. Content-specific,
-  pick whatever actually applies: `Product`, `Course`, `Article`,
-  `FAQPage`, `HowTo`, `LocalBusiness`, `Event`, `VideoObject`,
-  `ImageObject`, `Review`/`AggregateRating` (only if reviews are real
-  and genuinely displayed), `Person` (for author/E-E-A-T, see AEO
-  section), `SoftwareApplication`.
-- **`Speakable` schema** — marks specific sections as suitable for
-  voice/audio reading by assistants. Directly AEO-relevant: if the page
-  has a short, self-contained answer block (see AEO section below),
-  marking it `Speakable` is a low-cost, high-relevance addition worth
-  suggesting even though support is still uneven across platforms.
+  pick whatever actually applies: `Product`, `Article`, `LocalBusiness`,
+  `Event`, `VideoObject`, `ImageObject`, `Review`/`AggregateRating` (only
+  if reviews are real and genuinely displayed), `Person` (for
+  author/E-E-A-T, see AEO section), `SoftwareApplication`.
+- **Dead for rich results — don't recommend these to earn one:** `FAQPage`
+  (removed entirely May 2026), `HowTo` (deprecated 2023), and the seven
+  types retired June 2025. Existing markup is harmless; flag it only if
+  someone is relying on it for SERP real estate it will never produce.
+- **Do not claim schema improves AI citation.** The one controlled study
+  on this found no gain and a small decline. Recommend schema for rich
+  result eligibility and machine-readable clarity — that's what it does.
+- **`Speakable`** is narrower than it's usually presented: limited
+  release, US English, news-like content, surfacing on Assistant devices.
+  Worth mentioning to a news publisher. Not a general AEO lever, and not
+  worth flagging as missing on an ordinary page.
 - **Never accept markup for content that isn't visibly on the page** —
   mismatched schema (e.g. FAQPage schema for questions rendered nowhere
   visible) is a manipulation signal to Google and undermines AI-citation
@@ -209,9 +214,15 @@ things):
 
 ## 7. AEO/GEO — Getting Cited by AI Answer Engines
 
-A layer on top of SEO, not a replacement — Google's AI Overviews mostly
-pull from pages that already rank top-10 organically. Sections 1–6 are
-the gate.
+A layer on top of SEO, not a replacement. Sections 1–6 are the gate,
+because retrieval requires indexing.
+
+But do not assume ranking predicts citation. One large study found the
+share of AI Overview citations coming from top-10 organic results fell
+from roughly 76% to 38% over about a year, with the rest spread across
+pages ranking 11–100 and beyond. A page ranking 40th gets cited; a page
+ranking 3rd often isn't. Classic SEO is the entry ticket, not the
+predictor — so weight the passage-level findings below accordingly.
 
 - **The unit that gets cited is a passage, not the page** — audit at
   section level: does each answerable section open with a direct,
@@ -234,8 +245,10 @@ the gate.
   pricing/program/comparison pages.
 - **Platform-specific patterns** (verify via search before treating as
   current — this shifts fast):
-  - *Google AI Overviews / AI Mode*: pulls from top-10 organic +
-    snippable structure (section 7's opening rule matters most here).
+  - *Google AI Overviews / AI Mode*: strongest preference for recognized
+    brands and established domains; citations cluster in the top third of
+    the page, so answer placement matters at page scale, not just within
+    a section.
     Bing indirectly feeds Copilot, so don't ignore Bing Webmaster Tools
     if you have access — Google-only SEO leaves a real gap.
   - *Perplexity*: rewards freshness, source authority, and
@@ -250,6 +263,14 @@ the gate.
     guides over thin pages.
   - *Gemini*: factors in multimodal content (images, video), not text
     alone.
+- **Can the AI engines fetch the page at all?** Check `robots.txt` for
+  blocks on retrieval crawlers — `OAI-SearchBot` (ChatGPT),
+  `Claude-SearchBot`, `PerplexityBot`. These are *not* the training
+  crawlers: blocking `GPTBot` or `ClaudeBot` opts out of model training
+  and does nothing to AI answers, while blocking the retrieval bots
+  removes the site from those answers entirely. Sites lock themselves out
+  this way by accident regularly. Flag any block as Critical for AEO, and
+  say which kind it is rather than lumping them together.
 - **`llms.txt`**: low priority if missing — as of 2026, adoption is low
   and no major AI provider has committed to using it for citations; it
   does have real, observed use by coding agents/IDE tools on

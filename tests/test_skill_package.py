@@ -140,6 +140,37 @@ class TestFactualGuardrails(unittest.TestCase):
                                     r"no major provider has confirmed)")
 
 
+class TestAgentSkillAgreement(unittest.TestCase):
+    """The agents ship in the same package as the skill and carry their own
+    copy of the checklist. When the skill is corrected and they are not, the
+    package contradicts itself — and the agent is what actually runs."""
+
+    def setUp(self):
+        self.auditor = (AGENTS / "seo-page-auditor.md").read_text(encoding="utf-8")
+
+    def test_auditor_does_not_recommend_dead_rich_result_types(self):
+        # Listing FAQPage/HowTo among types to add, while the skill calls
+        # them dead, is the exact contradiction this guards.
+        self.assertRegex(
+            self.auditor,
+            r"FAQPage.{0,200}(removed|dead|deprecat)",
+            "auditor must mark FAQPage as dead for rich results")
+
+    def test_auditor_does_not_treat_top_10_as_predicting_citation(self):
+        self.assertRegex(
+            self.auditor, r"(76%|not the predictor|entry ticket)",
+            "auditor must carry the corrected top-10 framing")
+
+    def test_auditor_checks_ai_retrieval_crawlers(self):
+        for bot in ("OAI-SearchBot", "PerplexityBot"):
+            self.assertIn(bot, self.auditor,
+                          "auditor should check whether AI engines can fetch the page")
+
+    def test_auditor_does_not_claim_schema_drives_citation(self):
+        self.assertNotRegex(
+            self.auditor, r"schema[^.]{0,80}(increases?|improves?|boosts?)[^.]{0,40}citation")
+
+
 class TestAgents(unittest.TestCase):
     """The agents are optional (Claude Code only) but must stay loadable."""
 
