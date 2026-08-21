@@ -234,6 +234,15 @@ see above.
 - Self-referencing `<link rel="canonical">` on every indexable page. Real
   duplicates (filter/sort variants, print views) canonicalize to the
   primary instead.
+- **A canonical that points elsewhere is not automatically a finding.**
+  Before flagging one, fetch the target: if it returns 200 and appears in
+  the sitemap, this is deliberate consolidation working correctly. The
+  common legitimate case is locale-prefixed URLs pointing at a
+  locale-neutral one — `/en/learn/x` canonicalizing to `/learn/x`, with
+  `/learn/x` being what the sitemap lists. Reporting that as a bug wastes
+  the reader's time and costs you their trust in the rest of the report.
+  A canonical worth flagging is one whose target 404s, redirects, is
+  `noindex`, or contradicts the sitemap.
 - `sitemap.xml` exists, is valid, referenced from `robots.txt`, and lists
   only canonical indexable URLs — no `noindex`ed or redirecting ones.
 - **Check the sitemap actually contains the homepage.** A populated,
@@ -403,6 +412,14 @@ What actually raises the odds:
   should pre-answer what they'd ask next: the comparison, the price, the
   setup steps. A page that answers "which one should I buy" and stops
   hands the adjacent retrievals to somebody else's page.
+
+  **The title counts as one.** A short page titled "How much JavaScript do
+  you need to know to use Node.js?" that answers it in the first paragraph
+  is already well shaped, with two headings and no more. Don't push someone
+  to manufacture question-headings on a page whose title asks the question
+  and whose body answers it — you'd be adding structure to a page that
+  doesn't need it. The gap worth reporting is a page that answers several
+  distinct questions with nothing in the markup separating them.
 - **One clear claim per passage**, with concrete specifics — numbers,
   dates, named entities. Vague prose can't be grounded, so it isn't quoted.
 - **Lists and tables** wherever content is comparative or sequential.

@@ -84,6 +84,63 @@ def guard(result: AuditResult, finding_id: str, title: str):
 # Section A - Crawlability & Indexing (GATE)
 # ---------------------------------------------------------------------------
 
+def _judge_foreign_canonical(ctx, can) -> Finding:
+    """Classify a canonical that points at some other URL.
+
+    Broken target -> FAIL, unambiguously a bug.
+    Live and in the sitemap -> coherent consolidation; say so rather than
+    handing back a finding the reader has to go investigate.
+    Live but absent from the sitemap -> WARN, the two signals disagree.
+    Unreachable -> a human's call, as before.
+    """
+    target = can.resolved
+    if not target:
+        return Finding("A4", "Self-referencing canonical", HUMAN_JUDGMENT,
+                       detail=can.detail,
+                       reason="canonical points elsewhere; only you know if "
+                              "that is intended")
+
+    fr = fetch(target)
+    if fr.error is not None:
+        return Finding("A4", "Self-referencing canonical", HUMAN_JUDGMENT,
+                       detail=can.detail,
+                       reason=f"canonical points to {target}, which could not be "
+                              f"checked ({fr.error}) — verify it by hand")
+
+    if fr.status != 200:
+        return Finding("A4", "Self-referencing canonical", FAIL,
+                       detail=f"canonical points to {target}, which returns "
+                              f"{fr.status}. A canonical must name a live, "
+                              f"indexable URL; this one consolidates the page "
+                              f"into a dead end.")
+
+    if len(fr.redirect_chain) > 1:
+        hops = " -> ".join(u for u, _ in fr.redirect_chain)
+        return Finding("A4", "Self-referencing canonical", FAIL,
+                       detail=f"canonical points to {target}, which redirects "
+                              f"({hops}). Point it at the final URL instead.")
+
+    has_sitemap = bool(ctx.sitemap and ctx.sitemap.exists)
+    if has_sitemap and normalize_url(target) in ctx.sitemap.urls:
+        return Finding("A4", "Self-referencing canonical", PASS,
+                       detail=f"not self-referencing, and that looks deliberate: "
+                              f"canonical points to {target}, which returns 200 "
+                              f"and is listed in the sitemap. Consistent "
+                              f"consolidation, not a bug.")
+
+    if has_sitemap:
+        return Finding("A4", "Self-referencing canonical", WARN,
+                       detail=f"canonical points to {target} (live, 200), but "
+                              f"that URL is not in the sitemap. The two signals "
+                              f"disagree — one of them is wrong.")
+
+    return Finding("A4", "Self-referencing canonical", HUMAN_JUDGMENT,
+                   detail=can.detail,
+                   reason=f"canonical points to {target}, which is live. No "
+                          f"sitemap to cross-check against, so whether the "
+                          f"consolidation is intended is your call.")
+
+
 def run_section_a(ctx: Context, result: AuditResult) -> None:
     page = ctx.page
 
@@ -165,10 +222,11 @@ def run_section_a(ctx: Context, result: AuditResult) -> None:
     elif can.classification == canonical.RELATIVE:
         result.add(Finding("A4", "Self-referencing canonical", WARN, detail=can.detail))
     else:
-        result.add(Finding("A4", "Self-referencing canonical", HUMAN_JUDGMENT,
-                           detail=can.detail,
-                           reason="canonical points elsewhere; only you know if "
-                                  "that is intended"))
+        # A canonical pointing elsewhere is deliberate consolidation as often as
+        # it is a bug — locale-prefixed URLs pointing at a locale-neutral one,
+        # for instance. Reporting it as a finding on its own wastes the reader's
+        # time, so resolve the target first and let the evidence decide.
+        result.add(_judge_foreign_canonical(ctx, can))
 
     # A5 - in a sitemap
     sm = ctx.sitemap

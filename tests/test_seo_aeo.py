@@ -13,6 +13,7 @@ import json
 import shutil
 import socketserver
 import sys
+import types
 import tempfile
 import threading
 import unittest
@@ -28,6 +29,7 @@ from seo_aeo import (  # noqa: E402
     pathmap, quality, report, sitemap, structured_data,
 )
 from seo_aeo.fetch import _decode_body, normalize_url, same_host  # noqa: E402
+import audit  # noqa: E402
 from seo_aeo.models import (  # noqa: E402
     CRITICAL, FAIL, HUMAN_JUDGMENT, LOW, NA, PASS, WARN,
     AuditResult, Finding,
@@ -586,6 +588,66 @@ class TestCrawlerAgainstLocalServer(unittest.TestCase):
     def test_inbound_link_detection(self):
         result = crawler.crawl(self.base, max_pages=5, max_depth=2, delay=0)
         self.assertTrue(result.inbound_links_to(self.base + "a.html"))
+
+
+class TestForeignCanonicalJudgement(unittest.TestCase):
+    """A canonical pointing elsewhere is consolidation as often as it is a bug.
+    The tool resolves the target before deciding, over real HTTP on loopback."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dir = Path(tempfile.mkdtemp())
+        (cls.dir / "canonical-target.html").write_text(
+            '<html lang="en"><head><title>T</title></head>'
+            '<body><main><h1>Target</h1></main></body></html>')
+        handler = lambda *a, **k: _QuietHandler(*a, directory=str(cls.dir), **k)
+        cls.server = socketserver.TCPServer(("127.0.0.1", 0), handler)
+        cls.port = cls.server.server_address[1]
+        cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
+        cls.thread.start()
+        cls.base = f"http://127.0.0.1:{cls.port}/"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+        shutil.rmtree(cls.dir, ignore_errors=True)
+
+    def _judge(self, target, sitemap_urls):
+        page_url = self.base + "en/page.html"
+        doc = htmldoc.parse(
+            f'<html lang="en"><head><link rel="canonical" href="{target}">'
+            f'</head><body><h1>x</h1></body></html>')
+        can = canonical.check(doc, page_url)
+        ctx = types.SimpleNamespace(sitemap=None)
+        if sitemap_urls is not None:
+            ctx.sitemap = types.SimpleNamespace(
+                exists=True, urls={normalize_url(u) for u in sitemap_urls})
+        return audit._judge_foreign_canonical(ctx, can)
+
+    def test_live_target_in_the_sitemap_is_not_reported_as_a_problem(self):
+        # The nodejs.org pattern: /en/x canonicalizing to /x, with /x in the
+        # sitemap. Flagging that wastes the reader's time.
+        target = self.base + "canonical-target.html"
+        finding = self._judge(target, [target])
+        self.assertEqual(finding.status, PASS)
+        self.assertIn("deliberate", finding.detail)
+
+    def test_dead_target_is_a_hard_failure(self):
+        finding = self._judge(self.base + "does-not-exist.html", [])
+        self.assertEqual(finding.status, FAIL)
+        self.assertIn("404", finding.detail)
+
+    def test_live_target_missing_from_the_sitemap_warns(self):
+        target = self.base + "canonical-target.html"
+        finding = self._judge(target, [self.base + "something-else.html"])
+        self.assertEqual(finding.status, WARN)
+        self.assertIn("not in the sitemap", finding.detail)
+
+    def test_without_a_sitemap_it_stays_a_human_decision(self):
+        target = self.base + "canonical-target.html"
+        finding = self._judge(target, None)
+        self.assertEqual(finding.status, HUMAN_JUDGMENT)
 
 
 if __name__ == "__main__":
