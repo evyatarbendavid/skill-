@@ -130,8 +130,8 @@ A page failing any of these cannot rank, no matter how good the content is.
    `hreflang` injected by client-side JS. The first crawl pass reads the raw
    HTML and can act on it — decide indexing, pick a canonical — before the
    render pass ever runs. Head tags that only exist after hydration may
-   simply never be seen in time. These four tags must be in the server
-   response, whatever else is client-rendered.
+   simply never be seen in time. Those three must be in the server response,
+   whatever else is client-rendered.
 5. **Core Web Vitals pass** — all three, at the 75th percentile of real
    users, on mobile and desktop separately.
 
