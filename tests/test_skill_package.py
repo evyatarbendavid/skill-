@@ -199,6 +199,14 @@ class TestFactualGuardrails(unittest.TestCase):
                              f"{name} should state how small AI Mode's share is")
             self.assertIn("large minority", flat, name)
 
+    def test_soft_navigations_are_not_sold_as_a_ranking_input(self):
+        # The API shipped; whether CrUX counts it is undetermined. Claiming the
+        # second half follows from the first is the easy mistake here.
+        flat = " ".join(self.text.split())
+        self.assertIn("Soft Navigations API", flat)
+        self.assertRegex(flat, r"(CrUX|undetermined|to be determined)[^.]{0,200}"
+                               r"(undetermined|to be determined|not a given)")
+
     def test_llms_txt_not_sold_as_a_lever(self):
         # Check every mention, not just the first — the first is the
         # volatile-facts table, the claim itself lives further down.

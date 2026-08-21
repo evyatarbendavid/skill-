@@ -182,13 +182,23 @@ lab run. A green Lighthouse score is not the same as passing.
 - **CLS**: explicit `width`/`height` or `aspect-ratio` on every image and
   embed, reserved space for anything injected, `font-display: swap`.
 
-**Single-page apps no longer get a free pass.** Core Web Vitals used to be
-measured only on hard page loads, which meant a sluggish client-side route
-change was invisible to field data. Chrome shipped native measurement of
-in-app "soft navigations" during 2026, and the `web-vitals` library
-supports them. An SPA where the first load is fast and every subsequent
-route change is slow can no longer assume that second half goes unmeasured
-— audit route transitions, not just initial load.
+**Single-page app route changes are now measurable — but be careful what
+you claim follows from that.** Core Web Vitals have historically been
+collected only on hard page loads, so an SPA whose first load was fast and
+whose every subsequent route change was slow had that second half invisible
+to field data. Chrome's Soft Navigations API changes the measurement:
+shipped unflagged in **Chrome 151, stable 28 July 2026** (Edge 151 too),
+adding `soft-navigation` entries to the Performance Timeline, with
+`web-vitals` support alongside it.
+
+What that does **not** yet establish is that those numbers count for
+ranking. How soft navigations will be reported in CrUX — the field dataset
+Google's Core Web Vitals assessment actually reads — is still undetermined,
+and it is not a given they'll be weighted like hard navigations. So:
+instrument route transitions and fix the slow ones, because they are a real
+user experience and you can finally see them. Don't tell someone their
+route changes are now a ranking factor. **[the API is OFFICIAL and shipped;
+its CrUX treatment is UNCERTAIN — re-verify, this one is moving]**
 
 **If you can fetch a URL**, measure rather than guess:
 ```

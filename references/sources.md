@@ -200,7 +200,7 @@ separately for mobile and desktop, over a rolling 28-day window. **[OFFICIAL]**
 | **INP** — Interaction to Next Paint | Responsiveness: latency from interaction to next paint, across the visit | **≤ 200 ms** | ≤ 500 ms | > 500 ms |
 | **CLS** — Cumulative Layout Shift | Visual stability: how much visible content shifts unexpectedly | **≤ 0.1** | ≤ 0.25 | > 0.25 |
 
-**[OFFICIAL]** — verified current as of 2026-08-17.
+**[OFFICIAL]** — verified current as of 2026-08-21.
 
 > ### ⚠️ Known misinformation about CWV — do not repeat these
 > SEO blogs in 2026 are circulating **unconfirmed and apparently false** claims
@@ -227,6 +227,23 @@ must-not-fail hygiene bar**, and a real UX benefit in its own right. **[OFFICIAL
 Chrome UX Report / CrUX, shown in Search Console). Lab tools (Lighthouse,
 PageSpeed Insights lab mode) are for debugging — a good Lighthouse score is not
 the same as passing CWV in the field. **[OFFICIAL]**
+
+**Soft navigations — measurable in the browser, undetermined in CrUX.** Core
+Web Vitals have historically been collected on hard page loads only, leaving
+client-side route changes in a single-page app unmeasured. Chrome's Soft
+Navigations API closes the measurement gap: it shipped unflagged in **Chrome
+151** (stable 28 July 2026; Edge 151 as well), exposing `soft-navigation` and
+`interaction-contentful-paint` entries on the Performance Timeline, and the
+`web-vitals` library can consume them. **[OFFICIAL]**
+([Measuring soft navigations](https://developer.chrome.com/docs/web-platform/soft-navigations);
+[final origin trial](https://developer.chrome.com/blog/final-soft-navigations-origin-trial))
+
+The part to *not* extrapolate: **how soft navigations will be reported in
+CrUX is still to be determined**, and it is not a given that they will be
+treated the same as hard navigations. CrUX is the dataset Google's Core Web
+Vitals assessment reads, so until that is settled, a slow route transition is
+a measurable, fixable user-experience problem — not a demonstrated ranking
+input. **[UNCERTAIN — re-verify, this is actively moving]**
 
 Build targets to bake in from day one: server-rendered/static HTML, a
 compressed and correctly-sized LCP image with `width`/`height` set,
