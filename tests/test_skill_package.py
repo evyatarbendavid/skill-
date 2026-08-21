@@ -25,12 +25,35 @@ MAX_DESCRIPTION = 1024
 MAX_NAME = 64
 
 
-def frontmatter(path: Path) -> dict:
+try:
+    import yaml
+except ImportError:  # keep the suite runnable without the dependency
+    yaml = None
+
+
+def raw_frontmatter(path: Path) -> str:
     text = path.read_text(encoding="utf-8")
     match = re.match(r"^---\n(.*?)\n---", text, re.DOTALL)
     assert match, f"{path} has no YAML frontmatter"
+    return match.group(1)
+
+
+def frontmatter(path: Path) -> dict:
+    """Parse frontmatter the way the loader does — with a YAML parser.
+
+    A hand-rolled line splitter stood here and was more forgiving than YAML:
+    it split on the first colon, so a description containing ": " still
+    yielded a description key while the real parser rejected the file
+    outright. The tests passed on a skill that would not load.
+    """
+    block = raw_frontmatter(path)
+    if yaml is not None:
+        loaded = yaml.safe_load(block)
+        assert isinstance(loaded, dict), f"{path} frontmatter is not a mapping"
+        return {k: str(v).strip() for k, v in loaded.items()}
+
     out, key = {}, None
-    for line in match.group(1).splitlines():
+    for line in block.splitlines():
         if re.match(r"^\w[\w-]*:", line):
             key, _, value = line.partition(":")
             key = key.strip()
@@ -43,6 +66,21 @@ def frontmatter(path: Path) -> dict:
 class TestSkillManifest(unittest.TestCase):
     def setUp(self):
         self.fm = frontmatter(SKILL_MD)
+
+    @unittest.skipIf(yaml is None, "PyYAML not installed")
+    def test_frontmatter_is_valid_yaml(self):
+        # The failure this guards: an unquoted description containing ": "
+        # reads as a nested mapping and the whole skill fails to load. It
+        # happened, and the previous hand-rolled parser did not notice.
+        loaded = yaml.safe_load(raw_frontmatter(SKILL_MD))
+        self.assertIsInstance(loaded, dict)
+        self.assertIsInstance(loaded.get("description"), str)
+
+    @unittest.skipIf(yaml is None, "PyYAML not installed")
+    def test_agent_frontmatter_is_valid_yaml_too(self):
+        for agent in sorted(AGENTS.glob("*.md")):
+            loaded = yaml.safe_load(raw_frontmatter(agent))
+            self.assertIsInstance(loaded, dict, agent.name)
 
     def test_required_fields_present(self):
         self.assertIn("name", self.fm)

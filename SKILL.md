@@ -1,6 +1,6 @@
 ---
 name: seo-aeo
-description: Apply Google's ranking rules and AI answer-engine citation principles to any website work. Use whenever building, writing, reviewing, or fixing a web page, site, or component, and whenever someone mentions SEO, AEO, GEO, search ranking or visibility, Google Search, being cited by AI, Core Web Vitals (LCP, INP, CLS), schema markup, structured data, JSON-LD, sitemaps, canonical URLs, robots.txt, or meta descriptions. Also use for the site-quality work that decides whether pages get found and trusted: broken links, duplicate or thin content, orphan pages, rough or dead-end navigation, missing alt text and accessibility gaps, and Hebrew/RTL correctness including dir, bidi, and text rendering in the wrong order. Also when someone asks why a page is not ranking, not indexed, or not appearing in AI answers, or pastes a URL, HTML, or a React component for review. Do not use for ranking or sorting unrelated things, database indexes, or crawling APIs for data — those share the words and nothing else.
+description: Apply Google's ranking rules and AI answer-engine citation principles to any website work. Use whenever building, writing, reviewing, or fixing a web page, site, or component, and whenever someone mentions SEO, AEO, GEO, search ranking or visibility, Google Search, being cited by AI, Core Web Vitals (LCP, INP, CLS), schema markup, structured data, JSON-LD, sitemaps, canonical URLs, robots.txt, or meta descriptions. Also use for the site-quality work that decides whether pages get found and trusted — broken links, duplicate or thin content, orphan pages, rough or dead-end navigation, missing alt text and accessibility gaps, and Hebrew/RTL correctness including dir, bidi, and text rendering in the wrong order. Also when someone asks why a page is not ranking, not indexed, or not appearing in AI answers, or pastes a URL, HTML, or a React component for review. Do not use for ranking or sorting unrelated things, database indexes, or crawling APIs for data — those share the words and nothing else.
 ---
 
 # SEO + AEO
@@ -184,6 +184,134 @@ it rather than reporting it missing.
 appear in results as a bare link — and because Googlebot never fetched it,
 it will never see a `noindex` on that page. To keep a page out of the
 index: allow crawling, use `noindex`.
+
+## How to work
+
+**Establish what you can actually touch.** It changes what you can promise:
+
+| What you were given | What's possible |
+|---|---|
+| A live URL only | Diagnose everything. Fix nothing — you can't write to their server. Say so up front rather than ending an audit with fixes you can't apply. |
+| A local project or repo | The full loop: find, fix, verify. |
+| Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. `references/working-in-code.md` covers what *is* judgeable from one component. |
+| Nothing yet, page being written | Build mode. Use these sections as the spec while writing, not as an audit afterwards. |
+
+If someone asks to "make my site rank" with nothing attached, ask for the
+URL or the project path — one question, then proceed. Don't stall on
+details you can infer.
+
+**Ask how the page gets its visitors before you rank the fixes.** Not every
+page is reached from search. Documentation entry points, install pages, and
+anything people arrive at from a link in a README or an email are doing fine
+without a canonical tag, and a report that opens with one has misjudged the
+page. What does *not* get discounted along with it: `lang`, viewport, alt
+text, contrast, keyboard access. Those serve every visitor no matter how
+they arrived. Sorting a page's findings into "matters for search here" and
+"matters regardless" is most of the value you add; listing everything at
+equal weight is most of the noise.
+
+**Reviewing an existing page or site:** work the gates first, then
+everything else. Report findings ranked **Critical / High / Medium / Low**,
+each naming the exact element or line and *why it matters* — ranking,
+AI-citation, or UX. Not a flat dump. "Missing alt text" is useless;
+"`img.hero-banner` missing alt (Hero.jsx line 14)" is actionable.
+
+`references/examples.md` §6 is a complete report for one page — gates as a
+table up front, findings ranked with the ranking justified, the decision
+asked in the owner's language, and an explicit list of what couldn't be
+checked. Copy that shape.
+
+**Don't list what passed — do name the near-misses.** A wall of ✅ is
+noise. But the one or two things that *look* like bugs and aren't are worth
+a line each: a `←` arrow on a Hebrew page is correct,
+because "next" points left in right-to-left reading. Saying so stops the
+next reader raising it, and it shows the check was actually run rather than
+skipped. Two lines, at the end, under the findings — not a second report.
+
+**Writing a new page:** use these same sections as a build spec. Getting it
+right in the first draft costs nothing; retrofitting costs a rewrite.
+
+**Fixing:** make the smallest correct change per issue. For anything shared
+across pages, fix the shared component once rather than patching every
+instance — and say so, because it affects more pages than were reported.
+Confirm before bulk changes across many files or anything touching URL
+structure. After fixing, re-check that specific item; don't assume the edit
+worked.
+
+**Working in a codebase** — a pasted component, a framework project, a
+local repo — has its own rules, and two of them prevent real damage: a
+clickable `<div onClick>` is a link no crawler can follow, and a URL taken
+from a dev server must never be written into a source file. The rest, plus
+where each framework keeps its head tags and its sitemap, is in
+`references/working-in-code.md`. Read it whenever you have code in front of
+you.
+
+
+**Don't guess.** Some things need a human: which URL should be canonical
+when several are plausible, whether to publish a real author name, where a
+broken link *should* point, rewriting copy that carries business meaning.
+Report those as decisions needed, with the tradeoff named.
+
+**Write the decision so the person can actually make it.** Whoever asked
+may run a bakery, not a CDN. "Your canonical URL is ambiguous" hands them a
+term and no way forward. Ask the question in their language, give the
+options, and say what each one costs:
+
+> Two addresses show the same page — `example.co.il/challah` and
+> `example.co.il/breads/challah`. Google will pick one to show and ignore
+> the other. Which should people land on? Whichever you pick, I'll point
+> the other one at it, so no one hits a dead end.
+
+Same content, answerable by someone with no technical background. Keep the
+precise term in the finding for anyone who wants it — just don't make it
+the whole message.
+
+**Ask who is going to make the change.** This decides the shape of the
+whole report and it is one question. "Add `width` and `height` to the
+`<img>`" is the right instruction for a developer and useless to someone
+whose site is on Wix — where the same fix is a setting, or does not exist,
+or needs the person who built it for them. If they have a developer, write
+findings the developer can act on and give the owner the summary. If they
+don't, say which fixes their platform can do, which need someone hired,
+and roughly in what order — and don't hand a non-technical owner a list of
+code edits with no route to getting them made.
+
+Whether to translate the vocabulary at all: default to plain language, and
+drop the translation once they use the terms back at you. If you are
+unsure, one sentence asking is cheaper than guessing wrong in either
+direction — jargon at someone who doesn't have it stalls them, and
+over-explaining to a developer reads as condescension.
+
+### Auditing a whole site
+
+Work page by page rather than trying to hold the site in your head at once.
+
+If you can dispatch subagents (Claude Code), two ship alongside this skill
+and make a full-site pass practical:
+
+- **`seo-page-auditor`** — read-only, one page at a time, in parallel. It
+  carries this same checklist, so it can't change code while reviewing it.
+- **`seo-fixer`** — has edit access, runs only on findings you've confirmed.
+
+Enumerate pages from `sitemap.xml`, by crawling same-domain links, or from
+route files in a local project. Past about 100 pages, don't audit every one
+— sample, and sample in a way you can describe. The procedure is in
+`references/situations.md` under *A large site*: how to group, how many per
+group, which pages never get sampled, and what to do when the sample
+disagrees with itself. Say what you sampled and how; never sample silently.
+
+If subagents aren't available (Claude Desktop, claude.ai), the checklist is
+identical and every judgment in it is yours to make — do the same passes
+one page per turn, keeping a running findings list. What changes is
+throughput, not quality: pages go serially instead of in parallel, so a
+site of a few hundred pages is a sampling job rather than a full sweep,
+and a long audit will outrun a single conversation. Plan for that out
+loud — agree the sample first, and report per cluster as you finish it
+rather than saving everything for an end that may not arrive.
+
+After fixing, re-check the specific items. Loop until a pass finds nothing
+left, or until returns flatten — and say which one happened rather than
+quietly stopping.
 
 ## Core Web Vitals
 
@@ -659,129 +787,6 @@ many of the same things.
   `outline: none` without a replacement.
 - Real landmarks (`nav`, `main`, `footer`), labelled form inputs, correct
   ARIA state on custom dropdowns and accordions.
-
-## How to work
-
-**Establish what you can actually touch.** It changes what you can promise:
-
-| What you were given | What's possible |
-|---|---|
-| A live URL only | Diagnose everything. Fix nothing — you can't write to their server. Say so up front rather than ending an audit with fixes you can't apply. |
-| A local project or repo | The full loop: find, fix, verify. |
-| Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. See below for what *is* judgeable from one component. |
-| Nothing yet, page being written | Build mode. Use these sections as the spec while writing, not as an audit afterwards. |
-
-If someone asks to "make my site rank" with nothing attached, ask for the
-URL or the project path — one question, then proceed. Don't stall on
-details you can infer.
-
-**Ask how the page gets its visitors before you rank the fixes.** Not every
-page is reached from search. Documentation entry points, install pages, and
-anything people arrive at from a link in a README or an email are doing fine
-without a canonical tag, and a report that opens with one has misjudged the
-page. What does *not* get discounted along with it: `lang`, viewport, alt
-text, contrast, keyboard access. Those serve every visitor no matter how
-they arrived. Sorting a page's findings into "matters for search here" and
-"matters regardless" is most of the value you add; listing everything at
-equal weight is most of the noise.
-
-**Reviewing an existing page or site:** work the gates first, then
-everything else. Report findings ranked **Critical / High / Medium / Low**,
-each naming the exact element or line and *why it matters* — ranking,
-AI-citation, or UX. Not a flat dump. "Missing alt text" is useless;
-"`img.hero-banner` missing alt (Hero.jsx line 14)" is actionable.
-
-`references/examples.md` §6 is a complete report for one page — gates as a
-table up front, findings ranked with the ranking justified, the decision
-asked in the owner's language, and an explicit list of what couldn't be
-checked. Copy that shape.
-
-**Don't list what passed — do name the near-misses.** A wall of ✅ is
-noise. But the one or two things that *look* like bugs and aren't are worth
-a line each: a `←` arrow on a Hebrew page is correct,
-because "next" points left in right-to-left reading. Saying so stops the
-next reader raising it, and it shows the check was actually run rather than
-skipped. Two lines, at the end, under the findings — not a second report.
-
-**Writing a new page:** use these same sections as a build spec. Getting it
-right in the first draft costs nothing; retrofitting costs a rewrite.
-
-**Fixing:** make the smallest correct change per issue. For anything shared
-across pages, fix the shared component once rather than patching every
-instance — and say so, because it affects more pages than were reported.
-Confirm before bulk changes across many files or anything touching URL
-structure. After fixing, re-check that specific item; don't assume the edit
-worked.
-
-**Working in a codebase** — a pasted component, a framework project, a
-local repo — has its own rules, and two of them prevent real damage: a
-clickable `<div onClick>` is a link no crawler can follow, and a URL taken
-from a dev server must never be written into a source file. The rest, plus
-where each framework keeps its head tags and its sitemap, is in
-`references/working-in-code.md`. Read it whenever you have code in front of
-you.
-
-
-**Don't guess.** Some things need a human: which URL should be canonical
-when several are plausible, whether to publish a real author name, where a
-broken link *should* point, rewriting copy that carries business meaning.
-Report those as decisions needed, with the tradeoff named.
-
-**Write the decision so the person can actually make it.** Whoever asked
-may run a bakery, not a CDN. "Your canonical URL is ambiguous" hands them a
-term and no way forward. Ask the question in their language, give the
-options, and say what each one costs:
-
-> Two addresses show the same page — `example.co.il/challah` and
-> `example.co.il/breads/challah`. Google will pick one to show and ignore
-> the other. Which should people land on? Whichever you pick, I'll point
-> the other one at it, so no one hits a dead end.
-
-Same content, answerable by someone with no technical background. Keep the
-precise term in the finding for anyone who wants it — just don't make it
-the whole message.
-
-**Ask who is going to make the change.** This decides the shape of the
-whole report and it is one question. "Add `width` and `height` to the
-`<img>`" is the right instruction for a developer and useless to someone
-whose site is on Wix — where the same fix is a setting, or does not exist,
-or needs the person who built it for them. If they have a developer, write
-findings the developer can act on and give the owner the summary. If they
-don't, say which fixes their platform can do, which need someone hired,
-and roughly in what order — and don't hand a non-technical owner a list of
-code edits with no route to getting them made.
-
-Whether to translate the vocabulary at all: default to plain language, and
-drop the translation once they use the terms back at you. If you are
-unsure, one sentence asking is cheaper than guessing wrong in either
-direction — jargon at someone who doesn't have it stalls them, and
-over-explaining to a developer reads as condescension.
-
-### Auditing a whole site
-
-Work page by page rather than trying to hold the site in your head at once.
-
-If you can dispatch subagents (Claude Code), two ship alongside this skill
-and make a full-site pass practical:
-
-- **`seo-page-auditor`** — read-only, one page at a time, in parallel. It
-  carries this same checklist, so it can't change code while reviewing it.
-- **`seo-fixer`** — has edit access, runs only on findings you've confirmed.
-
-Enumerate pages from `sitemap.xml`, by crawling same-domain links, or from
-route files in a local project. Past about 100 pages, don't audit every one
-— sample, and sample in a way you can describe. The procedure is in
-`references/situations.md` under *A large site*: how to group, how many per
-group, which pages never get sampled, and what to do when the sample
-disagrees with itself. Say what you sampled and how; never sample silently.
-
-If subagents aren't available (Claude Desktop, claude.ai), everything above
-still works — do the same passes yourself, one page per turn, and keep a
-running findings list. The checklist is the same either way.
-
-After fixing, re-check the specific items. Loop until a pass finds nothing
-left, or until returns flatten — and say which one happened rather than
-quietly stopping.
 
 ## References
 
