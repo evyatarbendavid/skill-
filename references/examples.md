@@ -222,3 +222,128 @@ Findings get acted on in proportion to how specific they are.
 Name the element and the file. State why it matters. Give the fix. Rank it
 against everything else, so the reader knows what to do first rather than
 being handed twenty equal-looking items.
+
+---
+
+## 6. A complete report for one page
+
+The shape matters as much as the content. Someone who receives twenty
+equal-looking bullets does nothing; someone who receives this fixes the top
+two before lunch.
+
+This example is a small bakery's product page, reviewed from a live URL with
+no repo access — so nothing here is fixed, and the report says so at the top
+rather than ending with fixes that were never applied.
+
+---
+
+> ## `example.co.il/breads/challah` — review
+>
+> **How I checked:** fetched the page and its `robots.txt` and
+> `sitemap.xml`; read the served HTML, not the rendered page. Core Web
+> Vitals come from PageSpeed Insights field data (real Chrome users, 28-day
+> rolling, mobile). I could not check Search Console — that needs your
+> login — so anything about impressions or coverage is outside what I can
+> see.
+>
+> **Since I only have the URL, I can't change anything.** Everything below
+> is a description of what to change and where.
+>
+> ### Gates — one is failing
+>
+> | | |
+> |---|---|
+> | HTTP 200 | ✅ |
+> | Not blocked in `robots.txt` | ✅ |
+> | No `noindex` | ✅ |
+> | Content in the served HTML | ✅ |
+> | Core Web Vitals | ❌ **LCP 4.1s** (needs ≤2.5s) |
+>
+> Nothing else on this page matters as much as the LCP number. A page this
+> slow on a phone is competing with a handicap no amount of good content
+> makes up for.
+>
+> ### Critical
+>
+> **LCP is 4.1s on mobile; the cause is the hero image.**
+> `challah-hero.jpg` is 2.4 MB, served as a JPEG at full desktop size to
+> phones as well, with no width or height on the `<img>`. Three fixes, in
+> order of payoff: export it as WebP (usually 60–70% smaller at the same
+> visible quality), add a `srcset` so phones get a phone-sized file, and put
+> explicit `width`/`height` on the tag so the layout stops jumping while it
+> loads. Expect this one change to move LCP under 2.5s on its own.
+>
+> ### High
+>
+> **The page never says what challah is.** It opens with "Our bakery has
+> been family-run since 1961" and gets to the product in the fourth
+> paragraph. Someone asking an AI "what is challah" will be answered from a
+> page that says so in its first sentence, and this isn't one. Move a
+> two-sentence direct answer to the top; the family story stays, one
+> paragraph lower. See §1 above for the same edit worked through.
+>
+> **No `Organization` markup anywhere on the site.** Nothing tells Google or
+> an AI engine that this bakery is a specific business with an address, a
+> phone number, and a Facebook page — it has to infer it from prose. This is
+> cheap to add once, sitewide, and it's the single most commonly missing
+> thing on otherwise well-built sites. `LocalBusiness` (a subtype of
+> `Organization`) is the right type here, with `address`, `openingHours`,
+> and `sameAs` pointing at the profiles you actually run.
+>
+> ### Medium
+>
+> **The meta description is the same on all eleven product pages.** It reads
+> "Fresh bread baked daily at our family bakery" everywhere. That passes any
+> check asking "is there a description" and fails the only thing a
+> description does, which is give someone a reason to click *this* result
+> rather than the one above it. One per product.
+>
+> **Latin text inside Hebrew renders in the wrong order.** In the
+> ingredients list, `שמן זית Extra Virgin 500ml` displays with the `500ml`
+> in the wrong place on some browsers. Wrap the Latin run in `<bdi>`. Full
+> explanation in §4.
+>
+> ### Low
+>
+> **No `og:image`.** When someone shares this page on WhatsApp, it appears
+> as a bare link with no picture — for a bakery, where the picture is the
+> product, that's a real loss for a five-minute fix.
+>
+> ### One decision I need from you
+>
+> Two addresses show this same page — `example.co.il/challah` and
+> `example.co.il/breads/challah`. Google will pick one to show and quietly
+> ignore the other, and right now it's picking for you. Which should people
+> land on? Whichever you choose, the other gets pointed at it, so no one
+> hits a dead end and no links break.
+>
+> *(The technical name for this is the canonical URL, if you want to look it
+> up or ask someone else about it.)*
+>
+> ### What I could not check
+>
+> - **Search Console data** — impressions, click-through, coverage errors.
+>   Needs your account.
+> - **The other ten product pages.** They share a template, so the
+>   description and schema findings almost certainly apply to all of them,
+>   but I looked at one and I'm not going to claim I looked at eleven.
+> - **INP** — no field data yet for this page, which usually means low
+>   traffic rather than good performance. Not a pass; an unknown.
+
+---
+
+What makes that report work, and what to copy from it:
+
+- **The gates are a table at the top, and a failing one is named as the
+  thing that matters most.** Not buried at position nine in a flat list.
+- **Ranked, and the ranking is honest.** The 2.4 MB image outranks the
+  missing `og:image` by a wide margin, and the report says so instead of
+  presenting both as findings.
+- **Every finding names the file or element, why it matters, and the fix.**
+- **The decision is asked in the owner's language**, with the technical term
+  parked in an aside for whoever wants it.
+- **The limits are stated in two places** — what tools were used at the top,
+  what couldn't be reached at the bottom. Neither is an apology; both stop
+  the reader from believing the report covers more than it does.
+- **Sampling is admitted.** "I looked at one and I'm not going to claim I
+  looked at eleven" is the line that keeps an audit trustworthy.

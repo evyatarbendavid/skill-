@@ -239,6 +239,30 @@ class TestFieldNotesStayEvidence(unittest.TestCase):
                             "raw sample counts belong in field-notes, with the caveat")
 
 
+class TestWorkedReport(unittest.TestCase):
+    """The report template is the skill's actual output shape. If it drifts
+    from what SKILL.md tells people to produce, the skill contradicts itself."""
+
+    def setUp(self):
+        self.text = (ROOT / "references" / "examples.md").read_text(encoding="utf-8")
+
+    def test_report_ranks_findings_the_way_the_skill_says_to(self):
+        for level in ("Critical", "High", "Medium", "Low"):
+            self.assertIn(f"### {level}", self.text,
+                          f"worked report is missing the {level} band")
+
+    def test_report_states_what_could_not_be_checked(self):
+        self.assertIn("What I could not check", self.text)
+
+    def test_report_admits_sampling_rather_than_implying_full_coverage(self):
+        flat = " ".join(self.text.split())
+        self.assertRegex(flat, r"looked at one[^.]{0,60}eleven")
+
+    def test_skill_points_at_the_worked_report(self):
+        skill = SKILL_MD.read_text(encoding="utf-8")
+        self.assertRegex(skill, r"examples\.md.{0,40}§6|§6.{0,60}report")
+
+
 class TestReadme(unittest.TestCase):
     def test_readme_lists_every_reference_file(self):
         # The README's table is how someone decides whether this skill covers

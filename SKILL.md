@@ -515,6 +515,11 @@ each naming the exact element or line and *why it matters* — ranking,
 AI-citation, or UX. Not a flat dump. "Missing alt text" is useless;
 "`img.hero-banner` missing alt (Hero.jsx line 14)" is actionable.
 
+`references/examples.md` §6 is a complete report for one page — gates as a
+table up front, findings ranked with the ranking justified, the decision
+asked in the owner's language, and an explicit list of what couldn't be
+checked. Copy that shape.
+
 **Writing a new page:** use these same sections as a build spec. Getting it
 right in the first draft costs nothing; retrofitting costs a rewrite.
 
@@ -578,7 +583,7 @@ Load on demand — don't read them up front.
 | `references/platforms.md` | Someone asks about a specific AI engine, or why they're cited in one and not another |
 | `references/situations.md` | The site is large, e-commerce, multilingual, full of thin pages, mid-migration, or chasing entity recognition — depth that only applies in those cases |
 | `references/ai-crawlers.md` | Any question about blocking AI bots, `robots.txt` and AI, or why a site isn't appearing in an AI engine |
-| `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL, and how to report a finding |
+| `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL — plus how to write one finding (§5) and a complete page report (§6) |
 | `references/audit-checklist.md` | Running a formal audit — every item as PASS/FAIL/N/A |
 | `references/field-notes.md` | Deciding what to look at first — what actually turned up broken on real production sites, with the sample size stated |
 | `references/sources.md` | Citing a claim, or checking whether something is official vs. practitioner consensus vs. contested |

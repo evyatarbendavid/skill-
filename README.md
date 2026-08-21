@@ -36,7 +36,7 @@ inside that project.
 |---|---|
 | `SKILL.md` | The skill. Everything it knows, in one file. |
 | `references/ai-crawlers.md` | Which AI bot does what, and why blocking the wrong one backfires |
-| `references/examples.md` | Before/after for the edits people get wrong |
+| `references/examples.md` | Before/after for the edits people get wrong, and a full worked page report |
 | `references/platforms.md` | How each answer engine picks sources, and which one a given site should realistically aim at |
 | `references/situations.md` | Depth that only applies if the site is large, e-commerce, multilingual, thin, mid-migration, or chasing entity recognition |
 | `references/audit-checklist.md` | Every item as PASS / FAIL / N/A |
