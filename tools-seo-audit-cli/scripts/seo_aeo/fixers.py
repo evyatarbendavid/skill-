@@ -137,10 +137,18 @@ def plan_sitemap(
     not already contain, so hand-tuned priority/changefreq values survive.
     """
     local_dir = Path(local_dir)
-    target = local_dir / "sitemap.xml"
 
     if not urls:
         plan.refuse(finding_id, "no crawlable URLs found to put in a sitemap")
+        return None
+
+    # A sitemap.xml at the repository root is served by a plain static site and
+    # by nothing else. Framework projects serve it from public/ or static/, or
+    # generate it from a route file that a second static copy would conflict
+    # with — writing the root file there produces a fix that changes nothing.
+    target, refusal = pathmap.sitemap_target(local_dir)
+    if target is None:
+        plan.refuse(finding_id, refusal)
         return None
 
     today = date.today().isoformat()

@@ -261,6 +261,156 @@ class TestPathmap(unittest.TestCase):
         self.assertIn("non-HTML extension", reason)
 
 
+class TestFrameworkProjects(unittest.TestCase):
+    """Most sites people ask about are framework projects. The tool only edits
+    static HTML — the right limit — but "could not find index.html" reads as a
+    broken tool rather than as the real answer, which is that the pages are
+    route files and here is the one behind this URL."""
+
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def _write(self, relative, content="x"):
+        path = self.dir / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+        return path
+
+    def _pkg(self, **deps):
+        self._write("package.json", json.dumps({"dependencies": deps}))
+
+    def test_plain_html_project_is_not_a_framework(self):
+        self._write("index.html", "<html></html>")
+        self.assertIsNone(pathmap.detect_framework(self.dir))
+
+    def test_next_app_router_detected_and_routed(self):
+        self._pkg(next="15.0.0")
+        self._write("app/page.tsx")
+        self._write("app/about/page.tsx")
+        self._write("app/products/[slug]/page.tsx")
+        fw = pathmap.detect_framework(self.dir)
+        self.assertIn("app router", fw.name)
+        self.assertEqual(pathmap.likely_source(self.dir, "https://x.com/"),
+                         self.dir / "app" / "page.tsx")
+        self.assertEqual(pathmap.likely_source(self.dir, "https://x.com/about"),
+                         self.dir / "app" / "about" / "page.tsx")
+        # A dynamic segment serves any value in that position.
+        self.assertEqual(
+            pathmap.likely_source(self.dir, "https://x.com/products/copper-kettle"),
+            self.dir / "app" / "products" / "[slug]" / "page.tsx")
+
+    def test_src_app_layout_is_found_too(self):
+        self._pkg(next="15.0.0")
+        self._write("src/app/page.tsx")
+        fw = pathmap.detect_framework(self.dir)
+        self.assertEqual(fw.routes_dir, "src/app")
+
+    def test_sveltekit_detected_and_routed(self):
+        self._pkg(**{"@sveltejs/kit": "2.0.0"})
+        self._write("src/routes/+page.svelte")
+        self._write("src/routes/about/+page.svelte")
+        self.assertEqual(pathmap.detect_framework(self.dir).name, "SvelteKit")
+        self.assertEqual(pathmap.likely_source(self.dir, "https://x.com/about"),
+                         self.dir / "src" / "routes" / "about" / "+page.svelte")
+
+    def test_astro_and_gatsby_are_distinguished_by_dependency(self):
+        self._pkg(astro="5.0.0")
+        self._write("src/pages/index.astro")
+        self.assertEqual(pathmap.detect_framework(self.dir).name, "Astro")
+
+    def test_next_pages_router_flat_file(self):
+        self._pkg(next="14.0.0")
+        self._write("pages/about.tsx")
+        self.assertEqual(pathmap.detect_framework(self.dir).name,
+                         "Next.js (pages router)")
+        self.assertEqual(pathmap.likely_source(self.dir, "https://x.com/about"),
+                         self.dir / "pages" / "about.tsx")
+
+    def test_two_dynamic_routes_are_ambiguous_and_return_none(self):
+        # Guessing between them would edit the wrong file.
+        self._pkg(next="15.0.0")
+        self._write("app/[category]/page.tsx")
+        self._write("app/[slug]/page.tsx")
+        self.assertIsNone(pathmap.likely_source(self.dir, "https://x.com/kettles"))
+
+    def test_an_exact_directory_beats_a_dynamic_one(self):
+        self._pkg(next="15.0.0")
+        self._write("app/about/page.tsx")
+        self._write("app/[slug]/page.tsx")
+        self.assertEqual(pathmap.likely_source(self.dir, "https://x.com/about"),
+                         self.dir / "app" / "about" / "page.tsx")
+
+    def test_route_files_in_build_output_are_ignored(self):
+        self._pkg(next="15.0.0")
+        self._write(".next/server/app/page.tsx")
+        self.assertIsNone(pathmap.detect_framework(self.dir))
+
+    def test_failure_message_names_the_framework_and_the_route_file(self):
+        self._pkg(next="15.0.0")
+        self._write("app/products/[slug]/page.tsx")
+        message = pathmap.explain_failure(self.dir, "https://x.com/products/kettle")
+        self.assertIn("Next.js", message)
+        self.assertIn("app/products/[slug]/page.tsx", message)
+        self.assertIn("metadata", message)
+        # It must not read as "your project is broken".
+        self.assertNotIn("could not find a local file", message)
+
+    def test_unroutable_url_still_names_the_framework(self):
+        self._pkg(next="15.0.0")
+        self._write("app/page.tsx")
+        message = pathmap.explain_failure(self.dir, "https://x.com/nope/deep")
+        self.assertIn("Next.js", message)
+
+    def test_plain_site_gets_a_root_sitemap(self):
+        self._write("index.html", "<html></html>")
+        target, refusal = pathmap.sitemap_target(self.dir)
+        self.assertIsNone(refusal)
+        self.assertEqual(target, self.dir / "sitemap.xml")
+
+    def test_framework_sitemap_goes_to_the_served_static_directory(self):
+        # A sitemap.xml at a Next.js repo root is not served at /sitemap.xml,
+        # so writing it there is a fix that changes nothing.
+        self._pkg(next="15.0.0")
+        self._write("app/page.tsx")
+        self._write("public/favicon.ico")
+        target, refusal = pathmap.sitemap_target(self.dir)
+        self.assertIsNone(refusal)
+        self.assertEqual(target, self.dir / "public" / "sitemap.xml")
+
+    def test_sveltekit_uses_static_not_public(self):
+        self._pkg(**{"@sveltejs/kit": "2.0.0"})
+        self._write("src/routes/+page.svelte")
+        self._write("static/favicon.png")
+        target, _ = pathmap.sitemap_target(self.dir)
+        self.assertEqual(target, self.dir / "static" / "sitemap.xml")
+
+    def test_a_generated_sitemap_is_not_shadowed_by_a_static_one(self):
+        self._pkg(next="15.0.0")
+        self._write("app/page.tsx")
+        self._write("public/favicon.ico")
+        self._write("app/sitemap.ts")
+        target, refusal = pathmap.sitemap_target(self.dir)
+        self.assertIsNone(target)
+        self.assertIn("app/sitemap.ts", refusal)
+
+    def test_missing_static_directory_is_explained_not_guessed_at(self):
+        self._pkg(next="15.0.0")
+        self._write("app/page.tsx")
+        target, refusal = pathmap.sitemap_target(self.dir)
+        self.assertIsNone(target)
+        self.assertIn("public/", refusal)
+
+    def test_hugo_generates_its_own_sitemap(self):
+        self._write("config.toml", "baseURL = 'https://x.com'")
+        self._write("content/about.md", "# About")
+        target, refusal = pathmap.sitemap_target(self.dir)
+        self.assertIsNone(target)
+        self.assertIn("every build", refusal)
+
+
 class TestFixers(unittest.TestCase):
     def setUp(self):
         self.dir = Path(tempfile.mkdtemp())

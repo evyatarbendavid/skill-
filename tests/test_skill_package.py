@@ -335,6 +335,26 @@ class TestAgentSkillAgreement(unittest.TestCase):
             "auditor must carry the schema/citation correction verbatim")
 
 
+class TestFrameworkGuidance(unittest.TestCase):
+    """A sitemap.xml written to a framework project's repo root is not served.
+    The fix looks applied and changes nothing, which is worse than no fix."""
+
+    def setUp(self):
+        self.flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+
+    def test_names_where_a_static_sitemap_actually_goes(self):
+        self.assertRegex(self.flat, r"public/")
+        self.assertRegex(self.flat, r"static/")
+        self.assertRegex(self.flat, r"not served")
+
+    def test_names_where_head_tags_come_from_per_framework(self):
+        for token in ("generateMetadata", "svelte:head", "useHead", "next/head"):
+            self.assertIn(token, self.flat, token)
+
+    def test_says_a_route_fix_affects_more_pages_than_were_audited(self):
+        self.assertRegex(self.flat, r"route file[^|]{0,200}more pages")
+
+
 class TestNoDevUrlsInSource(unittest.TestCase):
     """A canonical pointing at someone's laptop is worse than no canonical.
     The skill, the fixer agent, and the CLI all have to refuse it — the CLI

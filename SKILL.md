@@ -581,6 +581,28 @@ Confirm before bulk changes across many files or anything touching URL
 structure. After fixing, re-check that specific item; don't assume the edit
 worked.
 
+**On a framework project, the page is not an HTML file.** Most sites people
+bring are Next.js, Astro, SvelteKit, Nuxt, or similar, and the two things
+audits most often want to change — head tags and `sitemap.xml` — are not
+where a static site puts them:
+
+| Project | Head tags come from | A static `sitemap.xml` goes in |
+|---|---|---|
+| Next.js app router | `export const metadata` / `generateMetadata` in `page.tsx`, `layout.tsx` | `public/` — unless `app/sitemap.ts` exists, which generates it |
+| Next.js pages router | `next/head` in the page, `_app` / `_document` | `public/` |
+| Astro | a layout component in `src/layouts/` | `public/` |
+| SvelteKit | `<svelte:head>` in `+page.svelte`, `+layout.svelte` | `static/` |
+| Nuxt | `useHead` / `definePageMeta`, `app.vue` | `public/` |
+| Gatsby | the `Head` export, or the starter's `Seo` component | `static/` |
+| Hugo / Jekyll | templates in `layouts/` or `_layouts`, values from front matter | it generates one; don't add a second |
+
+Two consequences worth stating rather than discovering. A `sitemap.xml`
+written to the repository root of any of these is **not served** — the fix
+looks applied and changes nothing. And a fix belongs at the route file that
+produces the URL (`/products/copper-kettle` → `app/products/[slug]/page.tsx`),
+which means it applies to every page that route serves — say that, because
+it is more pages than were audited.
+
 **Never write a URL you got from a dev server into a source file.** Working
 from a local project, the address in front of you is `localhost:3000` — and
 a canonical tag, a sitemap entry, or a JSON-LD `url` built from it ships a
