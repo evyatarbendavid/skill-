@@ -77,6 +77,15 @@ class TestSkillManifest(unittest.TestCase):
 
 
 class TestReferences(unittest.TestCase):
+    def test_skill_points_at_every_reference(self):
+        # The reverse of the above: a reference SKILL.md never mentions is one
+        # nothing loads. Content moved out of SKILL.md for length has to stay
+        # reachable, or trimming the file quietly deletes it.
+        text = SKILL_MD.read_text(encoding="utf-8")
+        for ref in sorted((ROOT / "references").glob("*.md")):
+            self.assertIn(f"references/{ref.name}", text,
+                          f"SKILL.md never points at {ref.name}")
+
     def test_referenced_files_exist(self):
         text = SKILL_MD.read_text(encoding="utf-8")
         for rel in re.findall(r"`(references/[\w.-]+)`", text):
@@ -419,7 +428,8 @@ class TestSamplingIsOperationalized(unittest.TestCase):
     whoever reads it."""
 
     def setUp(self):
-        self.flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+        self.flat = " ".join((ROOT / "references" / "situations.md")
+                             .read_text(encoding="utf-8").split())
 
     def test_says_how_many_pages_per_cluster(self):
         self.assertIn("Audit three per cluster", self.flat)
@@ -437,7 +447,8 @@ class TestSamplingIsOperationalized(unittest.TestCase):
 
 class TestPastedComponentReview(unittest.TestCase):
     def test_names_the_div_onclick_bug(self):
-        flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+        flat = " ".join((ROOT / "references" / "working-in-code.md")
+                        .read_text(encoding="utf-8").split())
         self.assertIn("<div onClick>", flat)
         # The reason it matters: crawlers follow hrefs, not click handlers.
         self.assertRegex(flat, r"does not fire click handlers|not fire click")
@@ -472,7 +483,9 @@ class TestFrameworkGuidance(unittest.TestCase):
     The fix looks applied and changes nothing, which is worse than no fix."""
 
     def setUp(self):
-        self.flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+        self.flat = " ".join(
+            (ROOT / "references" / "working-in-code.md")
+            .read_text(encoding="utf-8").split())
 
     def test_names_where_a_static_sitemap_actually_goes(self):
         self.assertRegex(self.flat, r"public/")
@@ -493,7 +506,8 @@ class TestNoDevUrlsInSource(unittest.TestCase):
     wrote one before this was checked."""
 
     def test_skill_and_fixer_both_refuse_dev_urls(self):
-        for path in (SKILL_MD, AGENTS / "seo-fixer.md"):
+        for path in (ROOT / "references" / "working-in-code.md",
+                     AGENTS / "seo-fixer.md"):
             flat = " ".join(path.read_text(encoding="utf-8").split())
             self.assertRegex(flat, r"localhost:\d+",
                              f"{path.name} should name the address this is about")

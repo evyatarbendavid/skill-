@@ -36,11 +36,35 @@ crawlers can be a meaningful share of total crawl load, and a traffic
 problem that looks like a Googlebot pattern is sometimes an AI crawler
 hammering a paginated endpoint. See `ai-crawlers.md` for who's who.
 
-**Sampling when auditing.** Don't audit ten thousand pages. Cluster by
-template — all product pages share one, all category pages another — audit
-a representative of each cluster, and fix at the shared component so the
-fix propagates. State that you sampled and how. Silent sampling reported as
-a full audit is the thing not to do.
+**Sampling when auditing.** Don't audit ten thousand pages. "Cluster by
+template" is easy to say and leaves the actual decision undefined, so:
+
+1. **Group by what generates the page, not by what it looks like.** In a
+   local project that is the route file: everything under
+   `app/products/[slug]/` is one cluster, however different the products
+   are. From URLs alone, the path shape is the proxy — `/products/*`,
+   `/blog/*`, `/blog/category/*` — and a cluster whose members turn out to
+   have different `<title>` patterns or different heading structures was
+   two clusters.
+2. **Audit three per cluster, not one**: the newest, the oldest, and the
+   one with the most content. A single representative hides exactly the
+   variation worth finding — the oldest page is where the deprecated
+   markup lives, the longest is where the heading hierarchy breaks.
+3. **Always audit the singletons in full** — homepage, pricing, contact,
+   the top few landing pages. They have no cluster and they are usually
+   the pages that matter most.
+4. **Escalate when the three disagree.** If two of three share a finding
+   and the last doesn't, the cluster isn't uniform: audit more of it
+   rather than reporting the majority as the whole.
+5. **Fix at the shared source**, then re-check one page per cluster to
+   confirm the fix propagated — a template fix that didn't take looks
+   identical to one that did until you look.
+
+Say what you sampled, how you grouped, and how many of each cluster you
+looked at. Never sample silently, and never write a count you did not
+check — "I audited 3 of roughly 400 product pages" is a stronger sentence
+than an unqualified "product pages are fine."
+
 
 ---
 

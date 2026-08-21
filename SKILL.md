@@ -692,60 +692,14 @@ Confirm before bulk changes across many files or anything touching URL
 structure. After fixing, re-check that specific item; don't assume the edit
 worked.
 
-**One pasted component is still worth a real answer.** Most of the
-checklist needs the page, but a component carries its own bugs and they are
-worth naming rather than deflecting with "I'd need the whole site":
+**Working in a codebase** — a pasted component, a framework project, a
+local repo — has its own rules, and two of them prevent real damage: a
+clickable `<div onClick>` is a link no crawler can follow, and a URL taken
+from a dev server must never be written into a source file. The rest, plus
+where each framework keeps its head tags and its sitemap, is in
+`references/working-in-code.md`. Read it whenever you have code in front of
+you.
 
-- **A clickable thing built from `<div onClick>` instead of `<a href>`.**
-  This is the most common SEO bug in React code and it is fully visible in
-  one file. A crawler follows `href`s; it does not fire click handlers, so
-  a card, tile, or "read more" built this way is a link that no search
-  engine and no AI crawler can follow. It also can't be opened in a new
-  tab, middle-clicked, or reached by keyboard. `<a href>` styled as a card
-  does everything the div did.
-- Images with no `alt`, or `loading="lazy"` on something that is plainly
-  the hero.
-- Anchor text that describes nothing — "click here", "read more",
-  "לחץ כאן" — where the component knows the destination and could say it.
-- Heading level chosen for size. You cannot judge `h2` vs `h3` without the
-  page, so say that instead of guessing — but an `h1` inside a repeated
-  card component is wrong from the file alone.
-- Text baked into an image, and interactive elements with no accessible
-  name.
-
-Say which findings are certain from this file and which need the route.
-That distinction is the useful part; a flat "send me more" is not.
-
-**On a framework project, the page is not an HTML file.** Most sites people
-bring are Next.js, Astro, SvelteKit, Nuxt, or similar, and the two things
-audits most often want to change — head tags and `sitemap.xml` — are not
-where a static site puts them:
-
-| Project | Head tags come from | A static `sitemap.xml` goes in |
-|---|---|---|
-| Next.js app router | `export const metadata` / `generateMetadata` in `page.tsx`, `layout.tsx` | `public/` — unless `app/sitemap.ts` exists, which generates it |
-| Next.js pages router | `next/head` in the page, `_app` / `_document` | `public/` |
-| Astro | a layout component in `src/layouts/` | `public/` |
-| SvelteKit | `<svelte:head>` in `+page.svelte`, `+layout.svelte` | `static/` |
-| Nuxt | `useHead` / `definePageMeta`, `app.vue` | `public/` |
-| Gatsby | the `Head` export, or the starter's `Seo` component | `static/` |
-| Hugo / Jekyll | templates in `layouts/` or `_layouts`, values from front matter | it generates one; don't add a second |
-
-Two consequences worth stating rather than discovering. A `sitemap.xml`
-written to the repository root of any of these is **not served** — the fix
-looks applied and changes nothing. And a fix belongs at the route file that
-produces the URL (`/products/copper-kettle` → `app/products/[slug]/page.tsx`),
-which means it applies to every page that route serves — say that, because
-it is more pages than were audited.
-
-**Never write a URL you got from a dev server into a source file.** Working
-from a local project, the address in front of you is `localhost:3000` — and
-a canonical tag, a sitemap entry, or a JSON-LD `url` built from it ships a
-developer's machine to production, where it is worse than the tag being
-missing. Ask for the real domain before writing any of them. If you don't
-have it, leave the value as an explicit `TODO` and say which fields are
-waiting on it, rather than filling in something that looks complete and
-isn't.
 
 **Don't guess.** Some things need a human: which URL should be canonical
 when several are plausible, whether to publish a real author name, where a
@@ -793,36 +747,12 @@ and make a full-site pass practical:
   carries this same checklist, so it can't change code while reviewing it.
 - **`seo-fixer`** — has edit access, runs only on findings you've confirmed.
 
-Enumerate pages from `sitemap.xml`, or by crawling same-domain links, or
-from route files in a local project. On a site of 100+ pages, don't audit
-every one — sample. Here is how, because "cluster by template" is easy to
-say and leaves the actual decision undefined:
-
-1. **Group by what generates the page, not by what it looks like.** In a
-   local project that is the route file: everything under
-   `app/products/[slug]/` is one cluster, however different the products
-   are. From URLs alone, the path shape is the proxy — `/products/*`,
-   `/blog/*`, `/blog/category/*` — and a cluster whose members turn out to
-   have different `<title>` patterns or different heading structures was
-   two clusters.
-2. **Audit three per cluster, not one**: the newest, the oldest, and the
-   one with the most content. A single representative hides exactly the
-   variation worth finding — the oldest page is where the deprecated
-   markup lives, the longest is where the heading hierarchy breaks.
-3. **Always audit the singletons in full** — homepage, pricing, contact,
-   the top few landing pages. They have no cluster and they are usually
-   the pages that matter most.
-4. **Escalate when the three disagree.** If two of three share a finding
-   and the last doesn't, the cluster isn't uniform: audit more of it
-   rather than reporting the majority as the whole.
-5. **Fix at the shared source**, then re-check one page per cluster to
-   confirm the fix propagated — a template fix that didn't take looks
-   identical to one that did until you look.
-
-Say what you sampled, how you grouped, and how many of each cluster you
-looked at. Never sample silently, and never write a count you did not
-check — "I audited 3 of roughly 400 product pages" is a stronger sentence
-than an unqualified "product pages are fine."
+Enumerate pages from `sitemap.xml`, by crawling same-domain links, or from
+route files in a local project. Past about 100 pages, don't audit every one
+— sample, and sample in a way you can describe. The procedure is in
+`references/situations.md` under *A large site*: how to group, how many per
+group, which pages never get sampled, and what to do when the sample
+disagrees with itself. Say what you sampled and how; never sample silently.
 
 If subagents aren't available (Claude Desktop, claude.ai), everything above
 still works — do the same passes yourself, one page per turn, and keep a
@@ -843,5 +773,6 @@ Load on demand — don't read them up front.
 | `references/ai-crawlers.md` | Any question about blocking AI bots, `robots.txt` and AI, or why a site isn't appearing in an AI engine |
 | `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL — plus how to write one finding (§5) and a complete page report (§6) |
 | `references/audit-checklist.md` | Running a formal audit — every item as PASS/FAIL/N/A |
+| `references/working-in-code.md` | There is code in front of you — a pasted component, a local repo, a framework project. Route-file mapping, where each framework keeps head tags and sitemaps, and the two rules that prevent real damage |
 | `references/field-notes.md` | Deciding what to look at first — what actually turned up broken on real production sites, with the sample size stated |
 | `references/sources.md` | Citing a claim, or checking whether something is official vs. practitioner consensus vs. contested |
