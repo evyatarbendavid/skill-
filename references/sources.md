@@ -480,12 +480,16 @@ features — there is no separate AEO checklist to satisfy **[OFFICIAL]**. The
 same fundamentals (retrievable, structured, trustworthy, corroborated) do most
 of the work for non-Google engines too **[CONSENSUS]**.
 
-**But eligibility is not selection, and the two have come apart.** Citation
-research through 2025–2026 found the share of AI Overview citations coming
-from top-10 organic results fell from roughly 76% to 38% within about a year,
-with the remainder spread across pages ranking 11–100 and beyond
-**[CONSENSUS — industry tracking, not Google documentation; treat figures as
-approximate]**.
+**But eligibility is not selection, and the two have come apart.** An Ahrefs
+study across ~863,000 keywords and ~4 million AI Overview URLs found the share
+of cited pages that also ranked in the organic top 10 fell from roughly **76%
+(July 2025) to 38% (March 2026)** — halving in eight months — with the
+remainder spread across pages ranking 11–100 and beyond.
+
+Different research firms measuring the same thing land anywhere from **17% to
+38%**, because their methodologies differ. Quote the direction, not a decimal.
+**[CONSENSUS — industry tracking, not Google documentation; the spread across
+firms is itself the reason not to state a single figure as precise]**
 
 So the accurate framing is: classic SEO is the **entry ticket** — retrieval
 requires indexing, and nothing else matters if the page can't be fetched. It

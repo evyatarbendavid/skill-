@@ -345,13 +345,17 @@ can't retrieve.** Google states there are no special requirements and no
 special markup for AI features — a page needs to be indexed and eligible to
 show with a snippet.
 
-But "rank top-10 and citation follows" no longer holds the way it did. One
-large study of AI Overview citations found the share coming from pages
-ranking in the top 10 organically fell from roughly **76% to 38%** over
-about a year, with the rest split fairly evenly between pages ranking
-11–100 and pages ranking beyond 100. *(Industry research, not Google
-documentation — direction is well corroborated, treat the exact figures as
-approximate.)*
+But "rank top-10 and citation follows" no longer holds the way it did. An
+Ahrefs study across ~863,000 keywords and ~4 million AI Overview URLs found
+the share of cited pages that also ranked in the organic top 10 fell from
+roughly **76% (July 2025) to 38% (March 2026)** — about half, in eight
+months — with the rest spread across pages ranking 11–100 and beyond 100.
+
+Measurements from different firms put that overlap anywhere from **17% to
+38%**, because they count differently. Which is the point: don't quote a
+single figure as precise. The finding that survives every methodology is
+the direction, and it is not subtle. *(Industry research, not Google
+documentation.)*
 
 What that changes: classic SEO is still the **entry ticket**, because
 retrieval requires indexing. It is no longer a good **predictor**. A page

@@ -221,10 +221,11 @@ things):
 A layer on top of SEO, not a replacement. Sections 1–6 are the gate,
 because retrieval requires indexing.
 
-But do not assume ranking predicts citation. One large study found the
-share of AI Overview citations coming from top-10 organic results fell
-from roughly 76% to 38% over about a year, with the rest spread across
-pages ranking 11–100 and beyond. A page ranking 40th gets cited; a page
+But do not assume ranking predicts citation. An Ahrefs study across
+~863,000 keywords found the share of cited pages that also ranked in the
+organic top 10 fell from roughly 76% (July 2025) to 38% (March 2026);
+other firms measuring the same thing land between 17% and 38%, so quote
+the direction rather than a figure. A page ranking 40th gets cited; a page
 ranking 3rd often isn't. Classic SEO is the entry ticket, not the
 predictor — so weight the passage-level findings below accordingly.
 
