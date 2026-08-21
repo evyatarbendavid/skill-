@@ -53,8 +53,12 @@ For Googlebot, robots.txt is reliably honored. For AI crawlers it is
   impersonating Chrome — found using private honeypot domains that could
   only have been reached by ignoring robots directives. Perplexity disputed
   the finding.
-- Cloudflare reported roughly **13% of AI bot requests bypassed robots.txt
-  in Q4 2025**, up sharply through that year.
+- Cloudflare has reported a meaningful share of AI bot requests ignoring
+  robots.txt, rising through 2025. *(An earlier revision of this file put
+  that at "roughly 13% in Q4 2025". A re-check could not corroborate that
+  specific figure at its source — adjacent Cloudflare statistics exist,
+  that one was not found. The direction is well supported; treat the number
+  as unverified and do not quote it.)*
 - One study of sites blocking AI crawlers found **most were still cited
   anyway** — blocking often failed at the one thing it was for.
 
@@ -83,6 +87,37 @@ negotiations, or where content genuinely must not be reused. Frame it that
 way. It is not a performance optimization, and anyone who presents it as
 one has it backwards.
 
+## The lever this discussion usually misses
+
+`robots.txt` is the wrong tool for keeping content out of **Google's** AI
+answers, and it is not the only one available. Google's robots meta
+directives apply to AI Overviews and AI Mode as well as to ordinary
+results:
+
+| Directive | Effect |
+|---|---|
+| `nosnippet` | No snippet anywhere — web results, Images, Discover, AI Overviews, AI Mode — and the content is not used as a direct input to AI Overviews or AI Mode |
+| `data-nosnippet` | The same, scoped to the HTML element you wrap, leaving the rest of the page usable |
+| `max-snippet:[n]` | Caps snippet length across those same surfaces, and limits how much may be used as a direct input |
+| `max-snippet:0` | Makes the page ineligible for AI Overviews |
+
+These are honored, unlike a `robots.txt` line addressed to a third-party
+crawler, because Google is the party reading them. That makes this the only
+reliable exclusion control in the whole discussion — for Google's surfaces.
+It does nothing about ChatGPT, Perplexity, or Copilot.
+
+**And it costs the ordinary snippet.** The same directive that pulls a page
+out of AI Overviews strips the description under its blue link. The result
+becomes a bare title, which is a real click-through loss on a page that was
+ranking fine. For most sites that is a worse trade than the citation was.
+Where it earns its place — paywalled excerpts, licensed text, a passage
+that must not be quoted out of context — `data-nosnippet` around that
+passage is usually the right size of tool, not `nosnippet` on the page.
+
+*(Verified 2026-08-21 against Google's robots meta tag documentation as
+reported by trade press; the directives themselves are long-standing, their
+stated application to AI Overviews and AI Mode is the recent part.)*
+
 ## What to actually check on a site
 
 - Does `robots.txt` block any retrieval bot **unintentionally**? A blanket
@@ -94,3 +129,7 @@ one has it backwards.
   blanket rule collapse both?
 - If exclusion actually matters to them, is anything enforcing it beyond
   robots.txt?
+- If the goal is specifically to stay out of Google's AI answers, are they
+  reaching for `robots.txt` when `nosnippet` or `data-nosnippet` is the
+  control that actually works? Check that they know it costs the ordinary
+  search snippet too.

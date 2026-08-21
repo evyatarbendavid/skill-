@@ -199,6 +199,21 @@ class TestFactualGuardrails(unittest.TestCase):
                              f"{name} should state how small AI Mode's share is")
             self.assertIn("large minority", flat, name)
 
+    def test_names_the_page_level_control_over_ai_answers(self):
+        # robots.txt is the wrong tool for staying out of Google's AI answers,
+        # and it is the only one most discussions mention.
+        flat = " ".join(self.text.split())
+        self.assertIn("max-snippet", flat)
+        self.assertIn("data-nosnippet", flat)
+        # The tradeoff is the part that decides whether to use it at all.
+        self.assertRegex(flat, r"nosnippet[^|]{0,400}(ordinary|normal) (search )?snippet")
+
+    def test_ai_visibility_reporting_carries_its_limits(self):
+        flat = " ".join(self.text.split())
+        self.assertRegex(flat, r"Search Generative AI performance report")
+        for limit in ("no click data", "backfill", "UK"):
+            self.assertIn(limit, flat, f"should state the {limit!r} limit")
+
     def test_soft_navigations_are_not_sold_as_a_ranking_input(self):
         # The API shipped; whether CrUX counts it is undetermined. Claiming the
         # second half follows from the first is the easy mistake here.

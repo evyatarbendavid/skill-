@@ -84,10 +84,17 @@ into Google's **core ranking systems in the March 2024 core update** — there i
 no separate "Helpful Content System" today. **[OFFICIAL]**
 ([Creating helpful content](https://developers.google.com/search/docs/fundamentals/creating-helpful-content))
 
-**Core update cadence is now near-continuous, not quarterly.** Google shipped a
-core update in December 2025, two in March 2026, and another in May 2026 —
-five confirmed between February and June 2026 alone. Plan for ongoing
-volatility rather than discrete quarterly events. **[CONSENSUS]**
+**Core update cadence is now near-continuous, not quarterly.** Plan for
+ongoing volatility rather than discrete quarterly events, and don't attribute
+a traffic change to a specific named update without checking the dates.
+
+*(An earlier revision of this file listed four updates and then claimed five
+confirmed in a window that excluded one of them. The count did not survive a
+re-check and has been removed rather than corrected to a different number:
+the cadence is the durable point, and a precise tally of a moving target is
+exactly the kind of figure this file should not be carrying. Look up the
+current list when it matters.)* **[CONSENSUS on the cadence; the count was
+not corroborated]**
 ([Core updates](https://developers.google.com/search/docs/appearance/core-updates))
 
 Google publishes **self-assessment questions** to judge your own content
@@ -341,6 +348,29 @@ data, unlike third-party estimators). **[OFFICIAL]**
 **Also watch:** the **Core Web Vitals** report (field pass/fail by URL group,
 mobile + desktop); the **Sitemaps** report (submitted vs. indexed); and any
 **Manual Actions** / **Security** issues (must be zero). **[OFFICIAL]**
+
+**Search Generative AI performance reports** — launched **3 June 2026**, this
+is the first first-party measurement of visibility inside AI answers, with
+dedicated views for Search and for Discover. It reports **impressions inside
+AI Overviews and AI Mode**, broken down by page, country, device and date.
+**[OFFICIAL]**
+([Introducing Search Generative AI performance reports](https://developers.google.com/search/blog/2026/06/gen-ai-performance-reports))
+
+Three limits decide whether it is any use to the person in front of you, and
+all three are easy to leave out:
+
+- **Impressions only — no click data** in this version. It answers "did I
+  appear", not "did it earn anything."
+- **Data starts 18 May 2026, with no backfill.** There is no before-and-after
+  against any earlier change.
+- **Rolled out first to a subset of UK sites**, with global expansion stated
+  but undated. Check whether the property actually has the report before
+  building advice on it.
+
+So: worth telling a site owner to look, worth being explicit that an empty
+or absent report is far more likely to mean "not rolled out to you yet" than
+"never cited." **[OFFICIAL, with the caveats stated; re-verify the rollout
+state — it is the part most likely to have moved]**
 
 **Reading the funnel:** low impressions on a page you expected to rank → an
 *upstream* problem (indexing, crawlability, or relevance/intent mismatch), not a

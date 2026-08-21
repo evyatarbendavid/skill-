@@ -28,6 +28,14 @@ a rougher measurement, it's not a measurement — and it will be acted on as
 though it were. Search Console items need the owner's login and always
 will. An item you couldn't check is reported as unchecked, never as passed.
 
+That now includes AI visibility. Search Console's **Search Generative AI
+performance reports** (launched June 2026) are the only first-party numbers
+for appearing in AI Overviews and AI Mode. Ask the owner to look rather
+than estimating — and know the three limits before they do: impressions
+only with no click data, data starting May 2026 with no backfill, and a
+rollout that began with a subset of UK sites. An empty report far more
+often means "not available to this property yet" than "never cited."
+
 ## Two things this skill never claims
 
 1. **Google does not guarantee crawling, indexing, or ranking** — its own
@@ -87,7 +95,9 @@ unconfirmed.
 > - **"Schema markup makes you 2.5x more likely to be cited by AI."** Traces
 >   to studies with no control group. See the structured-data section.
 > - **"You need an `llms.txt` to appear in ChatGPT or AI search."** Google
->   has said the opposite outright.
+>   has said the opposite outright. The same goes for `llms-author.txt`,
+>   the newer variant pitched as an authorship or E-E-A-T signal — Google
+>   has said it uses neither file.
 > - **"Domain Authority / Domain Rating is a Google ranking factor."** Those
 >   are third-party metrics invented by SEO tool vendors. Google has never
 >   used them. Useful as a rough competitive comparison; not a thing to
@@ -427,6 +437,13 @@ What actually raises the odds:
 - **E-E-A-T**: a real named author with real credentials — not a "Team"
   byline — original data or genuine first-hand experience, primary sources
   cited, and a visible "last updated" date. Trust is the load-bearing part.
+- **There is now a spam policy naming this.** Google's spam policies were
+  rewritten in 2026 to name manipulating the generative-AI answers in
+  Search as an offense in its own right. Everything above is about being
+  genuinely the best source for a passage; anything that is instead about
+  gaming which passage gets picked has moved from ineffective to
+  sanctionable. *(Re-verify the current wording before quoting it — this
+  is a recent change.)*
 - **Freshness matters more for AEO than for classic SEO.** Most AI
   citations go to pages updated within the year. Stale pricing and
   comparison pages get filtered out.
@@ -460,6 +477,23 @@ thread exists.
 themselves out by accident: blocking `GPTBot` does not remove you from
 ChatGPT's answers, but blocking `OAI-SearchBot` does. Check before
 diagnosing anything else — `references/ai-crawlers.md`.
+
+**Keeping content out of AI answers is a page-level control, not a
+robots.txt one.** This is the part most "should we block AI" discussions
+miss. Google's robots meta directives — `nosnippet`, `data-nosnippet` around
+a specific passage, and `max-snippet:[n]` — apply to AI Overviews and AI
+Mode as well as to ordinary results, and `max-snippet:0` makes a page
+ineligible for AI Overviews outright. Unlike `robots.txt` with AI crawlers,
+these are honored, because Google is the one reading them.
+
+The tradeoff is the whole story, so say it before anyone reaches for it:
+**the same directives remove your normal search snippet.** You are trading
+a result that shows what the page says for one that shows a bare title. For
+most sites that costs more than the AI citation was costing them. Where it
+genuinely fits is narrower — a paywalled excerpt, licensed text, a passage
+that must not be quoted out of context — and `data-nosnippet` around that
+passage alone is usually the right size of the tool, rather than
+`nosnippet` on the whole page.
 
 **`llms.txt` is not a citation lever.** Google has said Search does not use
 it, and its AI-features guidance states no special machine-readable file is
