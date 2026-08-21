@@ -116,7 +116,7 @@ invented Core Web Vitals numbers, "Google penalizes AI-written content,"
 as a Google ranking factor — so a search result echoing them doesn't get
 mistaken for confirmation.
 
-Baseline verified 2026-08-18. Past roughly 90 days, the skill treats its
+Baseline verified 2026-08-21. Past roughly 90 days, the skill treats its
 own volatile claims as unconfirmed until re-checked.
 
 ## Tests

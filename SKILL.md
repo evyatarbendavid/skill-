@@ -72,7 +72,7 @@ independent; only the primary docs settle it. And **silence is not
 stability** — the May 2026 FAQPage removal shipped as a documentation edit
 with no announcement, so read the docs page, not just the blog.
 
-**Baseline verified 2026-08-18.** Past ~90 days, treat every volatile row as
+**Baseline verified 2026-08-21.** Past ~90 days, treat every volatile row as
 unconfirmed.
 
 > **Known false claims circulating in SEO blogs — do not repeat:**
@@ -98,6 +98,12 @@ unconfirmed.
 > - **"FAQ and HowTo rich results still work if you format the schema
 >   correctly."** They were switched off at the platform level. No markup
 >   change brings them back.
+> - **"AI answers are now the default result for most Google searches."**
+>   Measurement says a large minority — AI Overviews on somewhat over 20%
+>   of searches, AI Mode under 1% in the most recent study window. The
+>   effect where they appear is real and large; the reach is routinely
+>   overstated. This file carried the overstated version itself until it
+>   was checked, which is how easily it spreads.
 
 ## Where the honest answer is "it's contested"
 
@@ -297,13 +303,32 @@ mentioning to a news publisher; not a general AEO lever.
 
 ## AEO — getting cited by AI answer engines
 
-**This is no longer a bonus channel.** Since a July 2026 rollout, Gemini-
-powered AI answers are the default output for most Google queries, not an
-opt-in tab. Zero-click searches reached ~68% of US queries; when an AI
-Overview appears, clicks to normal results drop around 60%. Optimizing only
-for a blue link optimizes for a shrinking surface.
+**This is no longer a bonus channel** — but be precise about the size of it,
+because the loose version of this claim is everywhere and it is wrong.
 
-*(That framing is the most volatile claim in this file — verify it.)*
+What the measurements actually say, as of early 2026:
+
+- **~68% of US searches end without a click** at all (Similarweb
+  clickstream via SparkToro), up from roughly 60% two years earlier.
+- **AI Overviews appear on something over 20% of searches**, and when one
+  appears, clicks to normal results fall by around 60%.
+- **AI Mode is far more extreme and far smaller**: about 93% of AI Mode
+  searches produce no click, but AI Mode was only ~0.34% of searches in a
+  January–April 2026 study window. Google said at I/O 2026 that it had
+  passed a billion monthly users with query volume more than doubling each
+  quarter, so the share is small and moving fast.
+
+So: AI answers are not yet the default output for most Google queries.
+They are on a large minority of them, they take most of the clicks where
+they appear, and the trend is one direction. That is enough reason to stop
+optimizing only for a blue link — and it is not a reason to repeat "Google
+is now an answer engine, organic traffic is over." Someone whose traffic is
+holding up is not wrong about their own data.
+
+*(These are the most volatile numbers in this file, and every one is
+industry measurement rather than Google documentation. Re-verify before
+quoting them to anyone making a decision — and expect the AI Mode share in
+particular to be out of date.)*
 
 The prerequisite is unchanged: **you cannot be cited from a page the engine
 can't retrieve.** Google states there are no special requirements and no

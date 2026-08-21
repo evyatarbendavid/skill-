@@ -1,6 +1,6 @@
 # SEO + AEO reference
 
-> **Last verified: 2026-08-18.**
+> **Last verified: 2026-08-21.**
 > If more than ~90 days have passed, treat every claim about Core Web Vitals
 > thresholds, rich-result availability, and AI-answer surfaces as **unconfirmed**
 > until re-checked. The stable-vs-volatile table in SKILL.md says which claims those are.
@@ -339,15 +339,34 @@ CTR problem. Fix in that order. **[CONSENSUS]**
 > run-to-run. Everything below raises probability; nothing sets it to 1.
 > **[UNCERTAIN as to any specific citation]**
 
-### 7.1 AEO is no longer a bonus channel — it is often the primary surface
+### 7.1 AEO is no longer a bonus channel — and the popular version overstates it
 
-**This is the most important and most volatile fact in this document.** Through
-a July 2026 rollout, Google made Gemini-powered AI answers the **default primary
-output for the large majority of queries** across Search — not just an opt-in AI
-Mode tab. Traditional ten-blue-links results are pushed further down or out of
-the primary viewport for many queries. AI Mode itself passed **1 billion monthly
-users**. **[CONSENSUS — convergent independent reporting; re-verify before
-asserting]**
+**This is the most important and most volatile section in this document, and it
+is the one that was wrong here for a while.** An earlier revision said Google had
+made Gemini-powered AI answers the *default primary output for the large majority
+of queries*. Re-verified 2026-08-21 against clickstream measurement, that does
+not hold, and it is the exact overclaim this file exists to stop people from
+repeating.
+
+What is actually measured:
+
+- **AI Overviews appear on somewhat over 20% of searches** — a large minority,
+  not "most". **[CONSENSUS]**
+- **AI Mode is far more extreme in effect and far smaller in reach**: ~93% of AI
+  Mode searches end without a click, but AI Mode accounted for only about
+  **0.34% of searches** in a January–April 2026 SparkToro/Similarweb study
+  window. **[CONSENSUS]**
+- **It is growing fast.** Google stated at I/O 2026 that AI Mode passed
+  **1 billion monthly users** with query volume more than doubling each quarter.
+  A share this small and this fast-moving will be stale quickly — re-verify the
+  number rather than the direction. **[OFFICIAL as Google's own statement;
+  unaudited]**
+
+The defensible framing: AI answers sit on a large minority of queries, take most
+of the clicks where they appear, and are trending one way. That is already
+enough to stop optimizing only for a blue link. It is not grounds for telling
+someone their organic traffic is finished — if their traffic is holding, their
+data outranks the trend piece.
 
 Consequences, and why this reframes the whole discipline:
 

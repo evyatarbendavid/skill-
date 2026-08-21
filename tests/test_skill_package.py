@@ -173,6 +173,32 @@ class TestFactualGuardrails(unittest.TestCase):
                 text, r"(76%|entry ticket|not.{0,20}predictor)",
                 f"{path.name} must carry the corrected top-10 framing")
 
+    def test_does_not_claim_ai_answers_are_the_default_for_most_queries(self):
+        # This file carried that overclaim itself. Clickstream measurement puts
+        # AI Overviews on a large minority of searches and AI Mode under 1% —
+        # the reach is the part everyone inflates.
+        # Presence-tested, not absence-tested: an absence test on prose matches
+        # the correction itself ("not yet the default output for most queries")
+        # and passes for the wrong reason. Assert the measured shares are here —
+        # nobody can restate the overclaim while these two numbers stand.
+        # Presence-tested, not absence-tested: an absence test on prose matches
+        # the correction itself ("not yet the default output for most queries")
+        # and passes for the wrong reason. Assert the measured shares are here —
+        # nobody can restate the overclaim while these two numbers stand.
+        #
+        # Checked against SKILL.md specifically, not the whole corpus. SKILL.md
+        # is the file that always gets read; a number surviving only in a
+        # reference nobody opened does not keep the skill honest.
+        for name, text in (("SKILL.md", SKILL_MD.read_text(encoding="utf-8")),
+                           ("sources.md", (ROOT / "references" / "sources.md")
+                            .read_text(encoding="utf-8"))):
+            flat = " ".join(text.split())
+            self.assertRegex(flat, r"AI Overviews[^.]{0,140}20%",
+                             f"{name} should state the measured AI Overview reach")
+            self.assertRegex(flat, r"AI Mode[^.]{0,300}(0\.34%|under 1%|less than 1%)",
+                             f"{name} should state how small AI Mode's share is")
+            self.assertIn("large minority", flat, name)
+
     def test_llms_txt_not_sold_as_a_lever(self):
         # Check every mention, not just the first — the first is the
         # volatile-facts table, the claim itself lives further down.
