@@ -262,6 +262,73 @@ class TestPathmap(unittest.TestCase):
         self.assertIn("non-HTML extension", reason)
 
 
+class TestTruncatedSitemapIsNotAMissingUrl(unittest.TestCase):
+    """The tool reads 25 child sitemaps out of an index. pypi.org's index has
+    257, and /project/requests/ sits in the 254th — so "not in the set I read"
+    was reported as "not in the sitemap", a false FAIL that then cascaded into
+    F1 as weakened AI discovery."""
+
+    def test_coverage_note_names_what_was_skipped(self):
+        result = sitemap.SitemapResult(
+            truncated=True, index_children_total=257, index_children_read=25)
+        self.assertEqual(sitemap.coverage_note(result),
+                         "read 25 of 257 child sitemaps")
+
+    def test_url_cap_is_described_differently_from_the_child_cap(self):
+        result = sitemap.SitemapResult(truncated=True, urls={f"u{i}" for i in range(3)})
+        self.assertIn("first 3 URLs", sitemap.coverage_note(result))
+
+    def test_a_complete_read_has_no_note(self):
+        self.assertEqual(sitemap.coverage_note(sitemap.SitemapResult()), "")
+
+    def test_a_large_index_is_read_partially_and_says_so(self):
+        # Over real HTTP: an index with more children than the cap, where the
+        # URL we are looking for lives in a child past the cutoff. This is
+        # pypi.org's shape, reduced to something a test can serve.
+        directory = Path(tempfile.mkdtemp())
+        try:
+            total = sitemap.MAX_INDEX_CHILDREN + 5
+            for i in range(total):
+                (directory / f"s{i}.xml").write_text(
+                    '<?xml version="1.0"?><urlset '
+                    'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                    f"<url><loc>http://PLACEHOLDER/page{i}.html</loc></url>"
+                    "</urlset>")
+            index = "".join(f"<sitemap><loc>http://PLACEHOLDER/s{i}.xml</loc></sitemap>"
+                            for i in range(total))
+            (directory / "sitemap.xml").write_text(
+                '<?xml version="1.0"?><sitemapindex '
+                'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+                + index + "</sitemapindex>")
+
+            handler = lambda *a, **k: _QuietHandler(*a, directory=str(directory), **k)
+            server = socketserver.TCPServer(("127.0.0.1", 0), handler)
+            port = server.server_address[1]
+            threading.Thread(target=server.serve_forever, daemon=True).start()
+            try:
+                host = f"127.0.0.1:{port}"
+                for path in directory.iterdir():
+                    path.write_text(path.read_text().replace("PLACEHOLDER", host))
+                result = sitemap.discover_and_read(f"http://{host}/")
+
+                self.assertTrue(result.truncated)
+                self.assertEqual(result.index_children_total, total)
+                self.assertEqual(result.index_children_read,
+                                 sitemap.MAX_INDEX_CHILDREN)
+                self.assertIn(f"of {total} child sitemaps",
+                              sitemap.coverage_note(result))
+                # The page in a child past the cutoff is genuinely listed, and
+                # the tool must not have concluded otherwise.
+                self.assertFalse(result.lists(f"http://{host}/page{total - 1}.html"))
+                self.assertTrue(result.truncated,
+                                "truncated is the flag that stops that becoming a FAIL")
+            finally:
+                server.shutdown()
+                server.server_close()
+        finally:
+            shutil.rmtree(directory, ignore_errors=True)
+
+
 class TestBlockedNetworkIsNotASiteFailure(unittest.TestCase):
     """A blocking proxy answers a CONNECT with a 403 that looks exactly like a
     403 from the origin — same status line, plausible headers, empty body.

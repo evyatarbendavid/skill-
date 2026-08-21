@@ -330,6 +330,18 @@ def run_section_a(ctx: Context, result: AuditResult) -> None:
     elif sm.lists(page.final_url):
         result.add(Finding("A5", "Listed in an XML sitemap", PASS,
                            detail=f"listed in {sm.found[0]} ({len(sm.urls)} URLs total)"))
+    elif sm.truncated:
+        # We stopped early, so "not in the set I read" is not "not in the
+        # sitemap". A large registry splits its index across hundreds of child
+        # files; the page can sit in the 254th. Reporting FAIL here invents a
+        # problem and then cascades into F1 as weakened discovery.
+        result.add(Finding(
+            "A5", "Listed in an XML sitemap", NA,
+            reason=f"this URL is not in the part of the sitemap I read, but the "
+                   f"sitemap is bigger than this tool reads in one pass "
+                   f"({sitemap.coverage_note(sm)}), so that is not evidence it "
+                   f"is missing. Check it in Search Console's Sitemaps report, "
+                   f"which reads all of it."))
     else:
         result.add(Finding(
             "A5", "Listed in an XML sitemap", FAIL,

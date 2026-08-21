@@ -23,6 +23,10 @@ class SitemapResult:
     lastmods: Dict[str, str] = field(default_factory=dict)
     errors: List[str] = field(default_factory=list)
     truncated: bool = False
+    # How much of the index we did and did not read, so a caller can say
+    # "not found in the part I could see" instead of "not in the sitemap".
+    index_children_total: int = 0
+    index_children_read: int = 0
 
     @property
     def exists(self) -> bool:
@@ -76,9 +80,11 @@ def _read_sitemap(url: str, result: SitemapResult, timeout: int, depth: int = 0)
             if loc is None or not (loc.text or "").strip():
                 continue
             children.append(loc.text.strip())
+        result.index_children_total += len(children)
         if len(children) > MAX_INDEX_CHILDREN:
             result.truncated = True
             children = children[:MAX_INDEX_CHILDREN]
+        result.index_children_read += len(children)
         for child in children:
             _read_sitemap(child, result, timeout, depth + 1)
         return
@@ -134,3 +140,13 @@ def discover_and_read(
             break
 
     return result
+
+
+def coverage_note(result: "SitemapResult") -> str:
+    """One phrase describing how much of a sitemap we actually read."""
+    if not result.truncated:
+        return ""
+    if result.index_children_total > result.index_children_read:
+        return (f"read {result.index_children_read} of "
+                f"{result.index_children_total} child sitemaps")
+    return f"stopped at the first {len(result.urls)} URLs"
