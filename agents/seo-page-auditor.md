@@ -48,6 +48,14 @@ rather than absent when you aren't sure.
 - Every indexable page has a self-referencing canonical tag. Genuine
   duplicates (filter/sort variants, print views) canonicalize to the
   primary version instead.
+- **Resolve a canonical before reporting it.** One that points elsewhere
+  is deliberate consolidation as often as it is a bug — locale-prefixed
+  URLs pointing at a locale-neutral one (`/en/learn/x` → `/learn/x`, with
+  `/learn/x` being what the sitemap lists) is correct and common. Fetch
+  the target: 200 and in the sitemap means it's working, so don't report
+  it. Report it when the target 404s, redirects, is `noindex`, or
+  contradicts the sitemap. A reader who chases one false canonical
+  finding discounts everything else you wrote.
 - No conflicting signals (`noindex` on a page that's also in the
   sitemap).
 - URLs: lowercase, hyphens not underscores, no unnecessary query params,
