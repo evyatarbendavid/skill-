@@ -554,6 +554,35 @@ that separately. Never present it as a search or citation tactic.
 well-structured Hebrew data than English. A Hebrew page that genuinely
 follows the AEO section competes against a much thinner field.
 
+## What this skill can't fix: off-page authority
+
+Links from other sites remain a real ranking input, and nothing in a
+codebase changes them. Say that plainly rather than letting flawless
+on-page work imply it is sufficient — a new site with perfect technical
+SEO and no one referencing it will lose to a worse page on an established
+domain, and someone should hear that from you before they spend three
+months wondering why.
+
+What is worth stating, because most of what circulates about links is
+wrong:
+
+- **Domain Authority / Domain Rating are not Google metrics.** They are
+  vendor inventions, useful for rough competitive comparison and not a
+  thing to optimize. Google has never used them.
+- **Buying links violates the spam policies**, and the exchange schemes
+  sold as safe alternatives are the same thing with extra steps.
+- **The version that works is slow**: being genuinely worth referencing,
+  and being referenced by places that would have linked to you anyway.
+  Digital PR, original data, and being the primary source on something.
+- **For AEO, the equivalent is corroboration** — being mentioned
+  consistently across sites the engines already read. Same input, and a
+  brand-new site starts with none of it, which is why AI citation lags
+  ranking on a young domain.
+
+This section exists so the skill doesn't quietly overpromise. Everything
+else here is inside your control; this isn't, and pretending otherwise is
+how a technically perfect site becomes a disappointed client.
+
 ## Quality bugs — boring and expensive
 
 - **Duplicate content at scale.** The biggest risk on templated pages. If
@@ -586,6 +615,21 @@ Several of these are accessibility bugs first and SEO bugs second — fixing
 them pays twice.
 
 ## Mobile and accessibility
+
+**Intrusive interstitials are a documented mobile demotion** and one of the
+few things on this page that is a penalty rather than a missed opportunity.
+It applies to a popup covering the main content immediately on arrival from
+search, a standalone interstitial you must dismiss to reach anything, and a
+layout whose above-the-fold area looks like one with the real content
+pushed below it.
+
+What is exempt is as worth knowing as what isn't: cookie and age-gate
+notices required by law, login dialogs on content that isn't publicly
+indexable, and banners using a reasonable strip of the screen that dismiss
+easily. So the fix is almost never "remove the newsletter prompt" — it is
+make it a dismissible banner, or delay it past the first interaction. It
+also only bites on the page arrived at from search, so the same modal
+deeper in a flow is not the issue.
 
 Google indexes mobile-first, and a screen reader and an AI crawler fail on
 many of the same things.

@@ -390,6 +390,28 @@ class TestTheGatesAgreeEverywhere(unittest.TestCase):
                          {"A1", "A2", "A3", "A8", "D1", "D2", "D3", "D4"})
 
 
+class TestScopeIsHonestAboutOffPage(unittest.TestCase):
+    """A skill that claims to apply Google's ranking rules and never mentions
+    links lets flawless on-page work imply it is sufficient."""
+
+    def setUp(self):
+        self.flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+
+    def test_says_links_matter_and_are_outside_the_codebase(self):
+        self.assertRegex(self.flat, r"off-page|Links from other sites")
+        self.assertRegex(self.flat, r"nothing in a codebase changes them|"
+                                    r"can't fix|cannot fix")
+
+    def test_keeps_rejecting_domain_authority_as_a_google_metric(self):
+        self.assertRegex(self.flat, r"Domain Authority[^.]{0,120}not Google|"
+                                    r"third-party metrics invented")
+
+    def test_covers_intrusive_interstitials_including_the_exemptions(self):
+        self.assertIn("interstitial", self.flat)
+        # The exemptions are what stop this becoming "delete your cookie banner".
+        self.assertRegex(self.flat, r"age.gate|age verification|required by law")
+
+
 class TestSamplingIsOperationalized(unittest.TestCase):
     """"Cluster by template and audit a representative" was stated three times
     and never defined — no grouping method, no count per cluster, no rule for
