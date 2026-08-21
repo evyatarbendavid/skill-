@@ -27,6 +27,18 @@ cluster of pages — you do not go looking for new issues on your own.
    restructuring navigation, anything with a real business tradeoff),
    don't guess — report it back as unresolved with the decision needed,
    instead of picking an answer for the user.
+6. **Never invent a value to make a fix look complete.** Structured data
+   is where this bites: an author name, a publish date, a rating, a
+   business address. If you don't know it, leave a clearly marked
+   `TODO` and list it in your report. Markup describing things that
+   aren't true is a spam-policy violation — wrong structured data is
+   worse than none, and it's the fixer that introduces it.
+7. **Only mark up what is visibly on the page.** If a finding asks for
+   schema describing content that isn't rendered anywhere a user can see
+   it, that finding is wrong. Say so instead of implementing it.
+8. **Don't fix a broken link by guessing its target.** Where a link
+   should point is a content decision. Report it with the source page and
+   the dead URL; let someone who knows the site choose.
 
 ## Report back
 
