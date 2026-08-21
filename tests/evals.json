@@ -4,12 +4,12 @@
     {
       "id": 1,
       "prompt": "Audit https://example.com for SEO and tell me what's wrong.",
-      "expected_output": "Runs scripts/audit.py against the URL and reports a severity-ranked punch list, gates first.",
+      "expected_output": "Reports a severity-ranked list, gates first, and says what it could not check.",
       "expectations": [
         "The skill triggered",
-        "scripts/audit.py was actually executed rather than checks being done by hand",
-        "Findings are reported with their checklist IDs",
-        "Section A and D failures are surfaced before cosmetic ones"
+        "Findings are ranked, with gate failures surfaced before cosmetic ones",
+        "It states which checks it could not run and why, rather than omitting them",
+        "It does not claim to have measured Core Web Vitals without field data"
       ]
     },
     {
@@ -50,9 +50,8 @@
       "expected_output": "Asks for the local source tree before attempting fixes, since fixing writes files.",
       "expectations": [
         "The skill triggered",
-        "The response asks where the site's source lives before writing anything",
-        "No file was written without the user confirming",
-        "The distinction between read-only audit and file-writing fix is made clear"
+        "It says up front that a live URL alone means it can diagnose but not fix",
+        "It asks for the project path or repo before promising any change"
       ]
     },
     {
@@ -120,10 +119,49 @@
       "prompt": "Run an SEO audit on https://example.com and then fix everything you can automatically.",
       "expected_output": "Audits, asks for the source tree, shows diffs, and only applies after confirmation.",
       "expectations": [
-        "scripts/audit.py was executed",
-        "Planned changes were shown as diffs before being written",
-        "Items requiring human judgment were reported rather than guessed",
-        "Broken links were reported rather than silently repointed"
+        "The skill triggered",
+        "It distinguishes what it can fix from what needs a human decision",
+        "It does not write a URL taken from a dev server into a source file",
+        "It re-checks the specific findings after fixing rather than assuming"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Check my site for broken links and duplicate content before we launch.",
+      "expected_output": "Triggers on site-quality phrasing with no SEO vocabulary at all.",
+      "expectations": [
+        "The skill triggered without SEO, ranking or search being named",
+        "Broken links and duplicate content are both addressed",
+        "It asks what it has access to before promising a full sweep"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Here's my ProductCard.jsx — is this good for SEO?",
+      "expected_output": "Answers what is judgeable from one component and names what needs the route.",
+      "expectations": [
+        "The skill triggered on a pasted component with no URL",
+        "It gives real findings from the file rather than only asking for more context",
+        "It separates findings that are certain from ones that need the route",
+        "If the card is a div with onClick, it is named as a link crawlers cannot follow"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "I got a 403 when I checked my site. Is my site down?",
+      "expected_output": "Does not conclude the site is down from one failed fetch.",
+      "expectations": [
+        "It does not assert the site is down or broken",
+        "It raises the possibility that the block is local — a proxy, network or firewall",
+        "It names a way to tell the difference, such as checking from elsewhere or Search Console"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Summarise the plot of Hamlet.",
+      "expected_output": "The skill should NOT trigger — nothing to do with the web.",
+      "expectations": [
+        "The seo-aeo skill did not trigger"
       ]
     }
   ]

@@ -407,6 +407,39 @@ class TestWorkedReport(unittest.TestCase):
         self.assertRegex(skill, r"examples\.md.{0,40}§6|§6.{0,60}report")
 
 
+class TestEvals(unittest.TestCase):
+    """The eval set needs a model to run, so what is checkable here is that it
+    stays well-formed and keeps its negative cases — a description broad
+    enough to catch every real case is usually broad enough to misfire."""
+
+    def setUp(self):
+        self.evals = json.loads((ROOT / "tests" / "evals.json")
+                                .read_text(encoding="utf-8"))["evals"]
+
+    def test_every_eval_is_complete(self):
+        seen = set()
+        for e in self.evals:
+            for field in ("id", "prompt", "expected_output", "expectations"):
+                self.assertIn(field, e, f"eval {e.get('id')} missing {field}")
+            self.assertTrue(e["expectations"], f"eval {e['id']} asserts nothing")
+            self.assertNotIn(e["id"], seen, f"duplicate eval id {e['id']}")
+            seen.add(e["id"])
+
+    def test_negative_cases_exist(self):
+        negatives = [e for e in self.evals
+                     if "not trigger" in e["expected_output"].lower()]
+        self.assertGreaterEqual(len(negatives), 2,
+                                "eval set needs cases the skill must ignore")
+
+    def test_no_eval_still_demands_the_optional_cli(self):
+        # The skill works with no shell at all; an eval that requires
+        # scripts/audit.py to run is testing the tool, not the skill.
+        for e in self.evals:
+            for expectation in e["expectations"]:
+                self.assertNotIn("audit.py", expectation,
+                                 f"eval {e['id']} requires the optional CLI")
+
+
 class TestWhatShipsIsTheSkill(unittest.TestCase):
     """Someone downloads this repo and has to know, in one read, which files
     are the skill and which are optional. Anything in here that is neither is

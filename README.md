@@ -136,10 +136,26 @@ own volatile claims as unconfirmed until re-checked.
 ./tests/run_tests.sh
 ```
 
-Checks the skill stays loadable (frontmatter, no dangling reference links,
-the auditor agent still read-only) and that the factual corrections don't
-get edited back out — remove the FAQPage line or the no-guarantees
-language and a test fails.
+Checks the skill stays loadable (frontmatter parses as YAML, no dangling
+reference links, the auditor agent still read-only) and that the factual
+corrections don't get edited back out — remove the FAQPage line or the
+no-guarantees language and a test fails.
+
+`tests/evals.json` is a different kind of check: sixteen prompts covering
+what the skill should do, including three it should **not** trigger on.
+Those need a real model rather than an assertion, so run them by installing
+the skill and asking:
+
+```bash
+mkdir -p ~/.claude/skills/seo-aeo
+cp -r SKILL.md references ~/.claude/skills/seo-aeo/
+printf 'Summarise the plot of Hamlet.' | claude -p     # must NOT trigger
+printf 'Check my site for broken links.' | claude -p   # must trigger
+```
+
+The negative cases matter most. A description broad enough to catch every
+real case is usually broad enough to fire on unrelated ones, and a skill
+that loads when it shouldn't is worse than one that occasionally doesn't.
 
 ## Also here
 
