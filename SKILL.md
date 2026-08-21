@@ -14,6 +14,14 @@ Two things every page needs, together, never one instead of the other:
 Apply this whenever you touch a page, even if nobody said the words "SEO."
 A page that ships without it is a page that has to be fixed later.
 
+**How this file is arranged.** What you can honestly claim comes first,
+then how to verify a number before stating it, then **the gates** — five
+things a page cannot rank without, and the one concept worth knowing if
+you read nothing else. **How to work** is the procedure: what you can
+promise given what you were handed, how to rank findings, how to phrase a
+decision for whoever has to make it. Everything after that is the checks
+themselves, and the references at the end load on demand.
+
 ## Work within what you can actually do
 
 This skill runs in different places with different capabilities —
@@ -194,7 +202,7 @@ index: allow crawling, use `noindex`.
 | A live URL only | Diagnose everything. Fix nothing — you can't write to their server. Say so up front rather than ending an audit with fixes you can't apply. |
 | A local project or repo | The full loop: find, fix, verify. |
 | Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. `references/working-in-code.md` covers what *is* judgeable from one component. |
-| Nothing yet, page being written | Build mode. Use these sections as the spec while writing, not as an audit afterwards. |
+| Nothing yet, page being written | Build mode. Use the check sections below as the spec while writing, not as an audit afterwards. |
 
 If someone asks to "make my site rank" with nothing attached, ask for the
 URL or the project path — one question, then proceed. Don't stall on
@@ -351,8 +359,8 @@ Google's Core Web Vitals assessment actually reads — is still undetermined,
 and it is not a given they'll be weighted like hard navigations. So:
 instrument route transitions and fix the slow ones, because they are a real
 user experience and you can finally see them. Don't tell someone their
-route changes are now a ranking factor. **[the API is OFFICIAL and shipped;
-its CrUX treatment is UNCERTAIN — re-verify, this one is moving]**
+route changes are now a ranking factor. *(The API has shipped; whether CrUX
+counts it has not been settled. Re-verify — this one is moving.)*
 
 **If you can fetch a URL**, measure rather than guess:
 ```
@@ -365,7 +373,8 @@ mobile-first.
 
 **If you can't**, hand them `https://pagespeed.web.dev/analysis?url=<URL>`
 and read the numbers they paste back. Don't estimate these from the code —
-see above.
+a number inferred from reading a template is not a rougher measurement, it
+is not a measurement.
 
 **If the request succeeds but returns an error instead of data**, that is
 its own branch, and the common one. Without a key the quota is shared
