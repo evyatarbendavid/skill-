@@ -496,49 +496,31 @@ mentioning to a news publisher; not a general AEO lever.
 
 ## AEO — getting cited by AI answer engines
 
-**This is no longer a bonus channel** — but be precise about the size of it,
-because the loose version of this claim is everywhere and it is wrong.
+**This is no longer a bonus channel** — but be precise about the size of
+it, because the loose version of this claim is everywhere and it is wrong.
+AI answers sit on a large minority of Google queries, not most of them;
+they take most of the clicks where they appear; and the trend runs one
+way. That is reason enough to stop optimizing only for a blue link, and it
+is not a reason to tell someone their organic traffic is finished. If their
+traffic is holding up, they are not wrong about their own data.
 
-What the measurements actually say, as of early 2026:
-
-- **~68% of US searches end without a click** at all (Similarweb
-  clickstream via SparkToro), up from roughly 60% two years earlier.
-- **AI Overviews appear on something over 20% of searches**, and when one
-  appears, clicks to normal results fall by around 60%.
-- **AI Mode is far more extreme and far smaller**: about 93% of AI Mode
-  searches produce no click, but AI Mode was only ~0.34% of searches in a
-  January–April 2026 study window. Google said at I/O 2026 that it had
-  passed a billion monthly users with query volume more than doubling each
-  quarter, so the share is small and moving fast.
-
-So: AI answers are not yet the default output for most Google queries.
-They are on a large minority of them, they take most of the clicks where
-they appear, and the trend is one direction. That is enough reason to stop
-optimizing only for a blue link — and it is not a reason to repeat "Google
-is now an answer engine, organic traffic is over." Someone whose traffic is
-holding up is not wrong about their own data.
-
-*(These are the most volatile numbers in this file, and every one is
-industry measurement rather than Google documentation. Re-verify before
-quoting them to anyone making a decision — and expect the AI Mode share in
-particular to be out of date.)*
+The figures behind that — zero-click share, AI Overview reach, AI Mode's
+much larger effect on a much smaller slice — are in `references/sources.md`
+§7.1 with their sources and their spread. They are the most volatile
+numbers in this skill; read them there rather than quoting them from
+memory, and expect the AI Mode share in particular to have moved.
 
 The prerequisite is unchanged: **you cannot be cited from a page the engine
 can't retrieve.** Google states there are no special requirements and no
 special markup for AI features — a page needs to be indexed and eligible to
 show with a snippet.
 
-But "rank top-10 and citation follows" no longer holds the way it did. An
-Ahrefs study across ~863,000 keywords and ~4 million AI Overview URLs found
-the share of cited pages that also ranked in the organic top 10 fell from
-roughly **76% (July 2025) to 38% (March 2026)** — about half, in eight
-months — with the rest spread across pages ranking 11–100 and beyond 100.
-
-Measurements from different firms put that overlap anywhere from **17% to
-38%**, because they count differently. Which is the point: don't quote a
-single figure as precise. The finding that survives every methodology is
-the direction, and it is not subtle. *(Industry research, not Google
-documentation.)*
+But "rank top-10 and citation follows" no longer holds. The share of AI
+Overview citations coming from pages that also rank in the organic top 10
+roughly halved over eight months, and different research firms measuring
+the same overlap land far apart — so take the direction, which every
+methodology agrees on, and don't quote a single figure as precise.
+`sources.md` §7.5 has the study and the range.
 
 What that changes: classic SEO is still the **entry ticket**, because
 retrieval requires indexing. It is no longer a good **predictor**. A page

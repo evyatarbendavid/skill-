@@ -124,6 +124,29 @@ class TestReferences(unittest.TestCase):
             self.assertIn(f"references/{ref.name}", text,
                           f"SKILL.md never points at {ref.name}")
 
+    def test_section_pointers_resolve(self):
+        # SKILL.md sends the reader to specific sections — "sources.md §7.1",
+        # "examples.md §6". A pointer into a section that no longer exists is
+        # worse than no pointer: it costs a lookup and returns nothing.
+        # Reflowed: a pointer written as "…sources.md`\n§7.1" is one pointer,
+        # and a pattern that cannot cross the line break silently skips it —
+        # which is how this test first passed while missing two of three.
+        text = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+        pointers = re.findall(r"`?(\w[\w-]*\.md)`?[^.]{0,40}?§(\d+(?:\.\d+)?)", text)
+        self.assertGreaterEqual(len(pointers), 3,
+                                "expected SKILL.md to carry section pointers")
+        for filename, section in pointers:
+            target = ROOT / "references" / filename
+            self.assertTrue(target.is_file(), f"pointer to missing {filename}")
+            body = target.read_text(encoding="utf-8")
+            # MULTILINE, and assertTrue rather than assertRegex — the latter
+            # prints the whole file when it fails, burying the one line that
+            # matters.
+            found = re.search(rf"^#+ +{re.escape(section)}[. ]", body, re.MULTILINE)
+            self.assertTrue(
+                found,
+                f"{filename} has no section {section}, but SKILL.md points at it")
+
     def test_referenced_files_exist(self):
         text = SKILL_MD.read_text(encoding="utf-8")
         for rel in re.findall(r"`(references/[\w.-]+)`", text):
