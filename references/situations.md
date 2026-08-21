@@ -63,10 +63,21 @@ and every link pointing at it.
   the category if there isn't one. Not to the homepage — a redirect that
   lands somewhere unrelated reads as a soft 404.
 
-**Shipping and returns are now part of the markup.** `Offer` needs
-`shippingDetails` and `hasMerchantReturnPolicy` for shopping rich-result
-eligibility. *(Reported as a 2026 requirement change — confirm against
-current documentation before telling a client to prioritize it.)*
+**Shipping and returns — recommended, not required, and usually not your
+job.** Search Console and the Rich Results Test warn about missing
+`shippingDetails` and `hasMerchantReturnPolicy` on `Offer`, which reads like
+a new requirement and is not one: Google classes them as non-critical. The
+item is valid without them; supplying them makes it eligible for the
+shipping/returns enhancement in the result.
+
+The part that actually saves work: **Google's recommended source for both is
+Merchant Center, not structured data.** Shipping rates and return windows
+change often, and where a Merchant Center feed already carries them, Google
+prefers the feed and the markup is redundant. So before anyone hand-codes
+these into a product template, ask whether the store has a Merchant Center
+feed. If it does, fix the policy there. Structured data is the path for a
+store that isn't in Merchant Center at all.
+*(Verified 2026-08-21.)*
 
 **Reviews.** `aggregateRating` needs real reviews behind it, displayed on
 the page. Presenting reviews collected elsewhere as your own is explicitly
