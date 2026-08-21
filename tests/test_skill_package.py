@@ -271,6 +271,38 @@ class TestFieldNotesStayEvidence(unittest.TestCase):
                             "raw sample counts belong in field-notes, with the caveat")
 
 
+class TestAuditorDoesNotInventPlatformProfiles(unittest.TestCase):
+    """The auditor runs standalone, so its own copy of the checklist is
+    deliberate. Its own copy of the *facts* is not: it carried four engine
+    profiles that contradicted platforms.md and two — Claude and Gemini —
+    that appear nowhere else in the skill and are sourced to nothing."""
+
+    def setUp(self):
+        self.flat = " ".join((AGENTS / "seo-page-auditor.md")
+                             .read_text(encoding="utf-8").split())
+
+    def test_it_points_at_the_reference_instead(self):
+        self.assertIn("references/platforms.md", self.flat)
+
+    def test_the_unsourced_profiles_are_gone(self):
+        for invented in ("long-form, comprehensive, well-structured guides",
+                         "factors in multimodal content",
+                         "LinkedIn presence"):
+            self.assertNotIn(invented, self.flat,
+                             f"auditor still asserts {invented!r} from nowhere")
+
+    def test_cwv_thresholds_use_the_same_operator_everywhere(self):
+        # "verify the number, don't guess" is the skill's premise; < and ≤ are
+        # different numbers at the boundary.
+        for path in (SKILL_MD,
+                     ROOT / "references" / "audit-checklist.md",
+                     ROOT / "references" / "sources.md",
+                     AGENTS / "seo-page-auditor.md"):
+            flat = " ".join(path.read_text(encoding="utf-8").split())
+            self.assertNotRegex(flat, r"< ?2\.5 ?s",
+                                f"{path.name} uses < for the LCP threshold")
+
+
 class TestNearMissReporting(unittest.TestCase):
     """The skill and the auditor said opposite things about what to report:
     "name what you deliberately didn't flag" against "a check that found

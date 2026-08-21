@@ -61,7 +61,7 @@ they are the parts only the owner can see.
   HTML" (or DevTools Elements) shows the main text and links — i.e. content does
   not depend on a user action or a failed client fetch.
 
-## B. Content & Search Intent (תוכן וכוונת חיפוש)
+## B. Content & Search Intent
 
 - [ ] **B1. One primary query/topic** per page; the page's purpose is obvious.
 - [ ] **B2. Intent match.** The page format (guide / list / definition / tool)
@@ -83,7 +83,7 @@ they are the parts only the owner can see.
 - [ ] **B10. Accurate & current.** No factual errors; no stale claims. For
   YMYL-ish topics (health/safety/money) accuracy is non-negotiable.
 
-## C. Structured Data (נתונים מובנים)
+## C. Structured Data
 
 - [ ] **C1. JSON-LD present** (`script type="application/ld+json"`), using
   Schema.org vocabulary. *(JSON-LD is Google's recommended format.)*
@@ -101,7 +101,7 @@ they are the parts only the owner can see.
   `FAQPage`/`HowTo` for a SERP rich result (both deprecated — see reference §5).
   If used, it's for semantic context only and reflects real on-page Q&A.
 
-## D. Performance / Core Web Vitals (GATE — ביצועים; all of D is a gate)
+## D. Performance / Core Web Vitals (GATE — all of D is a gate)
 
 *Judge on **field** data (PageSpeed Insights "real users" / GSC Core Web Vitals),
 mobile first. Lab scores are for debugging only.*
@@ -124,7 +124,7 @@ mobile first. Lab scores are for debugging only.*
 > before reporting them as current — and see the known-misinformation box in
 > `sources.md` §4 for the fake numbers circulating online.
 
-## E. Accessibility & Mobile (נגישות ומובייל)
+## E. Accessibility & Mobile
 
 - [ ] **E1. Mobile parity** — same content, links, and meta-robots on mobile and
   desktop *(mobile-first indexing uses the mobile version as source of truth)*.
@@ -143,7 +143,7 @@ mobile first. Lab scores are for debugging only.*
   language.
 - [ ] **E10. Screen-reader spot check** passes.
 
-## F. AEO-readiness (סיכוי להיות מצוטט ע״י מנועי AI — probabilistic, NOT guaranteed)
+## F. AEO-readiness (probabilistic — never guaranteed)
 
 *No item here guarantees a citation. They raise the odds. A hard requirement for
 Google's AI features is simply: the page passes A–E and is eligible to show with
@@ -186,7 +186,7 @@ a snippet.*
   page will not displace them. The winnable ground is specific, technical, or
   branded questions. Say so rather than promising head terms.
 
-## G. Content quality, RTL & site hygiene (איכות תוכן ובאגים)
+## G. Content quality, RTL & site hygiene
 
 *The "boring but costly" category. Several of these are accessibility bugs
 first and SEO bugs second — fixing them pays twice.*

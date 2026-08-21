@@ -34,7 +34,7 @@ claim as fact.**
 
 ---
 
-## 1. Crawl / Index fundamentals (הבסיס)
+## 1. Crawl / Index fundamentals
 
 Google Search works in three stages, and a page must clear all three before it
 can rank **[OFFICIAL]**
@@ -142,7 +142,7 @@ hard-to-fake E-E-A-T advantage. Where the site owner has lived experience in
 the subject, make the author identity explicit — subject to their own privacy
 choice, which is theirs to make, not yours to assume.*
 
-### 2.3 Search intent (כוונת החיפוש)
+### 2.3 Search intent
 
 Ranking is intent-matching, not keyword-matching. A page ranks when it satisfies
 the *task behind the query* better than alternatives. **[CONSENSUS]** The four
@@ -151,7 +151,7 @@ Before writing, look at what already ranks for the target query — the current
 page-1 results reveal the intent Google has decided the query has. Match that
 format (guide vs. list vs. definition vs. tool). **[CONSENSUS]**
 
-### 2.4 Answer-first structure (מבנה "תשובה קודם")
+### 2.4 Answer-first structure
 
 Structure that helps both human skimmers and AI extractors **[CONSENSUS]**:
 

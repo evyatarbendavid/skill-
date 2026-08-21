@@ -1,6 +1,6 @@
 ---
 name: seo-aeo
-description: Apply Google's actual ranking rules and AI answer-engine citation principles to any website work. Use whenever building, writing, reviewing, or fixing a web page or website, and whenever someone mentions SEO, AEO, GEO, search ranking, search visibility, Google Search, being cited by AI, Core Web Vitals, LCP, INP, CLS, schema markup, structured data, JSON-LD, sitemaps, canonical URLs, robots.txt, meta descriptions, or how search engines crawl and index pages. Also use when someone asks why a page is not ranking in search, not indexed by Google, or not appearing in AI answers, when they paste a page URL or HTML and ask for a review, and when writing web content meant to be found in search or quoted by ChatGPT, Perplexity, or Google AI Overviews. Do not use for ranking or sorting unrelated things, database indexes, or crawling APIs for data — those share the words and nothing else.
+description: Apply Google's ranking rules and AI answer-engine citation principles to any website work. Use whenever building, writing, reviewing, or fixing a web page, site, or component, and whenever someone mentions SEO, AEO, GEO, search ranking or visibility, Google Search, being cited by AI, Core Web Vitals (LCP, INP, CLS), schema markup, structured data, JSON-LD, sitemaps, canonical URLs, robots.txt, or meta descriptions. Also use for the site-quality work that decides whether pages get found and trusted: broken links, duplicate or thin content, orphan pages, rough or dead-end navigation, missing alt text and accessibility gaps, and Hebrew/RTL correctness including dir, bidi, and text rendering in the wrong order. Also when someone asks why a page is not ranking, not indexed, or not appearing in AI answers, or pastes a URL, HTML, or a React component for review. Do not use for ranking or sorting unrelated things, database indexes, or crawling APIs for data — those share the words and nothing else.
 ---
 
 # SEO + AEO
@@ -499,28 +499,24 @@ ChatGPT's answers, but blocking `OAI-SearchBot` does. Check before
 diagnosing anything else — `references/ai-crawlers.md`.
 
 **Keeping content out of AI answers is a page-level control, not a
-robots.txt one.** This is the part most "should we block AI" discussions
-miss. Google's robots meta directives — `nosnippet`, `data-nosnippet` around
-a specific passage, and `max-snippet:[n]` — apply to AI Overviews and AI
-Mode as well as to ordinary results, and `max-snippet:0` makes a page
-ineligible for AI Overviews outright. Unlike `robots.txt` with AI crawlers,
-these are honored, because Google is the one reading them.
+robots.txt one** — and this is the part most "should we block AI"
+discussions miss. Google's robots meta directives (`nosnippet`,
+`data-nosnippet`, `max-snippet`) apply to AI Overviews and AI Mode, and
+unlike a `robots.txt` line aimed at a third-party crawler they are honored,
+because Google is the one reading them.
 
-The tradeoff is the whole story, so say it before anyone reaches for it:
-**the same directives remove your normal search snippet.** You are trading
-a result that shows what the page says for one that shows a bare title. For
-most sites that costs more than the AI citation was costing them. Where it
-genuinely fits is narrower — a paywalled excerpt, licensed text, a passage
-that must not be quoted out of context — and `data-nosnippet` around that
-passage alone is usually the right size of the tool, rather than
-`nosnippet` on the whole page.
+The catch decides whether to use it at all: **the same directives remove
+your ordinary search snippet**, turning a result that says what the page is
+into a bare title. For most sites that costs more than the citation was
+costing them. `references/ai-crawlers.md` has the per-directive effects and
+when the narrower `data-nosnippet` is the right size of tool.
 
 **`llms.txt` is not a citation lever.** Google has said Search does not use
 it, and its AI-features guidance states no special machine-readable file is
-needed. Adoption sits near 10% of domains after 18 months, and one study
-found the large majority of published files receive no AI requests at all.
-It does have real use by **coding agents** reading documentation — frame
-that separately. Never present it as a search or citation tactic.
+needed. Adoption sits near 10% of domains after 18 months, with no
+published causal citation lift. It does have real use by **coding agents**
+reading documentation — frame that separately. Never present it as a search
+or citation tactic.
 
 ## Hebrew and RTL
 
@@ -736,8 +732,8 @@ may run a bakery, not a CDN. "Your canonical URL is ambiguous" hands them a
 term and no way forward. Ask the question in their language, give the
 options, and say what each one costs:
 
-> Two addresses show the same page — `yoursite.com/challah` and
-> `yoursite.com/breads/challah`. Google will pick one to show and ignore
+> Two addresses show the same page — `example.co.il/challah` and
+> `example.co.il/breads/challah`. Google will pick one to show and ignore
 > the other. Which should people land on? Whichever you pick, I'll point
 > the other one at it, so no one hits a dead end.
 

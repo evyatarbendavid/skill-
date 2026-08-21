@@ -141,9 +141,9 @@ URL), fall back to static-code review:
 
 | Metric | Measures | Good |
 |---|---|---|
-| LCP | Loading speed | < 2.5s |
-| INP | Responsiveness, every interaction | < 200ms |
-| CLS | Visual stability | < 0.1 |
+| LCP | Loading speed | ≤ 2.5s |
+| INP | Responsiveness, every interaction | ≤ 200ms |
+| CLS | Visual stability | ≤ 0.1 |
 
 All three need to be "good" at p75 — two good and one "needs
 improvement" still fails overall. INP is the one that trips up heavy
@@ -280,26 +280,21 @@ predictor — so weight the passage-level findings below accordingly.
   commercial/evaluation-intent content, most AI citations go to pages
   updated within the past year, a majority within six months. Flag stale
   pricing/program/comparison pages.
-- **Platform-specific patterns** (verify via search before treating as
-  current — this shifts fast):
-  - *Google AI Overviews / AI Mode*: strongest preference for recognized
-    brands and established domains; citations cluster in the top third of
-    the page, so answer placement matters at page scale, not just within
-    a section.
-    Bing indirectly feeds Copilot, so don't ignore Bing Webmaster Tools
-    if you have access — Google-only SEO leaves a real gap.
-  - *Perplexity*: rewards freshness, source authority, and
-    multi-channel presence (being mentioned/linked elsewhere, not just
-    on-site).
-  - *Microsoft Copilot*: leans on Bing's index and LinkedIn presence
-    for B2B-style queries specifically.
-  - *ChatGPT (browsing/search mode)*: similar top-organic-result bias
-    to Google, plus a preference for pages with clear, scannable
-    structure over dense prose.
-  - *Claude*: tends to prefer long-form, comprehensive, well-structured
-    guides over thin pages.
-  - *Gemini*: factors in multimodal content (images, video), not text
-    alone.
+- **Platform-specific patterns.** The engines disagree with each other
+  hard — roughly 12% of cited sources overlap across platforms for the
+  same query — so "optimize for AI citation" is several different
+  targets. The per-engine profiles, and the caveat that they come from
+  industry citation tracking rather than vendor documentation, live in
+  `references/platforms.md`. Read that rather than working from memory:
+  these shift fast, and an audit that hands someone a confident engine
+  profile it made up is worse than one that says which file to read.
+
+  Two things safe to act on without it. Citations cluster in the **top
+  third of the page**, so answer placement matters at page scale and not
+  only within a section. And Bing feeds Copilot, so a site audited only
+  against Google has a real gap — check Bing Webmaster Tools if there is
+  access to it.
+
 - **Can the AI engines fetch the page at all?** Check `robots.txt` for
   blocks on retrieval crawlers — `OAI-SearchBot` (ChatGPT),
   `Claude-SearchBot`, `PerplexityBot`. These are *not* the training
