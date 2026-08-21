@@ -17,6 +17,16 @@ one engine is not thereby tuned for the others.
 | **Perplexity** | Searches the live web on nearly every query, so freshness counts most here. Leans hardest on community sources; an institutional tone underperforms a well-sourced practitioner answer. |
 | **Copilot** | Cites markedly younger domains than the others — the most realistic target for a new site. |
 
+**Preferred Sources, on Google specifically.** Google extended its
+Preferred Sources feature to AI Overviews and AI Mode in 2026 — readers can
+mark publications they want to see more of, and that preference carries
+into AI answers, not just the ordinary results. It is worth knowing because
+it is one of the few citation inputs that is neither a ranking signal nor a
+page property: it is an audience the site already has, expressed inside
+Google. For a publication with real returning readers it is a reason to ask
+them to set it; for a site without that audience it is not a lever at all.
+*(Re-verify the current scope and rollout — this is recent and moving.)*
+
 **Where the citations actually go.** A handful of domains — Reddit,
 Wikipedia, YouTube, LinkedIn — capture a large majority of all AI citations
 across engines, with Reddit alone a substantial share. For a typical

@@ -239,6 +239,19 @@ mobile-first.
 and read the numbers they paste back. Don't estimate these from the code —
 see above.
 
+**If the request succeeds but returns an error instead of data**, that is
+its own branch, and the common one. Without a key the quota is shared
+across everyone using it unkeyed, so `429 Quota exceeded` is routine rather
+than exceptional; you can also get `400` for a URL the API can't fetch.
+Read the JSON: a `429` needs `&key=` or a retry later, while a `400` is
+usually telling you the page is unreachable, which is a finding in itself.
+
+What must not happen either way is the Core Web Vitals gate quietly
+vanishing from the report. It is one of the five gates. An unanswered gate
+is reported as unanswered, with the reason and the link for them to run it
+themselves — never omitted, and never softened into "performance looks
+fine."
+
 ## Crawlability and indexing
 
 - Self-referencing `<link rel="canonical">` on every indexable page. Real
@@ -707,8 +720,23 @@ options, and say what each one costs:
 
 Same content, answerable by someone with no technical background. Keep the
 precise term in the finding for anyone who wants it — just don't make it
-the whole message. If they know the vocabulary, drop the translation; you
-can usually tell from how they wrote to you.
+the whole message.
+
+**Ask who is going to make the change.** This decides the shape of the
+whole report and it is one question. "Add `width` and `height` to the
+`<img>`" is the right instruction for a developer and useless to someone
+whose site is on Wix — where the same fix is a setting, or does not exist,
+or needs the person who built it for them. If they have a developer, write
+findings the developer can act on and give the owner the summary. If they
+don't, say which fixes their platform can do, which need someone hired,
+and roughly in what order — and don't hand a non-technical owner a list of
+code edits with no route to getting them made.
+
+Whether to translate the vocabulary at all: default to plain language, and
+drop the translation once they use the terms back at you. If you are
+unsure, one sentence asking is cheaper than guessing wrong in either
+direction — jargon at someone who doesn't have it stalls them, and
+over-explaining to a developer reads as condescension.
 
 ### Auditing a whole site
 
