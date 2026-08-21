@@ -15,10 +15,44 @@ from urllib.parse import urljoin
 from .fetch import fetch, origin
 from .htmldoc import HtmlDoc
 
-QUESTION_WORDS = (
-    "how", "what", "why", "when", "where", "which", "who", "can", "does",
-    "do", "is", "are", "should", "will",
+# A heading is question-shaped if a reader would hear a question in it. That is
+# not the same as "starts with a WH-word": "Where our community connects" opens
+# with one and is a plain declarative label. Counting it inflates the AEO score
+# with headings no question could ever match.
+WH_WORDS = ("how", "what", "why", "when", "where", "which", "who", "whom", "whose")
+AUX_WORDS = (
+    "can", "could", "does", "do", "did", "is", "are", "am", "was", "were",
+    "should", "shall", "will", "would", "has", "have", "had", "may", "might",
+    "must",
 )
+# Kept for callers that want the old flat list of openers.
+QUESTION_WORDS = WH_WORDS + AUX_WORDS
+
+
+def is_question_shaped(text: str) -> bool:
+    """Whether a heading reads as a question.
+
+    Three ways to qualify: it ends in a question mark; it opens with an
+    auxiliary ("Is Docker free"); or it opens with a WH-word *and* carries an
+    auxiliary or an infinitive soon after it ("How do I install", "What to read
+    next"). A WH-word alone is not enough.
+
+    Word order does the last bit of work. English inverts the auxiliary in a
+    question, so a trailing one means the heading is declarative: "Who are we"
+    asks, "Who we are" labels.
+    """
+    words = text.strip().lower().rstrip(":").split()
+    if not words:
+        return False
+    if text.strip().endswith("?"):
+        return True
+    if words[0] in AUX_WORDS:
+        return True
+    if words[0] in WH_WORDS:
+        for i, word in enumerate(words[1:4], start=1):
+            if (word in AUX_WORDS or word == "to") and i != len(words) - 1:
+                return True
+    return False
 
 
 @dataclass
@@ -70,7 +104,7 @@ def analyze_answer_shape(doc: HtmlDoc) -> AnswerShapeResult:
         lowered = text.strip().lower()
         if not lowered:
             continue
-        if lowered.endswith("?") or lowered.split()[0] in QUESTION_WORDS:
+        if is_question_shaped(text):
             result.question_headings.append(text)
 
     # How much text sits before the reader gets anything — a rough proxy for

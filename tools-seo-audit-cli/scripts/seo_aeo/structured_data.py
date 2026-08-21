@@ -35,6 +35,55 @@ RECOMMENDED_PROPS: Dict[str, List[str]] = {
 
 ARTICLE_TYPES = {"Article", "BlogPosting", "NewsArticle", "TechArticle", "Report"}
 
+# Schema.org types are a hierarchy, and a page that marks itself up as a
+# Corporation, a Restaurant, or an OnlineStore *has* declared an Organization —
+# matching the literal string "Organization" alone reports the sites that got
+# this right as if they had no entity markup at all. Curated from the
+# schema.org hierarchy; extend it when a subtype turns up in the wild rather
+# than trying to enumerate every descendant.
+_LOCAL_BUSINESS_SUBTYPES = {
+    "LocalBusiness", "AnimalShelter", "ArchiveOrganization", "AutomotiveBusiness",
+    "ChildCare", "Dentist", "DryCleaningOrLaundry", "EmergencyService",
+    "EmploymentAgency", "EntertainmentBusiness", "FinancialService",
+    "FoodEstablishment", "Bakery", "BarOrPub", "Brewery", "CafeOrCoffeeShop",
+    "Distillery", "FastFoodRestaurant", "IceCreamShop", "Restaurant", "Winery",
+    "GovernmentOffice", "HealthAndBeautyBusiness", "BeautySalon", "DaySpa",
+    "HairSalon", "HealthClub", "NailSalon", "TattooParlor",
+    "HomeAndConstructionBusiness", "Electrician", "GeneralContractor",
+    "HVACBusiness", "HousePainter", "Locksmith", "MovingCompany", "Plumber",
+    "RoofingContractor", "InternetCafe", "LegalService", "Attorney", "Notary",
+    "Library", "LodgingBusiness", "BedAndBreakfast", "Campground", "Hostel",
+    "Hotel", "Motel", "Resort", "MedicalBusiness", "Physician", "Pharmacy",
+    "ProfessionalService", "RadioStation", "RealEstateAgent", "RecyclingCenter",
+    "SelfStorage", "ShoppingCenter", "SportsActivityLocation", "Store",
+    "AutoPartsStore", "BikeStore", "BookStore", "ClothingStore",
+    "ComputerStore", "ConvenienceStore", "DepartmentStore", "ElectronicsStore",
+    "Florist", "FurnitureStore", "GardenStore", "GroceryStore",
+    "HardwareStore", "HobbyShop", "JewelryStore", "LiquorStore",
+    "MensClothingStore", "MobilePhoneStore", "MovieRentalStore", "MusicStore",
+    "OfficeEquipmentStore", "OutletStore", "PawnShop", "PetStore", "ShoeStore",
+    "SportingGoodsStore", "TireShop", "ToyStore", "WholesaleStore",
+    "TelevisionStation", "TouristInformationCenter", "TravelAgency",
+}
+
+_ORGANIZATION_SUBTYPES = {
+    "Organization", "Airline", "Consortium", "Corporation",
+    "EducationalOrganization", "CollegeOrUniversity", "ElementarySchool",
+    "HighSchool", "MiddleSchool", "Preschool", "School", "FundingScheme",
+    "GovernmentOrganization", "LibrarySystem", "MedicalOrganization",
+    "NGO", "NewsMediaOrganization", "OnlineBusiness", "OnlineStore",
+    "PerformingGroup", "DanceGroup", "MusicGroup", "TheaterGroup",
+    "PoliticalParty", "Project", "FundingAgency", "ResearchProject",
+    "ResearchOrganization", "SearchRescueOrganization", "SportsOrganization",
+    "SportsTeam", "WorkersUnion",
+} | _LOCAL_BUSINESS_SUBTYPES
+
+TYPE_DESCENDANTS = {
+    "Organization": _ORGANIZATION_SUBTYPES,
+    "Person": {"Person", "Patient"},
+    "Article": ARTICLE_TYPES,
+}
+
 # Types that are still valid Schema.org vocabulary but no longer produce any
 # Google rich result. Present => informational note, never a failure.
 DEAD_RICH_RESULT_TYPES = {
@@ -77,8 +126,16 @@ class StructuredDataResult:
         return bool(self.blocks) and all(b.valid for b in self.blocks)
 
     def has_type(self, *names: str) -> bool:
+        """True if any named type is present, counting its schema.org subtypes.
+
+        A name with no known descendants matches exactly, so asking for
+        BreadcrumbList still means BreadcrumbList and nothing else.
+        """
         present = set(self.types_present)
-        return any(n in present for n in names)
+        for name in names:
+            if present & TYPE_DESCENDANTS.get(name, {name}):
+                return True
+        return False
 
     def has_article(self) -> bool:
         return bool(ARTICLE_TYPES & set(self.types_present))
@@ -125,6 +182,21 @@ def _iter_entities(node: Any, depth: int = 0):
             yield from _iter_entities(value, depth + 1)
 
 
+def _props_for(typ: str, table: Dict[str, List[str]]) -> Optional[List[str]]:
+    """Property requirements for a type, inherited from its parent if needed.
+
+    Corporation is an Organization, so it owes name and url the same way —
+    looking up only the literal type name silently exempts every subtype from
+    validation.
+    """
+    if typ in table:
+        return table[typ]
+    for parent, descendants in TYPE_DESCENDANTS.items():
+        if typ in descendants and parent in table:
+            return table[parent]
+    return None
+
+
 def _has_prop(entity: Dict[str, Any], prop: str) -> bool:
     value = entity.get(prop)
     if value is None:
@@ -147,13 +219,13 @@ def validate_entity(entity: Dict[str, Any], block: BlockResult) -> None:
                 f"{DEAD_RICH_RESULT_TYPES[typ]}. Fine to keep; not a ranking lever."
             )
 
-        required = REQUIRED_PROPS.get(typ)
+        required = _props_for(typ, REQUIRED_PROPS)
         if required:
             missing = [p for p in required if not _has_prop(entity, p)]
             if missing:
                 block.missing_required.setdefault(typ, []).extend(missing)
 
-        recommended = RECOMMENDED_PROPS.get(typ)
+        recommended = _props_for(typ, RECOMMENDED_PROPS)
         if recommended:
             missing_rec = [p for p in recommended if not _has_prop(entity, p)]
             if missing_rec:

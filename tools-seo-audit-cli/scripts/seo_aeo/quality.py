@@ -46,6 +46,11 @@ _HEBREW_RE = re.compile(r"[֐-׿]")
 _ARABIC_RE = re.compile(r"[؀-ۿ]")
 _LATIN_RUN_RE = re.compile(r"[A-Za-z][A-Za-z0-9.\-]{2,}")
 
+# Share of letters that must be Hebrew/Arabic before an LTR-declared page is
+# treated as RTL content. Set well above what a language picker contributes
+# and well below what a genuinely bilingual page carries.
+RTL_CONTENT_THRESHOLD = 0.05
+
 
 @dataclass
 class QualityResult:
@@ -70,6 +75,7 @@ class RtlResult:
     bidi_risk_samples: List[str] = field(default_factory=list)
     mixed_slug_style: bool = False
     applicable: bool = False
+    rtl_char_share: float = 0.0
 
 
 def check_title(doc: HtmlDoc) -> tuple:
@@ -160,9 +166,17 @@ def analyze_rtl(doc: HtmlDoc, html: str, page_url: str = "") -> RtlResult:
     result.dir_attr = match.group(1).lower() if match else None
 
     lang_prefix = (doc.lang or "").lower().split("-")[0]
-    has_rtl_script = bool(_HEBREW_RE.search(doc.visible_text)
-                          or _ARABIC_RE.search(doc.visible_text))
     result.is_rtl_language = lang_prefix in RTL_LANGS
+
+    # A single Hebrew or Arabic word does not make a page RTL. Language pickers
+    # label their own options in their own script ("\u05e2\u05d1\u05e8\u05d9\u05ea", "\u0627\u0644\u0639\u0631\u0628\u064a\u0629"), so an
+    # entirely English page routinely carries a few RTL characters. Measure the
+    # share instead: below the threshold the page is LTR with incidental RTL
+    # labels, and running bidi analysis on it only produces noise.
+    rtl_chars = len(_HEBREW_RE.findall(doc.visible_text)) + len(_ARABIC_RE.findall(doc.visible_text))
+    letters = sum(1 for ch in doc.visible_text if ch.isalpha())
+    result.rtl_char_share = (rtl_chars / letters) if letters else 0.0
+    has_rtl_script = result.rtl_char_share >= RTL_CONTENT_THRESHOLD
 
     # Only assess RTL when the page is RTL by declaration or by actual content.
     result.applicable = result.is_rtl_language or has_rtl_script
@@ -176,11 +190,16 @@ def analyze_rtl(doc: HtmlDoc, html: str, page_url: str = "") -> RtlResult:
 
     # Latin runs inside RTL text are the classic bidi hazard.
     if has_rtl_script and "<bdi" not in html.lower() and 'dir="auto"' not in html.lower():
-        for line in doc.visible_text.split(". "):
-            if _HEBREW_RE.search(line) and _LATIN_RUN_RE.search(line):
-                result.bidi_risk_samples.append(line.strip()[:90])
-                if len(result.bidi_risk_samples) >= 3:
+        # Scan text node by text node. Splitting the flattened page text on
+        # ". " would staple a Hebrew menu label to the unrelated English string
+        # that happened to follow it in the DOM and report that as a hazard.
+        for run in doc.text_runs:
+            for line in run.split(". "):
+                if _HEBREW_RE.search(line) and _LATIN_RUN_RE.search(line):
+                    result.bidi_risk_samples.append(line.strip()[:90])
                     break
+            if len(result.bidi_risk_samples) >= 3:
+                break
 
     return result
 

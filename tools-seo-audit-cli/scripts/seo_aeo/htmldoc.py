@@ -33,6 +33,10 @@ class HtmlDoc:
     headings: List[Tuple[int, str]] = field(default_factory=list)  # (level, text)
     jsonld_raw: List[str] = field(default_factory=list)
     visible_text: str = ""
+    # Same text, but one entry per text node, so checks that care about
+    # element boundaries (bidi isolation) do not see two unrelated strings
+    # from different elements as one sentence.
+    text_runs: List[str] = field(default_factory=list)
     has_main: bool = False
     has_nav: bool = False
     has_viewport: bool = False
@@ -197,6 +201,7 @@ class _DocParser(HTMLParser):
 
     def finish(self) -> HtmlDoc:
         self.doc.visible_text = " ".join(self._text_parts)
+        self.doc.text_runs = list(self._text_parts)
         return self.doc
 
 

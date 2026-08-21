@@ -184,6 +184,34 @@ class TestStructuredData(unittest.TestCase):
         self.assertTrue(result.has_type("Organization"))
         self.assertTrue(result.all_valid)
 
+    def test_organization_subtypes_count_as_organization(self):
+        # Regression, found auditing docker.com: valid Corporation markup with
+        # sameAs links was reported as "no Organization or Person markup",
+        # failing exactly the sites that implemented entity markup properly.
+        result = structured_data.analyze(
+            ['{"@type":"Corporation","name":"Docker","url":"https://www.docker.com/",'
+             '"sameAs":["https://github.com/docker"]}'])
+        self.assertTrue(result.has_type("Organization", "Person"))
+        self.assertTrue(result.all_valid)
+        for subtype in ("Restaurant", "OnlineStore", "NGO", "CollegeOrUniversity"):
+            sub = structured_data.analyze(
+                ['{"@type":"%s","name":"N","url":"u"}' % subtype])
+            self.assertTrue(sub.has_type("Organization"), subtype)
+
+    def test_unrelated_types_still_do_not_count_as_organization(self):
+        result = structured_data.analyze(['{"@type":"WebPage","name":"N"}'])
+        self.assertFalse(result.has_type("Organization", "Person"))
+
+    def test_a_subtype_inherits_its_parents_required_properties(self):
+        # Corporation is an Organization, so it owes name and url too — before
+        # the fix, subtypes were exempt from validation entirely.
+        result = structured_data.analyze(['{"@type":"Corporation","name":"Acme"}'])
+        self.assertIn("url", result.blocks[0].missing_required["Corporation"])
+
+    def test_breadcrumblist_is_not_widened_by_the_subtype_map(self):
+        result = structured_data.analyze(['{"@type":"Corporation","name":"N","url":"u"}'])
+        self.assertFalse(result.has_type("BreadcrumbList"))
+
     def test_dead_rich_result_types_noted_but_not_failed(self):
         result = structured_data.analyze(['{"@type":"FAQPage","mainEntity":[]}'])
         notes = " ".join(result.blocks[0].notes)
@@ -382,6 +410,30 @@ class TestRtl(unittest.TestCase):
         result = quality.analyze_rtl(htmldoc.parse(html), html)
         self.assertTrue(result.dir_mismatch)
 
+    def test_language_picker_does_not_make_an_english_page_rtl(self):
+        # Regression, found auditing pypi.org: a footer link labelled "עברית"
+        # made an entirely English page trip the RTL checks.
+        body = "<p>%s</p>" % (" ".join(["Deployed from the main branch today"] * 40))
+        html = ('<html lang="en" dir="ltr"><body>' + body +
+                '<ul><li><a href="/he">עברית</a></li>'
+                '<li><a href="/en">English</a></li></ul>'
+                '<p>Switch to desktop version</p></body></html>')
+        result = quality.analyze_rtl(htmldoc.parse(html), html)
+        self.assertFalse(result.applicable)
+        self.assertEqual(result.bidi_risk_samples, [])
+
+    def test_bidi_scan_respects_element_boundaries(self):
+        # Regression: the scanner split the flattened page text on ". ", so a
+        # Hebrew label in one element and English text in the next were read as
+        # one mixed-script sentence and reported as a hazard neither one is.
+        html = ('<html lang="he" dir="rtl"><body>'
+                '<p>שלום עולם וברוכים הבאים לאתר שלנו היום</p>'
+                '<p>Switch to desktop version</p>'
+                '</body></html>')
+        result = quality.analyze_rtl(htmldoc.parse(html), html)
+        self.assertTrue(result.applicable)
+        self.assertEqual(result.bidi_risk_samples, [])
+
 
 class TestAccessibility(unittest.TestCase):
     def test_missing_alt_detected_but_decorative_accepted(self):
@@ -417,6 +469,20 @@ class TestAeo(unittest.TestCase):
     def test_h1_is_not_counted_as_a_subheading(self):
         doc = htmldoc.parse("<html><body><h1>How to cook?</h1><h2>Steps</h2></body></html>")
         self.assertEqual(aeo.analyze_answer_shape(doc).total_headings, 1)
+
+    def test_a_wh_word_alone_is_not_a_question(self):
+        # Regression, found auditing eclipse.org: "Where our community connects"
+        # is a declarative label, and counting it inflated the AEO score with a
+        # heading no user question could match.
+        for heading in ("Where our community connects", "What we build",
+                        "Who we are", "How it works for teams and their data"):
+            self.assertFalse(aeo.is_question_shaped(heading), heading)
+
+    def test_real_questions_are_still_recognized(self):
+        for heading in ("What is Docker?", "How do I install Node",
+                        "Is it free", "How to install Python",
+                        "Why does this matter", "Who should use this"):
+            self.assertTrue(aeo.is_question_shaped(heading), heading)
 
 
 class TestReportRendering(unittest.TestCase):
