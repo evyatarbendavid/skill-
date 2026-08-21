@@ -295,6 +295,33 @@ class TestWorkedReport(unittest.TestCase):
         self.assertRegex(skill, r"examples\.md.{0,40}§6|§6.{0,60}report")
 
 
+class TestWhatShipsIsTheSkill(unittest.TestCase):
+    """Someone downloads this repo and has to know, in one read, which files
+    are the skill and which are optional. Anything in here that is neither is
+    weight they carry for no reason."""
+
+    def test_no_stray_top_level_content(self):
+        expected = {"SKILL.md", "README.md", "references", "agents", "tests",
+                    "tools-seo-audit-cli", ".gitignore", ".git"}
+        actual = {p.name for p in ROOT.iterdir()}
+        unexpected = actual - expected
+        self.assertEqual(unexpected, set(),
+                         f"unexplained top-level entries: {sorted(unexpected)}")
+
+    def test_readme_says_which_files_are_the_skill(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        flat = " ".join(readme.split())
+        self.assertRegex(flat, r"skill is `SKILL\.md` plus the `references/`")
+        # And that the rest is optional, so nobody thinks they need the CLI.
+        self.assertRegex(flat, r"[Ee]verything else[^.]{0,60}optional")
+
+    def test_readme_covers_both_install_targets(self):
+        flat = " ".join((ROOT / "README.md").read_text(encoding="utf-8").split())
+        self.assertIn("Claude Desktop", flat)
+        self.assertIn("Claude Code", flat)
+        self.assertIn(".claude/skills/seo-aeo", flat)
+
+
 class TestReadme(unittest.TestCase):
     def test_readme_lists_every_reference_file(self):
         # The README's table is how someone decides whether this skill covers

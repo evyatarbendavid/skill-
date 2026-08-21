@@ -9,26 +9,36 @@ say the word "SEO."
 
 ## Install
 
-Download this repo (green **Code** button → **Download ZIP**, then unzip),
-or clone it:
+Get the files — green **Code** button → **Download ZIP**, then unzip, or:
 
 ```bash
 git clone https://github.com/evyatarbendavid/skill-.git
 ```
 
-**Claude Desktop / claude.ai** — Settings → Capabilities → Skills → upload
-the folder containing `SKILL.md`.
+**The skill is `SKILL.md` plus the `references/` folder.** Everything else
+in this repo is optional: `agents/` helps only in Claude Code, `tests/`
+protects the skill's own accuracy, and `tools-seo-audit-cli/` is a separate
+command-line tool. Nothing else is needed for the skill to work.
 
-**Claude Code** — copy the skill where Claude Code looks for skills:
+**Claude Desktop / claude.ai** — add it under Settings → Capabilities →
+Skills. Point the upload at the folder holding `SKILL.md` (the folder you
+just unzipped). If your version asks for a `.zip` rather than a folder,
+zip that folder and upload the zip — the skill itself is plain Markdown
+either way.
+
+**Claude Code** — copy it where Claude Code looks for skills:
 
 ```bash
 mkdir -p ~/.claude/skills/seo-aeo
 cp -r SKILL.md references ~/.claude/skills/seo-aeo/
-cp -r agents/* ~/.claude/agents/          # optional, see below
+cp -r agents/* ~/.claude/agents/          # optional — see below
 ```
 
-For one project instead of every project, use `.claude/skills/seo-aeo/`
-inside that project.
+For one project rather than every project, use `.claude/skills/seo-aeo/`
+inside that project instead.
+
+**Then just work.** You don't have to invoke it by name. Ask about a page,
+paste a URL or a component, or start building one, and it loads itself.
 
 ## What's here
 
