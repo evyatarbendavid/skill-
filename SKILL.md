@@ -510,6 +510,26 @@ that separately. Never present it as a search or citation tactic.
   renders in the wrong visual order. Wrap in `<bdi>` or set `dir="auto"` on
   mixed-content and user-generated fields. This is a correctness bug before
   it is an SEO one.
+- **Anything rendered outside the RTL container inherits the wrong
+  direction.** Modals, toasts, tooltips, dropdowns and date pickers are
+  routinely portaled to `document.body`, which escapes the `dir="rtl"` on
+  your app root. The page reads correctly and every overlay on it reads
+  backwards. Set `dir` on the portal root, not only on the app root — and
+  test by opening each overlay, since nothing in the static HTML shows it.
+- **Directional icons must mirror.** A "next" arrow pointing right is
+  pointing backwards in Hebrew. Same for back buttons, carousel chevrons,
+  breadcrumb separators, and progress indicators. `transform: scaleX(-1)`
+  under `[dir="rtl"]`, or a mirrored asset.
+- **Physical CSS properties are what make an RTL layout subtly wrong
+  everywhere.** `margin-left`, `padding-right`, `text-align: left`,
+  `float: left` all stay put when the direction flips. The logical
+  equivalents — `margin-inline-start`, `padding-inline-end`,
+  `text-align: start`, `float: inline-start` — follow it. On a site that
+  serves both directions this is the single highest-leverage change.
+- **Fields that hold LTR data need `dir="ltr"` even on an RTL page** —
+  email, URL, phone, credit card, code. Their placeholder alignment should
+  match. A phone number typed into a `dir="rtl"` input is a classic
+  reversed-digits bug report.
 - URL slugs: pick Latin or Hebrew and stay consistent site-wide.
 - Write titles and descriptions in **natural Hebrew**, the way an Israeli
   actually searches — not a translated English template. JSON-LD
@@ -577,7 +597,7 @@ many of the same things.
 |---|---|
 | A live URL only | Diagnose everything. Fix nothing — you can't write to their server. Say so up front rather than ending an audit with fixes you can't apply. |
 | A local project or repo | The full loop: find, fix, verify. |
-| Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. |
+| Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. See below for what *is* judgeable from one component. |
 | Nothing yet, page being written | Build mode. Use these sections as the spec while writing, not as an audit afterwards. |
 
 If someone asks to "make my site rank" with nothing attached, ask for the
@@ -614,6 +634,30 @@ instance — and say so, because it affects more pages than were reported.
 Confirm before bulk changes across many files or anything touching URL
 structure. After fixing, re-check that specific item; don't assume the edit
 worked.
+
+**One pasted component is still worth a real answer.** Most of the
+checklist needs the page, but a component carries its own bugs and they are
+worth naming rather than deflecting with "I'd need the whole site":
+
+- **A clickable thing built from `<div onClick>` instead of `<a href>`.**
+  This is the most common SEO bug in React code and it is fully visible in
+  one file. A crawler follows `href`s; it does not fire click handlers, so
+  a card, tile, or "read more" built this way is a link that no search
+  engine and no AI crawler can follow. It also can't be opened in a new
+  tab, middle-clicked, or reached by keyboard. `<a href>` styled as a card
+  does everything the div did.
+- Images with no `alt`, or `loading="lazy"` on something that is plainly
+  the hero.
+- Anchor text that describes nothing — "click here", "read more",
+  "לחץ כאן" — where the component knows the destination and could say it.
+- Heading level chosen for size. You cannot judge `h2` vs `h3` without the
+  page, so say that instead of guessing — but an `h1` inside a repeated
+  card component is wrong from the file alone.
+- Text baked into an image, and interactive elements with no accessible
+  name.
+
+Say which findings are certain from this file and which need the route.
+That distinction is the useful part; a flat "send me more" is not.
 
 **On a framework project, the page is not an HTML file.** Most sites people
 bring are Next.js, Astro, SvelteKit, Nuxt, or similar, and the two things
@@ -679,8 +723,34 @@ and make a full-site pass practical:
 
 Enumerate pages from `sitemap.xml`, or by crawling same-domain links, or
 from route files in a local project. On a site of 100+ pages, don't audit
-every one — cluster by template, audit a representative of each, then fix
-at the shared source. Say you sampled and how; never sample silently.
+every one — sample. Here is how, because "cluster by template" is easy to
+say and leaves the actual decision undefined:
+
+1. **Group by what generates the page, not by what it looks like.** In a
+   local project that is the route file: everything under
+   `app/products/[slug]/` is one cluster, however different the products
+   are. From URLs alone, the path shape is the proxy — `/products/*`,
+   `/blog/*`, `/blog/category/*` — and a cluster whose members turn out to
+   have different `<title>` patterns or different heading structures was
+   two clusters.
+2. **Audit three per cluster, not one**: the newest, the oldest, and the
+   one with the most content. A single representative hides exactly the
+   variation worth finding — the oldest page is where the deprecated
+   markup lives, the longest is where the heading hierarchy breaks.
+3. **Always audit the singletons in full** — homepage, pricing, contact,
+   the top few landing pages. They have no cluster and they are usually
+   the pages that matter most.
+4. **Escalate when the three disagree.** If two of three share a finding
+   and the last doesn't, the cluster isn't uniform: audit more of it
+   rather than reporting the majority as the whole.
+5. **Fix at the shared source**, then re-check one page per cluster to
+   confirm the fix propagated — a template fix that didn't take looks
+   identical to one that did until you look.
+
+Say what you sampled, how you grouped, and how many of each cluster you
+looked at. Never sample silently, and never write a count you did not
+check — "I audited 3 of roughly 400 product pages" is a stronger sentence
+than an unqualified "product pages are fine."
 
 If subagents aren't available (Claude Desktop, claude.ai), everything above
 still works — do the same passes yourself, one page per turn, and keep a

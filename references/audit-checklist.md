@@ -208,6 +208,18 @@ first and SEO bugs second — fixing them pays twice.*
   `bdi` or `dir="auto"` so they do not render in the wrong visual order.
   Check nested components too — LTR-authored component libraries often hardcode
   their own `dir`.
+- [ ] **G7a. Portaled overlays inherit `dir`.** Modals, toasts, tooltips,
+  dropdowns and date pickers rendered to `document.body` escape the app root's
+  `dir="rtl"` and render backwards while the page behind them reads correctly.
+  Static HTML will not show this — open each overlay and look.
+- [ ] **G7b. Directional icons mirror.** Next/back arrows, carousel chevrons,
+  breadcrumb separators and progress indicators point the other way in RTL.
+- [ ] **G7c. Logical CSS properties, not physical.** `margin-inline-start`,
+  `padding-inline-end`, `text-align: start` rather than `margin-left`,
+  `padding-right`, `text-align: left` — physical properties stay put when the
+  direction flips, which is what makes an RTL layout subtly wrong everywhere.
+- [ ] **G7d. LTR fields marked `dir="ltr"`.** Email, URL, phone, card number
+  and code inputs hold left-to-right data even on an RTL page.
 - [ ] **G8. No orphan pages.** Every sitemap URL is reachable by following
   internal links. Orphans are live and declared but accumulate no internal
   signal.

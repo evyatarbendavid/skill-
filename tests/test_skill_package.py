@@ -390,6 +390,61 @@ class TestTheGatesAgreeEverywhere(unittest.TestCase):
                          {"A1", "A2", "A3", "A8", "D1", "D2", "D3", "D4"})
 
 
+class TestSamplingIsOperationalized(unittest.TestCase):
+    """"Cluster by template and audit a representative" was stated three times
+    and never defined — no grouping method, no count per cluster, no rule for
+    picking the representative. That leaves the decision that matters to
+    whoever reads it."""
+
+    def setUp(self):
+        self.flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+
+    def test_says_how_many_pages_per_cluster(self):
+        self.assertIn("Audit three per cluster", self.flat)
+
+    def test_says_which_pages_to_pick(self):
+        for token in ("newest", "oldest", "most content"):
+            self.assertTrue(token in self.flat, f"missing {token!r}")
+
+    def test_says_how_to_group(self):
+        self.assertRegex(self.flat, r"route file|path shape")
+
+    def test_covers_pages_that_have_no_cluster(self):
+        self.assertRegex(self.flat, r"singleton|homepage, pricing, contact")
+
+
+class TestPastedComponentReview(unittest.TestCase):
+    def test_names_the_div_onclick_bug(self):
+        flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+        self.assertIn("<div onClick>", flat)
+        # The reason it matters: crawlers follow hrefs, not click handlers.
+        self.assertRegex(flat, r"does not fire click handlers|not fire click")
+
+
+class TestRtlGuidanceIsOperationalized(unittest.TestCase):
+    """The portal/dir-inheritance bug was named in SKILL.md and examples.md and
+    missing from both artifacts meant to run an exhaustive RTL check, which is
+    where it would actually get looked for."""
+
+    def test_every_rtl_artifact_covers_the_portal_bug(self):
+        for path in (SKILL_MD,
+                     ROOT / "references" / "audit-checklist.md",
+                     AGENTS / "seo-page-auditor.md"):
+            flat = " ".join(path.read_text(encoding="utf-8").split())
+            self.assertTrue(
+                "portal" in flat.lower() or "document.body" in flat,
+                f"{path.name} should cover portaled overlays")
+
+    def test_the_checklist_and_auditor_cover_the_layout_traps(self):
+        # assertTrue rather than assertIn: assertIn dumps the whole file into
+        # the failure message, which buries the one word that is missing.
+        for path in (ROOT / "references" / "audit-checklist.md",
+                     AGENTS / "seo-page-auditor.md"):
+            flat = " ".join(path.read_text(encoding="utf-8").split())
+            for token in ("-inline-start", "mirror", 'dir="ltr"'):
+                self.assertTrue(token in flat, f"{path.name} missing {token!r}")
+
+
 class TestFrameworkGuidance(unittest.TestCase):
     """A sitemap.xml written to a framework project's repo root is not served.
     The fix looks applied and changes nothing, which is worse than no fix."""

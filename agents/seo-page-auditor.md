@@ -316,6 +316,20 @@ predictor — so weight the passage-level findings below accordingly.
 - **Bidi bugs**: numbers, English brand names, or embedded LTR content
   inside Hebrew text rendering in the wrong visual order — should be
   wrapped in `<bdi>` or use `dir="auto"` on mixed-content fields.
+- **Portaled overlays**: modals, toasts, tooltips, dropdowns and date
+  pickers rendered to `document.body` escape the app root's `dir="rtl"`
+  and render backwards while the page behind them is fine. Nothing in the
+  static HTML reveals it — check where the portal root is created and
+  whether `dir` is set on it.
+- **Directional icons**: next/back arrows, carousel chevrons, breadcrumb
+  separators and progress bars all point the wrong way unless mirrored
+  under `[dir="rtl"]`.
+- **Logical vs physical CSS**: `margin-left`, `padding-right`,
+  `text-align: left`, `float: left` do not follow the direction; the
+  `-inline-start` / `-inline-end` / `start` forms do. On a bidirectional
+  site this is the highest-leverage fix available.
+- **LTR data fields**: email, URL, phone, card-number and code inputs need
+  `dir="ltr"` even inside an RTL form, or the digits read reversed.
 - URL slugs (Latin or Hebrew) consistent site-wide, not mixed.
 - Titles/meta descriptions in natural Hebrew (the way an Israeli user
   actually searches), not a translated English template. JSON-LD
