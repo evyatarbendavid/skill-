@@ -40,6 +40,7 @@ inside that project.
 | `references/platforms.md` | How each answer engine picks sources, and which one a given site should realistically aim at |
 | `references/situations.md` | Depth that only applies if the site is large, e-commerce, multilingual, thin, mid-migration, or chasing entity recognition |
 | `references/audit-checklist.md` | Every item as PASS / FAIL / N/A |
+| `references/field-notes.md` | What actually turned up broken auditing live sites — with the sample size stated, so it reads as evidence rather than as a rule |
 | `references/sources.md` | The cited reasoning, labelled OFFICIAL / CONSENSUS / UNCERTAIN |
 | `agents/` | Optional. Two Claude Code subagents — a read-only auditor and a fixer — for full-site passes. Not needed on Desktop. |
 

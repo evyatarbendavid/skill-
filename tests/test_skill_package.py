@@ -181,6 +181,38 @@ class TestFactualGuardrails(unittest.TestCase):
                                     r"no major provider has confirmed)")
 
 
+class TestFieldNotesStayEvidence(unittest.TestCase):
+    """Observations from a handful of sites are useful for deciding what to
+    check first and worthless as statistics. The file has to keep saying which
+    it is, or the next reader quotes '6 of 7 sites' as a fact about the web."""
+
+    def setUp(self):
+        self.text = (ROOT / "references" / "field-notes.md").read_text(encoding="utf-8")
+        # Reflow, dropping blockquote markers: these assertions are about what
+        # the file says, and a line break landing mid-phrase is not a change in
+        # meaning.
+        self.flat = " ".join(self.text.replace("\n>", "\n").split())
+
+    def test_names_its_sample_size_and_date(self):
+        self.assertRegex(self.text, r"\bseven\b|\b7\b")
+        self.assertRegex(self.text, r"20\d\d-\d\d-\d\d")
+
+    def test_says_what_the_sample_does_not_cover(self):
+        for gap in ("Hebrew", "news", "product page"):
+            self.assertIn(gap, self.text, f"sample limits should name {gap}")
+
+    def test_warns_against_generalizing_the_frequencies(self):
+        # Distinctive words rather than a prose shape — the caveat can be
+        # rewritten freely, it just cannot disappear.
+        self.assertIn("anecdote", self.flat)
+        self.assertRegex(self.flat, r'never as "N% of the web does X\."')
+
+    def test_frequencies_are_not_stated_in_the_skill_as_percentages_of_the_web(self):
+        skill = SKILL_MD.read_text(encoding="utf-8")
+        self.assertNotRegex(skill, r"\d+ ?(of|/) ?7\b",
+                            "raw sample counts belong in field-notes, with the caveat")
+
+
 class TestReadme(unittest.TestCase):
     def test_readme_lists_every_reference_file(self):
         # The README's table is how someone decides whether this skill covers

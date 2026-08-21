@@ -204,6 +204,11 @@ see above.
   primary instead.
 - `sitemap.xml` exists, is valid, referenced from `robots.txt`, and lists
   only canonical indexable URLs — no `noindex`ed or redirecting ones.
+- **Check the sitemap actually contains the homepage.** A populated,
+  perfectly valid sitemap that omits `/` is common and invisible to any
+  check that stops at "sitemap: present". Google found the homepage long
+  ago by other means; an AI retrieval system meeting the site for the
+  first time has less to go on.
 - No conflicting signals: a page that is both `noindex` and in the sitemap.
 - URLs lowercase, hyphens not underscores, no junk query params, stable.
 - Redirects single-hop. Collapse A→B→C into A→C and link to the final URL.
@@ -223,6 +228,11 @@ see above.
 - **`<title>`** unique per page, ~50–60 chars, primary query near the front.
 - **Meta description** unique, ~140–160 chars, written as click-through
   copy. It does not affect ranking — it affects whether anyone clicks.
+  *Unique* is the word doing the work: a global fallback description
+  rendering on every page passes a "has a description" check on all of
+  them and fails at the only job a description has. You can only catch it
+  by comparing pages to each other, so collect descriptions across the
+  site rather than judging one page alone.
 - **Exactly one `<h1>`**, matching real page intent.
 - **Heading hierarchy** H1→H2→H3 with no skipped levels. Never chosen for
   visual size.
@@ -248,6 +258,15 @@ Worth implementing: `Organization` or `Person` sitewide, `WebSite`,
 `BreadcrumbList`, and then whatever actually applies — `Article`,
 `Product`, `LocalBusiness`, `Event`, `VideoObject`, `Review` (only if the
 reviews are real and displayed).
+
+Sitewide entity identity is the piece most often missing entirely, on
+sites that have every other basic covered. Check for it early — it is
+cheap to add and there is frequently nothing there at all.
+
+Schema.org types form a hierarchy, so read subtypes as what they are: a
+`Corporation`, `Restaurant`, `NGO`, or `OnlineStore` block *is*
+`Organization` markup. Don't report a site that used a precise subtype as
+having no entity markup.
 
 Two firm rules:
 1. **Only mark up content that is visibly on the page.** Invisible or
@@ -304,6 +323,15 @@ retrieval requires indexing. It is no longer a good **predictor**. A page
 that ranks 40th can be cited, and a page that ranks 3rd often isn't. So
 don't tell someone their AEO problem will be solved by ranking better — the
 passage-level work below is doing most of the lifting.
+
+**Audit the pages that answer questions, not the homepage.** A homepage is
+a gateway — marketing copy that introduces a product. It was never going to
+be the passage an engine lifts, and grading it on answer-shape produces a
+wall of failures that says nothing about the site. For an AEO assessment,
+look at docs, guides, articles, and support pages, and name which pages you
+looked at. If the homepage is genuinely all you were given, report
+answer-shape gaps as expected for the page type and say where a real
+assessment would need to look.
 
 What actually raises the odds:
 
@@ -446,6 +474,16 @@ If someone asks to "make my site rank" with nothing attached, ask for the
 URL or the project path — one question, then proceed. Don't stall on
 details you can infer.
 
+**Ask how the page gets its visitors before you rank the fixes.** Not every
+page is reached from search. Documentation entry points, install pages, and
+anything people arrive at from a link in a README or an email are doing fine
+without a canonical tag, and a report that opens with one has misjudged the
+page. What does *not* get discounted along with it: `lang`, viewport, alt
+text, contrast, keyboard access. Those serve every visitor no matter how
+they arrived. Sorting a page's findings into "matters for search here" and
+"matters regardless" is most of the value you add; listing everything at
+equal weight is most of the noise.
+
 **Reviewing an existing page or site:** work the gates first, then
 everything else. Report findings ranked **Critical / High / Medium / Low**,
 each naming the exact element or line and *why it matters* — ranking,
@@ -517,4 +555,5 @@ Load on demand — don't read them up front.
 | `references/ai-crawlers.md` | Any question about blocking AI bots, `robots.txt` and AI, or why a site isn't appearing in an AI engine |
 | `references/examples.md` | Showing someone what a fix looks like — before/after for answer-first passages, titles, JSON-LD, RTL, and how to report a finding |
 | `references/audit-checklist.md` | Running a formal audit — every item as PASS/FAIL/N/A |
+| `references/field-notes.md` | Deciding what to look at first — what actually turned up broken on real production sites, with the sample size stated |
 | `references/sources.md` | Citing a claim, or checking whether something is official vs. practitioner consensus vs. contested |
