@@ -13,9 +13,11 @@ Standard library only. No pip install required.
 
 import argparse
 import os
+import re
 import sys
 import traceback
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -83,6 +85,80 @@ def guard(result: AuditResult, finding_id: str, title: str):
 # ---------------------------------------------------------------------------
 # Section A - Crawlability & Indexing (GATE)
 # ---------------------------------------------------------------------------
+
+ARTICLE_PATH_HINTS = ("/blog/", "/news/", "/article/", "/articles/", "/post/",
+                      "/posts/", "/story/", "/stories/", "/guide/", "/guides/",
+                      "/tutorial/", "/tutorials/")
+
+_DATE_IN_PATH = re.compile(r"/(19|20)\d{2}/(0[1-9]|1[0-2])(/|$)")
+
+
+def _public_url(ctx, url: str) -> str:
+    """The URL that should be written into source files.
+
+    Auditing a dev server is the normal way to use --fix while building, and
+    the URLs it hands back start with http://localhost. Writing one of those
+    into a canonical tag or a sitemap hard-codes a developer's machine into a
+    file that ships. When --base-url gives the real origin, swap it in; with no
+    --base-url, callers must not write the URL at all.
+    """
+    base = getattr(ctx.args, "base_url", None)
+    if not base:
+        return url
+    parsed = urlparse(url)
+    return base.rstrip("/") + parsed.path + (
+        f"?{parsed.query}" if parsed.query else "")
+
+
+def _may_write_urls(ctx) -> bool:
+    """Whether URLs derived from the audit are safe to write to disk."""
+    return bool(getattr(ctx.args, "base_url", None)) or not _is_local_host(
+        ctx.page.final_url)
+
+
+def _local_url_block_reason(ctx) -> str:
+    host = urlparse(ctx.page.final_url).netloc
+    return (f"skipped: audited {host}, and writing that into your source would "
+            f"hard-code a dev address into a file that ships. Re-run with "
+            f"--base-url https://your-real-domain to plan this fix, or audit "
+            f"the deployed URL directly.")
+
+
+def _looks_like_an_article(ctx) -> bool:
+    """Whether a page is the kind of thing Article markup describes.
+
+    Deliberately conservative. A false positive here proposes markup for
+    content that isn't on the page, which is a spam-policy problem, not a
+    missed opportunity. A false negative just means nobody is offered a fix
+    they can still add by hand.
+    """
+    doc = ctx.doc
+    path = (urlparse(ctx.page.final_url).path or "").lower()
+    if any(hint in path for hint in ARTICLE_PATH_HINTS) or _DATE_IN_PATH.search(path):
+        return True
+
+    dated = bool(doc.meta.get("article:published_time")
+                 or doc.meta.get("date")
+                 or doc.meta.get("author")
+                 or "<time" in (ctx.page.body or "").lower())
+    words = len(doc.visible_text.split())
+    subheads = sum(1 for level, _ in doc.headings if level in (2, 3))
+    return dated and words >= 400 and subheads >= 2
+
+
+def _is_local_host(url: str) -> bool:
+    """Whether a URL points at the machine running the audit.
+
+    Used to suppress deployment-only findings when someone audits their dev
+    server, which is the normal way to use this while building.
+    """
+    host = urlparse(url).hostname or ""
+    host = host.lower()
+    return (host in ("localhost", "127.0.0.1", "::1", "0.0.0.0")
+            or host.endswith(".localhost")
+            or host.endswith(".local")
+            or host.endswith(".test"))
+
 
 def _judge_foreign_canonical(ctx, can) -> Finding:
     """Classify a canonical that points at some other URL.
@@ -459,13 +535,24 @@ def run_section_c(ctx: Context, result: AuditResult) -> None:
     if sd.has_article():
         result.add(Finding("C3", "Article/BlogPosting markup", PASS,
                            detail=f"types: {', '.join(sd.types_present)}"))
-    else:
+    elif _looks_like_an_article(ctx):
         result.add(Finding(
             "C3", "Article/BlogPosting markup", WARN,
-            detail="no Article/BlogPosting markup. Expected on content pages; "
-                   "not applicable to a homepage or landing page.",
+            detail="no Article/BlogPosting markup, and this page reads like an "
+                   "article — dated, bylined, or long-form prose under "
+                   "subheadings.",
             fixable=True,
         ))
+    else:
+        # The old behaviour warned here and offered to inject Article markup,
+        # on a page whose own finding text said Article did not apply to it.
+        # Marking a shop homepage as an Article is the "markup for content that
+        # isn't on the page" spam problem, arrived at by helpfulness.
+        result.add(Finding(
+            "C3", "Article/BlogPosting markup", NA,
+            reason="this page does not read like an article — no date, no "
+                   "byline, and not long-form prose. Article markup would be "
+                   "describing content that isn't here."))
 
     # C4 - site identity
     if sd.has_type("Organization", "Person"):
@@ -608,6 +695,14 @@ def run_section_e(ctx: Context, result: AuditResult) -> None:
         else:
             result.add(Finding("E3", "HTTPS without mixed content", PASS,
                                detail="served over HTTPS, no http:// subresources found"))
+    elif _is_local_host(page.final_url):
+        # A dev server on loopback is meant to be plain HTTP. Reporting that as
+        # a critical failure buries the findings the person can actually act on,
+        # which is the whole reason they ran this against localhost.
+        result.add(Finding("E3", "HTTPS without mixed content", NA,
+                           reason="local development server — HTTPS is a "
+                                  "deployment concern, not a code one. Re-check "
+                                  "against the staging or production URL."))
     else:
         result.add(Finding("E3", "HTTPS without mixed content", FAIL,
                            detail="page is not served over HTTPS"))
@@ -922,32 +1017,49 @@ def plan_fixes(ctx: Context, result: AuditResult) -> None:
     plan = fixers.FixPlan()
     local = ctx.local_dir
 
+    writable = _may_write_urls(ctx)
+
     # A5 - sitemap
     a5 = result.get("A5")
     if a5 and a5.status == FAIL:
-        urls = sorted({p.url for p in ctx.crawl.pages.values()}) if ctx.crawl else []
-        if ctx.page.final_url not in urls:
-            urls.append(ctx.page.final_url)
-        item = fixers.plan_sitemap(plan, local, urls, finding_id="A5")
-        if item:
-            a5.fixable = True
+        if not writable:
+            a5.reason = _local_url_block_reason(ctx)
+        else:
+            urls = sorted({_public_url(ctx, p.url) for p in ctx.crawl.pages.values()}
+                          ) if ctx.crawl else []
+            page_url = _public_url(ctx, ctx.page.final_url)
+            if page_url not in urls:
+                urls.append(page_url)
+            item = fixers.plan_sitemap(plan, local, sorted(urls), finding_id="A5")
+            if item:
+                a5.fixable = True
 
     # A4 - canonical, only when there is no tag at all
     a4 = result.get("A4")
     if a4 and a4.status == FAIL and ctx.canonical.auto_fixable:
-        fixers.plan_canonical(plan, local, ctx.page.final_url, ctx.page.final_url,
-                              finding_id="A4")
+        if not writable:
+            a4.reason = _local_url_block_reason(ctx)
+        else:
+            page_url = _public_url(ctx, ctx.page.final_url)
+            fixers.plan_canonical(plan, local, page_url, page_url,
+                                  finding_id="A4")
 
     # C1/C4 - JSON-LD identity, and C3 Article
     known = {
-        "url": ctx.page.final_url,
         "headline": ctx.doc.title or "",
         "name": ctx.doc.title or "",
     }
+    # Same rule as the canonical: a dev address must not end up in a shipped
+    # file. Without a real origin the url is left as a TODO for a human, which
+    # is what every other unknowable field here already does.
+    if writable:
+        known["url"] = _public_url(ctx, ctx.page.final_url)
     c4 = result.get("C4")
     if c4 and c4.status == FAIL:
         fixers.plan_jsonld(plan, local, ctx.page.final_url, "organization",
                            known=known, finding_id="C4")
+    # Only when C3 actually fired — on a page that reads like an article. On
+    # anything else C3 is N/A and there is nothing to add.
     c3 = result.get("C3")
     if c3 and c3.status == WARN and ctx.structured and not ctx.structured.has_article():
         fixers.plan_jsonld(plan, local, ctx.page.final_url, "article",
@@ -1053,6 +1165,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("url", help="URL to audit")
     parser.add_argument("--local-dir", help="site source root; required for --fix")
+    parser.add_argument("--base-url",
+                        help="public origin (https://example.com) to write into "
+                             "fixes when auditing a local dev server, so a "
+                             "localhost address never lands in your source")
     parser.add_argument("--fix", action="store_true",
                         help="plan safe auto-fixes (dry-run unless --apply)")
     parser.add_argument("--apply", action="store_true",

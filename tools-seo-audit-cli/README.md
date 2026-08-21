@@ -50,6 +50,7 @@ Common options (full list via `--help`):
 | Flag | Meaning |
 |---|---|
 | `--local-dir PATH` | Site source root. Required for `--fix`. |
+| `--base-url URL` | Public origin to write into fixes when auditing a local dev server. Without it, fixes that would embed a URL are skipped rather than hard-coding `localhost` into a file that ships. |
 | `--fix` | Plan fixes for auto-fixable failures. Dry-run unless `--apply`. |
 | `--apply` | Actually write the planned fixes to disk. |
 | `--json` | Machine-readable report instead of the console table. |
@@ -74,6 +75,11 @@ FAIL, else `0`.
 4. **Fix what is safely fixable.** Re-run with `--fix --local-dir <path>` to see
    the planned diffs, show them to the user, then `--apply`. Respect whatever
    autonomy level the user has set — if unclear, show the diff and confirm.
+   Auditing a dev server (`localhost`, `127.0.0.1`, `*.test`, `*.local`)? Pass
+   `--base-url https://the-real-domain` as well. Without it, fixes that would
+   write a URL into source — canonical, sitemap, JSON-LD `url` — are skipped
+   with a reason, because a canonical pointing at someone's laptop is worse
+   than no canonical at all.
 5. **Report — do not guess — what needs human judgment.** The report marks these
    `HUMAN_JUDGMENT` with a reason. Typical cases: which URL should be canonical
    when several are plausible, author identity and credentials for E-E-A-T,

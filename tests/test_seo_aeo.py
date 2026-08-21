@@ -590,6 +590,143 @@ class TestCrawlerAgainstLocalServer(unittest.TestCase):
         self.assertTrue(result.inbound_links_to(self.base + "a.html"))
 
 
+class TestDevServerUrlsNeverReachSource(unittest.TestCase):
+    """Auditing a dev server is the normal way to use --fix while building.
+    The URLs it returns start with http://localhost, and writing one of those
+    into a canonical tag or a sitemap ships a developer's machine to
+    production."""
+
+    def _ctx(self, url, base_url=None):
+        return types.SimpleNamespace(
+            args=types.SimpleNamespace(base_url=base_url),
+            page=types.SimpleNamespace(final_url=url))
+
+    def test_localhost_without_a_base_url_blocks_writing(self):
+        self.assertFalse(audit._may_write_urls(
+            self._ctx("http://127.0.0.1:8099/index.html")))
+
+    def test_a_base_url_unblocks_it(self):
+        self.assertTrue(audit._may_write_urls(
+            self._ctx("http://127.0.0.1:8099/index.html",
+                      base_url="https://kettleworks.example")))
+
+    def test_a_real_url_needs_no_base_url(self):
+        self.assertTrue(audit._may_write_urls(self._ctx("https://example.com/x")))
+
+    def test_public_url_swaps_the_origin_and_keeps_the_path(self):
+        ctx = self._ctx("http://127.0.0.1:8099/breads/challah?v=2",
+                        base_url="https://kettleworks.example/")
+        self.assertEqual(audit._public_url(ctx, ctx.page.final_url),
+                         "https://kettleworks.example/breads/challah?v=2")
+
+    def test_public_url_is_a_no_op_without_a_base_url(self):
+        ctx = self._ctx("https://example.com/x")
+        self.assertEqual(audit._public_url(ctx, "https://example.com/x"),
+                         "https://example.com/x")
+
+    def test_the_block_reason_names_the_flag_that_lifts_it(self):
+        reason = audit._local_url_block_reason(
+            self._ctx("http://127.0.0.1:8099/index.html"))
+        self.assertIn("--base-url", reason)
+
+
+class TestSitemapDoesNotDuplicateAcrossOrigins(unittest.TestCase):
+    def setUp(self):
+        self.dir = Path(tempfile.mkdtemp())
+        (self.dir / "sitemap.xml").write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            '<url><loc>http://127.0.0.1:8099/kettles.html</loc></url>'
+            '<url><loc>http://127.0.0.1:8099/care.html</loc></url>'
+            '</urlset>')
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def test_a_path_already_listed_is_not_added_under_another_origin(self):
+        # Regression: with --base-url every crawled URL arrives rewritten, so a
+        # plain membership test called the whole site missing and listed every
+        # page twice — worse than the gap it set out to close.
+        plan = fixers.FixPlan()
+        fixers.plan_sitemap(plan, self.dir, [
+            "https://kettleworks.example/kettles.html",
+            "https://kettleworks.example/care.html",
+            "https://kettleworks.example/index.html",
+        ])
+        plan.apply_all()
+        content = (self.dir / "sitemap.xml").read_text()
+        self.assertEqual(content.count("kettles.html"), 1)
+        self.assertEqual(content.count("care.html"), 1)
+        self.assertIn("https://kettleworks.example/index.html", content)
+
+    def test_nothing_missing_means_no_write(self):
+        plan = fixers.FixPlan()
+        item = fixers.plan_sitemap(plan, self.dir, [
+            "https://kettleworks.example/kettles.html",
+            "https://kettleworks.example/care.html",
+        ])
+        self.assertIsNone(item)
+
+
+class TestArticleDetection(unittest.TestCase):
+    """C3 used to warn "no Article markup" on every page and offer to inject
+    it — including on pages whose own finding text said Article did not apply.
+    Marking a shop homepage as an Article is the spam problem the skill warns
+    about, reached by being helpful."""
+
+    def _ctx(self, url, html):
+        doc = htmldoc.parse(html)
+        return types.SimpleNamespace(
+            doc=doc, page=types.SimpleNamespace(final_url=url, body=html))
+
+    def test_a_shop_homepage_is_not_an_article(self):
+        html = ('<html lang="en"><head><title>Kettleworks</title></head><body>'
+                '<h1>Kettleworks</h1><h4>Our story</h4>'
+                '<p>We have been making kettles since 1987.</p></body></html>')
+        self.assertFalse(audit._looks_like_an_article(
+            self._ctx("https://example.com/", html)))
+
+    def test_a_blog_path_is_enough(self):
+        html = '<html lang="en"><body><h1>Post</h1></body></html>'
+        self.assertTrue(audit._looks_like_an_article(
+            self._ctx("https://example.com/blog/descaling", html)))
+
+    def test_a_dated_path_is_enough(self):
+        html = '<html lang="en"><body><h1>Post</h1></body></html>'
+        self.assertTrue(audit._looks_like_an_article(
+            self._ctx("https://example.com/2026/06/descaling", html)))
+
+    def test_long_dated_prose_under_subheadings_counts(self):
+        body = " ".join(["Limescale is calcium carbonate left behind."] * 90)
+        html = ('<html lang="en"><head><meta name="author" content="R. O."></head>'
+                f'<body><h1>Descaling</h1><time datetime="2026-06-02">June</time>'
+                f'<h2>Why it forms</h2><p>{body}</p><h2>The method</h2>'
+                f'<p>{body}</p></body></html>')
+        self.assertTrue(audit._looks_like_an_article(
+            self._ctx("https://example.com/help/descaling", html)))
+
+    def test_long_prose_without_a_date_or_byline_does_not_count(self):
+        body = " ".join(["Copper conducts heat quickly and evenly."] * 90)
+        html = ('<html lang="en"><body><h1>Kettles</h1>'
+                f'<h2>Copper</h2><p>{body}</p><h2>Cast iron</h2><p>{body}</p>'
+                '</body></html>')
+        self.assertFalse(audit._looks_like_an_article(
+            self._ctx("https://example.com/kettles", html)))
+
+
+class TestLocalHostDetection(unittest.TestCase):
+    def test_loopback_and_dev_tlds_are_local(self):
+        for url in ("http://localhost:3000/", "http://127.0.0.1:8099/index.html",
+                    "http://app.localhost/", "http://myapp.test/",
+                    "http://printer.local/"):
+            self.assertTrue(audit._is_local_host(url), url)
+
+    def test_real_hosts_are_not_local(self):
+        for url in ("https://example.com/", "http://localhost.example.com/",
+                    "https://nodejs.org/en/learn"):
+            self.assertFalse(audit._is_local_host(url), url)
+
+
 class TestForeignCanonicalJudgement(unittest.TestCase):
     """A canonical pointing elsewhere is consolidation as often as it is a bug.
     The tool resolves the target before deciding, over real HTTP on loopback."""

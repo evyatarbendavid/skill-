@@ -15,6 +15,7 @@ import json
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from datetime import date
+from urllib.parse import urlparse
 from pathlib import Path
 from typing import Dict, List, Optional
 from xml.dom import minidom
@@ -163,7 +164,16 @@ def plan_sitemap(
             for loc in root.iter()
             if loc.tag.split("}")[-1] == "loc"
         }
-        missing = [u for u in urls if u not in existing]
+        # Compare by path as well as by full URL. When a dev server is audited
+        # with --base-url, every crawled URL arrives rewritten to the public
+        # origin and matches nothing in a sitemap written against localhost —
+        # so a plain membership test declares the whole site missing and lists
+        # every page a second time under the other origin, which is worse than
+        # the gap it set out to close.
+        existing_paths = {urlparse(u).path or "/" for u in existing}
+        missing = [u for u in urls
+                   if u not in existing
+                   and (urlparse(u).path or "/") not in existing_paths]
         if not missing:
             return None  # nothing to do
 
