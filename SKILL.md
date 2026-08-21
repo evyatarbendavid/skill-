@@ -471,6 +471,21 @@ when several are plausible, whether to publish a real author name, where a
 broken link *should* point, rewriting copy that carries business meaning.
 Report those as decisions needed, with the tradeoff named.
 
+**Write the decision so the person can actually make it.** Whoever asked
+may run a bakery, not a CDN. "Your canonical URL is ambiguous" hands them a
+term and no way forward. Ask the question in their language, give the
+options, and say what each one costs:
+
+> Two addresses show the same page — `yoursite.com/challah` and
+> `yoursite.com/breads/challah`. Google will pick one to show and ignore
+> the other. Which should people land on? Whichever you pick, I'll point
+> the other one at it, so no one hits a dead end.
+
+Same content, answerable by someone with no technical background. Keep the
+precise term in the finding for anyone who wants it — just don't make it
+the whole message. If they know the vocabulary, drop the translation; you
+can usually tell from how they wrote to you.
+
 ### Auditing a whole site
 
 Work page by page rather than trying to hold the site in your head at once.
