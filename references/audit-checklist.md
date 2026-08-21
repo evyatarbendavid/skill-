@@ -4,10 +4,19 @@ Audit **one page** objectively. Each item is written so the answer is
 **PASS / FAIL / N/A**, with *how to check* named. Companion reference (the *why*
 plus sources): [`sources.md`](./sources.md).
 
-**Scoring rule.** Sections **A (Crawlability)** and **D (Performance/CWV)** are
-**gates** — any FAIL there means the page cannot reliably rank, fix those first.
-Sections B, C, E, F are quality multipliers. Aim for **100% of gates + ≥90% of
-the rest** before calling a page "done."
+**Scoring rule.** The **gates** are five specific items, not whole sections:
+**A1** (HTTP 200), **A2** (not blocked in robots.txt), **A3** (no `noindex`),
+**A8** (content in the served HTML), and **D** (Core Web Vitals). A FAIL on any
+of those means the page cannot rank at all — fix them before anything else.
+
+Everything else, including the rest of section A, is a **quality multiplier**:
+important, sometimes urgent, but not blocking. A page with no canonical still
+ranks — Google picks one. A page missing from the sitemap still ranks — a
+sitemap aids discovery, it is not an entry requirement. Calling those gates
+spends the word that is supposed to mean *stop everything*, and a reader who
+learns the label is inflated stops believing it on the item where it's true.
+
+Aim for **100% of gates + ≥90% of the rest** before calling a page "done."
 
 **Before you start: check what you can actually do.** Several items below
 need a tool you may not have. Where you don't have it, say so and hand the
@@ -29,13 +38,13 @@ they are the parts only the owner can see.
 
 ---
 
-## A. Crawlability & Indexing (GATE — כניסה לאינדקס)
+## A. Crawlability & Indexing (holds four of the five gates)
 
-- [ ] **A1. Returns HTTP 200.** `curl -I <url>` shows `200`. No 3xx chain to the
+- [ ] **A1. Returns HTTP 200.** *(GATE.)* `curl -I <url>` shows `200`. No 3xx chain to the
   final URL, no 4xx/5xx. *(Only 200 pages get indexed.)*
-- [ ] **A2. Not blocked in `robots.txt`.** The URL and its CSS/JS/image resources
+- [ ] **A2. Not blocked in `robots.txt`.** *(GATE.)* The URL and its CSS/JS/image resources
   are crawlable. Check `/robots.txt` and URL Inspection → "Crawl allowed? Yes".
-- [ ] **A3. Indexable directives.** Page has **no** `noindex` (meta robots or
+- [ ] **A3. Indexable directives.** *(GATE.)* Page has **no** `noindex` (meta robots or
   `X-Robots-Tag` header). Verify in rendered HTML *and* response headers, not
   just source.
 - [ ] **A4. Self-referencing / correct canonical.** `link rel="canonical"`
@@ -48,7 +57,7 @@ they are the parts only the owner can see.
   indexed" or "Excluded". *(Not automatable — requires Search Console access.)*
 - [ ] **A7. Reachable by internal links.** At least one crawlable `a href` from
   another indexed page points here (not orphaned, not JS-only navigation).
-- [ ] **A8. Content present in rendered DOM.** URL Inspection → "View rendered
+- [ ] **A8. Content present in rendered DOM.** *(GATE.)* URL Inspection → "View rendered
   HTML" (or DevTools Elements) shows the main text and links — i.e. content does
   not depend on a user action or a failed client fetch.
 
@@ -92,7 +101,7 @@ they are the parts only the owner can see.
   `FAQPage`/`HowTo` for a SERP rich result (both deprecated — see reference §5).
   If used, it's for semantic context only and reflects real on-page Q&A.
 
-## D. Performance / Core Web Vitals (GATE — ביצועים)
+## D. Performance / Core Web Vitals (GATE — ביצועים; all of D is a gate)
 
 *Judge on **field** data (PageSpeed Insights "real users" / GSC Core Web Vitals),
 mobile first. Lab scores are for debugging only.*
@@ -140,7 +149,7 @@ mobile first. Lab scores are for debugging only.*
 Google's AI features is simply: the page passes A–E and is eligible to show with
 a snippet.*
 
-- [ ] **F0. AI retrieval crawlers are not blocked** (GATE for AEO). Check
+- [ ] **F0. AI retrieval crawlers are not blocked** (a gate for AEO specifically — it blocks citation, not ranking). Check
   `robots.txt` for `OAI-SearchBot`, `Claude-SearchBot`, `PerplexityBot`. These
   are **not** the training crawlers — blocking `GPTBot` or `ClaudeBot` opts out
   of model training and changes nothing about AI answers, while blocking the

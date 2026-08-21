@@ -235,8 +235,17 @@ things):
 
 ## 7. AEO/GEO — Getting Cited by AI Answer Engines
 
-A layer on top of SEO, not a replacement. Sections 1–6 are the gate,
-because retrieval requires indexing.
+A layer on top of SEO, not a replacement, because retrieval requires
+indexing.
+
+**The gates are five items, not six sections.** Returns HTTP 200, not
+blocked in `robots.txt`, no `noindex`, content present in the served HTML,
+and Core Web Vitals passing. A FAIL on one of those means the page cannot
+rank at all. Everything else in sections 1–6 is important and none of it is
+blocking — a page with no canonical ranks, a page missing from the sitemap
+ranks, a page with no `og:image` ranks. Rank findings that way, and keep
+"this stops the page ranking" for the five things that actually do. Calling
+everything a gate spends the phrase.
 
 But do not assume ranking predicts citation. An Ahrefs study across
 ~863,000 keywords found the share of cited pages that also ranked in the

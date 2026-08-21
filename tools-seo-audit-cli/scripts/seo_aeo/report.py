@@ -133,7 +133,11 @@ def render_text(result: AuditResult, stream=None) -> str:
     for section in order:
         findings = sections[section]
         title = SECTION_TITLES.get(section, section)
-        gate = "  [GATE]" if section in GATE_SECTIONS else ""
+        # Label the section only when it actually holds a gate item. Section A
+        # carries four gates and four checks that are merely important; calling
+        # the whole section a gate told the reader a missing canonical stops
+        # the page ranking, which it does not.
+        gate = "  [has gates]" if any(f.is_gate for f in findings) else ""
         out.append("")
         out.append(f"{section}. {title}{gate}")
         for finding in findings:

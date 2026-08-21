@@ -335,6 +335,46 @@ class TestAgentSkillAgreement(unittest.TestCase):
             "auditor must carry the schema/citation correction verbatim")
 
 
+class TestTheGatesAgreeEverywhere(unittest.TestCase):
+    """"The gates" is the skill's organizing idea — "nothing else matters until
+    these pass". It was defined three incompatible ways: five items in
+    SKILL.md, all of section A plus D in the checklist, and all six sections in
+    the auditor. The same missing canonical was "cannot rank" or a Medium
+    finding depending only on which file got read."""
+
+    def test_skill_names_exactly_five_gates(self):
+        section = SKILL_MD.read_text(encoding="utf-8").split("## The gates")[1]
+        section = section.split("\n## ")[0]
+        numbered = re.findall(r"^\d+\. \*\*", section, re.MULTILINE)
+        self.assertEqual(len(numbered), 5, "SKILL.md should list five gates")
+
+    def test_checklist_gates_are_items_not_whole_sections(self):
+        flat = " ".join((ROOT / "references" / "audit-checklist.md")
+                        .read_text(encoding="utf-8").split())
+        self.assertIn("gates** are five specific items, not whole sections", flat)
+        # The four gate items in section A carry the label; the others must not.
+        for item in ("A1", "A2", "A3", "A8"):
+            self.assertRegex(flat, item + r"\.[^|]{0,90}\(GATE\.\)", item)
+
+    def test_checklist_says_a_missing_canonical_still_ranks(self):
+        flat = " ".join((ROOT / "references" / "audit-checklist.md")
+                        .read_text(encoding="utf-8").split())
+        self.assertRegex(flat, r"no canonical still ranks|canonical still ranks")
+        self.assertRegex(flat, r"sitemap[^.]{0,60}still ranks|not an entry requirement")
+
+    def test_auditor_does_not_call_six_sections_the_gate(self):
+        flat = " ".join((AGENTS / "seo-page-auditor.md")
+                        .read_text(encoding="utf-8").split())
+        self.assertNotIn("Sections 1–6 are the gate", flat)
+        self.assertIn("five items, not six sections", flat)
+
+    def test_the_cli_gates_the_same_five(self):
+        sys.path.insert(0, str(ROOT / "tools-seo-audit-cli" / "scripts"))
+        from seo_aeo.models import GATE_ITEMS
+        self.assertEqual(set(GATE_ITEMS),
+                         {"A1", "A2", "A3", "A8", "D1", "D2", "D3", "D4"})
+
+
 class TestFrameworkGuidance(unittest.TestCase):
     """A sitemap.xml written to a framework project's repo root is not served.
     The fix looks applied and changes nothing, which is worse than no fix."""

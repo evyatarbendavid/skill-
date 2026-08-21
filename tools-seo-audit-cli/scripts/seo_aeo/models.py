@@ -16,8 +16,22 @@ NA = "N/A"
 WARN = "WARN"
 HUMAN_JUDGMENT = "HUMAN_JUDGMENT"
 
-# Sections A and D are gates: a FAIL in either means the page cannot reliably
-# rank at all, so nothing else matters until they are green.
+# The gates: a FAIL here means the page cannot rank at all, so nothing else
+# matters until they are green. This list is the one in SKILL.md and nowhere
+# else — treating all of section A as a gate, which this did before, made a
+# missing canonical read as "cannot rank" when Google simply picks one, and a
+# page absent from a sitemap read the same way when sitemaps are a discovery
+# aid, not an entry requirement. Inflating the gate is not a safe error: it
+# spends the word that is supposed to mean "stop everything".
+GATE_ITEMS = frozenset({
+    "A1",  # returns HTTP 200
+    "A2",  # not blocked in robots.txt
+    "A3",  # no noindex
+    "A8",  # content present in the served HTML
+    "D1", "D2", "D3", "D4",  # Core Web Vitals
+})
+
+# Kept so a caller asking which sections *contain* gates still gets an answer.
 GATE_SECTIONS = ("A", "D")
 
 SECTION_TITLES = {
@@ -78,7 +92,7 @@ class Finding:
 
     @property
     def is_gate(self) -> bool:
-        return self.section in GATE_SECTIONS
+        return self.id in GATE_ITEMS
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
