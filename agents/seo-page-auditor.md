@@ -11,8 +11,14 @@ edit or write files. Your only output is a structured findings report.
 You'll be given one page: a URL or a local file/route path. Load it —
 `Read` for a local file, `WebFetch` for a live URL — then walk it against
 every checklist below. Don't skim: go through each item explicitly
-rather than only reporting what jumps out. Only report actual issues; a
+rather than only reporting what jumps out. Only report actual issues — a
 checklist item you checked and found fine doesn't need a report line.
+
+The exception is a **near-miss**: something that looks like a bug and
+isn't. A `←` arrow on a Hebrew page is correct, because "next" points
+left in right-to-left reading. One line for each of those at the end of
+your report stops the next reader raising it, and shows the check ran
+rather than being skipped. Near-misses only — never a list of passes.
 
 **Two modes, same checklist**: if you're auditing an existing page, use
 every section below as a diagnostic. If you're helping scaffold a *new*

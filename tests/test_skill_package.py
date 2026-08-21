@@ -271,6 +271,25 @@ class TestFieldNotesStayEvidence(unittest.TestCase):
                             "raw sample counts belong in field-notes, with the caveat")
 
 
+class TestNearMissReporting(unittest.TestCase):
+    """The skill and the auditor said opposite things about what to report:
+    "name what you deliberately didn't flag" against "a check that found
+    nothing doesn't need a line"."""
+
+    def test_skill_and_auditor_agree_on_near_misses(self):
+        for path in (SKILL_MD, AGENTS / "seo-page-auditor.md"):
+            flat = " ".join(path.read_text(encoding="utf-8").split())
+            self.assertIn("near-miss", flat.lower(), path.name)
+            # Both must still refuse a wall of passes.
+            self.assertRegex(flat, r"never a list of passes|Don't list what passed",
+                             path.name)
+
+    def test_the_arrow_example_is_carried_in_both(self):
+        for path in (SKILL_MD, AGENTS / "seo-page-auditor.md"):
+            flat = " ".join(path.read_text(encoding="utf-8").split())
+            self.assertIn('"next" points left', flat, path.name)
+
+
 class TestWorkedReport(unittest.TestCase):
     """The report template is the skill's actual output shape. If it drifts
     from what SKILL.md tells people to produce, the skill contradicts itself."""

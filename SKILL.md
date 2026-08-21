@@ -336,6 +336,13 @@ Two firm rules:
 1. **Only mark up content that is visibly on the page.** Invisible or
    fabricated markup is a spam-policy violation and it undermines
    AI-citation trust. This is the most common self-inflicted schema bug.
+   Its quieter cousin: **when no type actually fits, say so instead of
+   forcing the nearest one.** Schema.org has no type for a hiking trail;
+   `TouristAttraction` and `Place` are both approximations, and stretching
+   one over the page buys nothing while making the markup describe
+   something the page isn't. Add the `Organization`, skip the rest, and
+   tell the person why — that is a better answer than a full-looking
+   block of the wrong type.
 2. Supply every **required** property, and keep the JSON valid — one typo
    kills the whole block silently, with nothing visible on the page.
 
@@ -547,6 +554,17 @@ that separately. Never present it as a search or citation tactic.
 - Write titles and descriptions in **natural Hebrew**, the way an Israeli
   actually searches — not a translated English template. JSON-LD
   `name`/`description` should match the displayed language.
+- **Write down the actual queries before judging the headings.** Not "the
+  page should target relevant terms" — the literal sentences someone types.
+  For a trail page that is *כמה זמן לוקח נחל יהודיה*, *האם צריך לדעת
+  לשחות*, *כמה עולה הכניסה*. Hebrew search skews conversational and
+  question-shaped, which lines up exactly with what AI answer engines match
+  against. Having the list in front of you turns vague heading advice into
+  a specific rename, and usually the answers are already on the page.
+- **Transliterated English is a content bug on a Hebrew page.** `Rashut
+  Hateva Vehaganim` should be רשות הטבע והגנים. Nobody searches the
+  transliteration, and it reads as a machine translation of someone else's
+  site.
 - `LocalBusiness` schema with Israeli address and phone format if relevant;
   `hreflang="he-IL"` when targeting Israel specifically.
 
@@ -681,6 +699,13 @@ AI-citation, or UX. Not a flat dump. "Missing alt text" is useless;
 table up front, findings ranked with the ranking justified, the decision
 asked in the owner's language, and an explicit list of what couldn't be
 checked. Copy that shape.
+
+**Don't list what passed — do name the near-misses.** A wall of ✅ is
+noise. But the one or two things that *look* like bugs and aren't are worth
+a line each: a `←` arrow on a Hebrew page is correct,
+because "next" points left in right-to-left reading. Saying so stops the
+next reader raising it, and it shows the check was actually run rather than
+skipped. Two lines, at the end, under the findings — not a second report.
 
 **Writing a new page:** use these same sections as a build spec. Getting it
 right in the first draft costs nothing; retrofitting costs a rewrite.
