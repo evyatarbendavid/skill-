@@ -121,7 +121,10 @@ A page failing any of these cannot rank, no matter how good the content is.
    React/Next.js sites: content that only appears after hydration. Google
    renders JS, but on a second deferred pass that can lag or fail. Use SSR
    or static generation. To check, fetch the raw URL and look for the real
-   headings and text in what comes back.
+   headings and text in what comes back — that's close to what a crawler
+   sees. Without fetch, ask them for `view-source:` output rather than
+   judging from the rendered page, which shows you the post-hydration DOM
+   and hides the entire problem.
 
    **The sharper version of this bug:** `canonical`, `meta robots`, and
    `hreflang` injected by client-side JS. The first crawl pass reads the raw
@@ -168,7 +171,7 @@ supports them. An SPA where the first load is fast and every subsequent
 route change is slow can no longer assume that second half goes unmeasured
 — audit route transitions, not just initial load.
 
-To measure a live URL, fetch:
+**If you can fetch a URL**, measure rather than guess:
 ```
 https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=<URL>&strategy=mobile
 ```
@@ -176,6 +179,13 @@ Free, no key needed for occasional checks. Read `loadingExperience.metrics`
 for field data; fall back to `lighthouseResult.audits` if the page has too
 little traffic for real-user data yet. Mobile first — Google indexes
 mobile-first.
+
+**If you can't**, say so and hand them
+`https://pagespeed.web.dev/analysis?url=<their URL>` to open themselves.
+Then read the numbers they paste back. What you must not do is estimate
+Core Web Vitals from reading the code — these are field measurements of
+real visits, and a plausible-sounding guess is worse than an honest "I
+can't measure this from here."
 
 ## Crawlability and indexing
 
@@ -413,7 +423,15 @@ many of the same things.
 
 ## How to work
 
-**First, establish what you can actually touch.** It changes what you can
+**Know your own limits before you start.** This skill runs in different
+places with different capabilities — sometimes with web access, a shell,
+and subagents, sometimes with none of them. Check what you actually have
+rather than assuming. Where a step needs a capability you lack, say so and
+give the user the exact thing to run or open, then work from what they
+bring back. Never simulate a measurement you couldn't take; a confident
+invented number is the one failure mode here that does real damage.
+
+**Then establish what you can actually touch.** It changes what you can
 promise:
 
 | What you were given | What's possible |
