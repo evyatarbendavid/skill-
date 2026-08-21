@@ -66,12 +66,11 @@ structured data deprecated OR retired site:developers.google.com
 Google core update site:developers.google.com/search/blog
 ```
 
-Two traps. **A search result agreeing with a number is not confirmation** —
-SEO content farms copy each other, so a wrong figure propagates across a
-hundred pages that all look like independent sources. Only the primary docs
-settle it. And **no announcement does not mean no change**: the May 2026
-FAQPage removal shipped as a quiet documentation edit with no blog post, so
-check the docs page itself, not just the blog.
+Two traps. **Agreement is not confirmation** — SEO content farms copy each
+other, so one wrong figure spreads across a hundred pages that each look
+independent; only the primary docs settle it. And **silence is not
+stability** — the May 2026 FAQPage removal shipped as a documentation edit
+with no announcement, so read the docs page, not just the blog.
 
 **Baseline verified 2026-08-18.** Past ~90 days, treat every volatile row as
 unconfirmed.
@@ -194,12 +193,9 @@ for field data; fall back to `lighthouseResult.audits` if the page has too
 little traffic for real-user data yet. Mobile first — Google indexes
 mobile-first.
 
-**If you can't**, say so and hand them
-`https://pagespeed.web.dev/analysis?url=<their URL>` to open themselves.
-Then read the numbers they paste back. What you must not do is estimate
-Core Web Vitals from reading the code — these are field measurements of
-real visits, and a plausible-sounding guess is worse than an honest "I
-can't measure this from here."
+**If you can't**, hand them `https://pagespeed.web.dev/analysis?url=<URL>`
+and read the numbers they paste back. Don't estimate these from the code —
+see above.
 
 ## Crawlability and indexing
 
