@@ -9,12 +9,23 @@ plus sources): [`sources.md`](./sources.md).
 Sections B, C, E, F are quality multipliers. Aim for **100% of gates + ≥90% of
 the rest** before calling a page "done."
 
-**Tools you'll use (all free):**
-- Google Search Console → URL Inspection, Performance, Page indexing, Core Web Vitals
-- [Rich Results Test](https://search.google.com/test/rich-results)
-- [PageSpeed Insights](https://pagespeed.web.dev/) (field CrUX data + lab)
-- Chrome DevTools (Lighthouse, device toolbar, Elements = rendered DOM)
-- `view-source:` + the live URL; `curl -I <url>` for status/headers
+**Before you start: check what you can actually do.** Several items below
+need a tool you may not have. Where you don't have it, say so and hand the
+person the exact thing to open — then work from what they bring back. Never
+report a check as passed when you couldn't run it, and never estimate a
+measurement you couldn't take.
+
+| Item needs | You can do it if you have | Otherwise |
+|---|---|---|
+| Fetching the page or its `robots.txt`/`sitemap.xml` | web access | Ask for `view-source:` output, or the file contents pasted |
+| Status codes and headers (`curl -I`) | a shell | Ask them to run it, or check in the browser's Network tab |
+| Core Web Vitals field data | web access to the PageSpeed API | Send them `https://pagespeed.web.dev/analysis?url=<URL>` |
+| Rich Results Test | web access | Send them `https://search.google.com/test/rich-results` |
+| **Search Console** — A6, A5's "submitted", P1, P3 | never — it needs their login | Always the site owner's to check. Tell them exactly what to look at. |
+| Lighthouse, DevTools — D8, E6, E7 | a browser you drive | Theirs to run |
+
+Search Console items are marked below. They are not failures of the audit;
+they are the parts only the owner can see.
 
 ---
 
@@ -32,7 +43,7 @@ the rest** before calling a page "done."
   chosen canonical (URL Inspection) matches your intent.
 - [ ] **A5. In an XML sitemap** that is submitted in Search Console, and the
   sitemap lists the canonical URL (not a redirecting/duplicate variant).
-- [ ] **A6. Actually indexed.** URL Inspection / Page indexing report says
+- [ ] **A6. Actually indexed.** *(Owner-only — needs Search Console.)* URL Inspection / Page indexing report says
   **"URL is on Google" / Indexed** — not "Discovered/Crawled – currently not
   indexed" or "Excluded". *(Not automatable — requires Search Console access.)*
 - [ ] **A7. Reachable by internal links.** At least one crawlable `a href` from
@@ -199,10 +210,13 @@ first and SEO bugs second — fixing them pays twice.*
 
 ---
 
-### Proof artifacts to capture
+### Proof artifacts to capture *(all owner-only — these need Search Console access and live measurement, so they are things to hand the owner, not things to report as done)*
 
-- [ ] **P1. First-page ranking** — Search Console → Performance, filtered to the
-  exact target query, showing **average position ≤ ~10**. Screenshot with date.
+- [ ] **P1. Ranking position, tracked over time** — Search Console →
+  Performance, filtered to the exact target query. Record where it actually
+  is and which way it's moving. **This is a measurement, not a target you
+  commit to hitting** — nobody can promise a position, and a checklist that
+  reads like they can is the thing this skill exists to avoid.
 - [ ] **P2. AI citation** — a screenshot of ChatGPT / Perplexity / Google AI
   Overview answer that links to the page. *(May take longer; not guaranteed.)*
 - [ ] **P3. Technical health** — Rich Results Test = valid; PageSpeed/GSC CWV =

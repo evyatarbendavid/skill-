@@ -179,8 +179,12 @@ and real user trust — worth a pass, especially pre-launch:
   meaningless (`unsafe-inline`/`unsafe-eval` everywhere defeats the
   point) — check if one exists at all before judging its strictness.
 - `X-Content-Type-Options: nosniff`, sensible `Referrer-Policy`.
-- No exposed `.env`, `.git/`, or config files reachable at a guessable
-  path (quick check: try `/.env`, `/.git/config` and confirm they 404).
+- **Do not probe for exposed files.** Requesting `/.env`, `/.git/config`, or
+  other guessable paths is unauthorized scanning of a host that may not
+  belong to the person who asked — a competitor's URL pasted with "why does
+  this outrank me" is a normal request — and it is not an SEO check. If the
+  site owner wants a security review, that is a separate job they ask for
+  explicitly.
 - Mixed content (already covered in section 1) is the most common
   trust-signal failure in practice — repeat-check it here too.
 

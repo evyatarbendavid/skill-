@@ -92,8 +92,12 @@ class TestReferences(unittest.TestCase):
 
     def test_no_references_to_removed_tooling(self):
         # The packaged skill ships no scripts; pointing at one would strand
-        # a Desktop user with an instruction they cannot follow.
-        for path in [SKILL_MD] + list((ROOT / "references").glob("*.md")):
+        # a Desktop user with an instruction they cannot follow. Agents are
+        # scanned too — a dead reference sat in seo-fixer.md's description
+        # field for exactly as long as this test skipped that directory.
+        for path in ([SKILL_MD]
+                     + list((ROOT / "references").glob("*.md"))
+                     + list(AGENTS.glob("*.md"))):
             text = path.read_text(encoding="utf-8")
             for stale in ("scripts/audit.py", "audit_site.py", "live-verification-map.md"):
                 self.assertNotIn(stale, text, f"{path.name} references {stale}")
@@ -128,6 +132,30 @@ class TestFactualGuardrails(unittest.TestCase):
                          "HowTo's 2023 deprecation date must be stated somewhere")
         self.assertNotRegex(self.text, r"HowTo[^.]{0,120}deprecated[^.]{0,40}2026",
                             "HowTo must never be dated to 2026")
+
+    def test_verification_dates_agree(self):
+        # Two files carry a "verified on" date driving the same 90-day rule.
+        # Disagreeing by a day is harmless; disagreeing at all means one was
+        # updated and the other forgotten, which is how they drift by months.
+        dates = set()
+        for path in (SKILL_MD, ROOT / "references" / "sources.md"):
+            found = re.findall(r"[Vv]erified:? (\d{4}-\d{2}-\d{2})",
+                               path.read_text(encoding="utf-8"))
+            dates.update(found)
+        self.assertEqual(len(dates), 1,
+                         f"verification dates disagree: {sorted(dates)}")
+
+    def test_no_file_frames_a_ranking_position_as_a_deliverable(self):
+        # SKILL.md refuses to promise positions. A reference file listing
+        # "average position <= 10" as a proof artifact to produce quietly
+        # promises exactly that, and the reference is what gets loaded for
+        # an audit.
+        for path in (ROOT / "references" / "audit-checklist.md",
+                     ROOT / "references" / "sources.md"):
+            text = path.read_text(encoding="utf-8")
+            self.assertNotRegex(
+                text, r"(Proof|deliverable|goal)[^.]{0,80}average position",
+                f"{path.name} frames a ranking position as something to deliver")
 
     def test_refuses_to_promise_rankings(self):
         self.assertRegex(self.text, r"does not guarantee|doesn't guarantee")
@@ -210,6 +238,14 @@ class TestAgents(unittest.TestCase):
             fm = frontmatter(agent)
             self.assertIn("name", fm)
             self.assertTrue(NAME_RE.fullmatch(fm["name"]), agent.name)
+
+    def test_auditor_does_not_probe_for_exposed_files(self):
+        # Requesting /.env or /.git/config is unauthorized scanning of a host
+        # that may not belong to the person asking, and is not an SEO check.
+        text = (AGENTS / "seo-page-auditor.md").read_text(encoding="utf-8")
+        self.assertNotRegex(
+            text, r"(try|check|request|fetch)\s+`?/\.(env|git)",
+            "auditor must not instruct probing for exposed config files")
 
     def test_auditor_cannot_write(self):
         # The read-only guarantee is the whole reason the split exists.

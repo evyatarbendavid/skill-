@@ -1,6 +1,6 @@
 ---
 name: seo-fixer
-description: Implements SEO/AEO/bug fixes in code directly, given a findings list from the seo-page-auditor subagent or scripts/audit_site.py. Use after an audit has produced concrete, confirmed findings to fix — not for open-ended exploration. Makes the smallest correct diff per issue, and re-reads the page after editing to confirm the fix actually resolved the finding.
+description: Implements SEO/AEO/bug fixes in code directly, given a findings list from the seo-page-auditor subagent. Use after an audit has produced concrete, confirmed findings to fix — not for open-ended exploration. Makes the smallest correct diff per issue, and re-reads the page after editing to confirm the fix actually resolved the finding.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: inherit
 ---

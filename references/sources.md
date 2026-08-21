@@ -1,6 +1,6 @@
 # SEO + AEO reference
 
-> **Last verified: 2026-08-17.**
+> **Last verified: 2026-08-18.**
 > If more than ~90 days have passed, treat every claim about Core Web Vitals
 > thresholds, rich-result availability, and AI-answer surfaces as **unconfirmed**
 > until re-checked. The stable-vs-volatile table in SKILL.md says which claims those are.
@@ -462,13 +462,15 @@ is advice that has stopped being true.
 
 ## 8. What "done" looks like
 
-1. **First-page Google ranking on a target query**, shown in Search Console.
-   Requires: indexable page (§1), intent-matched answer-first content (§2),
-   clean technical SEO (§3), passing CWV (§4). Proof = GSC Performance report
-   filtered to the query, average position ≤ ~10.
-2. **At least one AI-engine citation.** No guarantee (§7). Maximize odds via
-   §7.3. Expect it to lag the Google ranking, because it also benefits from
-   external corroboration a new site has to earn.
+1. **Every technical reason to be excluded has been removed** — indexable
+   page (§1), intent-matched answer-first content (§2), clean technical SEO
+   (§3), passing CWV (§4). That is the part you control and can therefore
+   commit to. Track the resulting position in the GSC Performance report
+   filtered to the query, but treat it as an observation: **no amount of
+   this work entitles anyone to a specific position**, and §0 says why.
+2. **AI-engine citation.** No guarantee (§7), and not a deliverable anyone
+   can promise. Maximize odds via §7.3. Expect it to lag any ranking gain,
+   since it also draws on external corroboration a new site has to earn.
 3. **Full technical health.** Green CWV in the field (§4), valid structured data
    in the Rich Results Test (§5), mobile-first-clean and HTTPS (§3), zero manual
    actions (§6).
