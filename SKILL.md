@@ -1,6 +1,6 @@
 ---
 name: seo-aeo
-description: Apply Google's actual ranking rules and AI answer-engine citation principles to any website work. Use whenever building, writing, reviewing, or fixing a web page or site — and whenever the user mentions SEO, AEO, GEO, ranking, Google, search visibility, being cited by AI, Core Web Vitals, LCP, INP, CLS, schema markup, structured data, JSON-LD, sitemaps, canonical URLs, robots.txt, meta descriptions, crawling, or indexing. Also use when someone asks why a page is not ranking, not indexed, or not appearing in AI answers, when they paste a URL or page code and ask for a review, and when writing content meant to be found in search or quoted by ChatGPT, Perplexity, or Google AI Overviews.
+description: Apply Google's actual ranking rules and AI answer-engine citation principles to any website work. Use whenever building, writing, reviewing, or fixing a web page or website, and whenever someone mentions SEO, AEO, GEO, search ranking, search visibility, Google Search, being cited by AI, Core Web Vitals, LCP, INP, CLS, schema markup, structured data, JSON-LD, sitemaps, canonical URLs, robots.txt, meta descriptions, or how search engines crawl and index pages. Also use when someone asks why a page is not ranking in search, not indexed by Google, or not appearing in AI answers, when they paste a page URL or HTML and ask for a review, and when writing web content meant to be found in search or quoted by ChatGPT, Perplexity, or Google AI Overviews. Do not use for ranking or sorting unrelated things, database indexes, or crawling APIs for data — those share the words and nothing else.
 ---
 
 # SEO + AEO
@@ -13,6 +13,20 @@ Two things every page needs, together, never one instead of the other:
 
 Apply this whenever you touch a page, even if nobody said the words "SEO."
 A page that ships without it is a page that has to be fixed later.
+
+## Work within what you can actually do
+
+This skill runs in different places with different capabilities —
+sometimes with web access, a shell, and subagents, sometimes with none of
+them. Check what you have rather than assuming. Where a step needs
+something you lack, say so and give the person the exact thing to run or
+open, then work from what they bring back.
+
+**Never simulate a measurement you couldn't take.** Core Web Vitals are
+field data from real visits; a number inferred from reading the code isn't
+a rougher measurement, it's not a measurement — and it will be acted on as
+though it were. Search Console items need the owner's login and always
+will. An item you couldn't check is reported as unchecked, never as passed.
 
 ## Two things this skill never claims
 
@@ -423,16 +437,7 @@ many of the same things.
 
 ## How to work
 
-**Know your own limits before you start.** This skill runs in different
-places with different capabilities — sometimes with web access, a shell,
-and subagents, sometimes with none of them. Check what you actually have
-rather than assuming. Where a step needs a capability you lack, say so and
-give the user the exact thing to run or open, then work from what they
-bring back. Never simulate a measurement you couldn't take; a confident
-invented number is the one failure mode here that does real damage.
-
-**Then establish what you can actually touch.** It changes what you can
-promise:
+**Establish what you can actually touch.** It changes what you can promise:
 
 | What you were given | What's possible |
 |---|---|
