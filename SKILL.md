@@ -439,30 +439,34 @@ What actually raises the odds:
   intro-fluff-then-answer pattern costs citations twice: once within the
   section, once across the page.
 
-### The platforms don't agree with each other
+### "Optimize for AI citation" is four different targets
 
 Only about **12% of cited sources overlap across platforms** for the same
-query, so "optimize for AI citation" is at minimum four different targets —
-Google AI Overviews favours established brands, ChatGPT favours old domains
-and corroborated claims, Perplexity favours freshness and practitioner
-voice, Copilot cites the youngest domains and is the most realistic target
-for a new site. A handful of platforms — Reddit, Wikipedia, YouTube — take
-most citations on general queries, so the winnable ground is specific,
-technical, or branded questions where no such thread exists.
-`references/platforms.md` has the detail and the caveats.
+query, and the engines' preferences genuinely conflict — one favours
+established brands, another old domains, another freshness and a
+practitioner voice. Don't promise all four at once; pick the one matching
+where the audience already is. `references/platforms.md` has each profile,
+the caveats, and how to choose.
 
-**`llms.txt` is not a citation lever.** Google has explicitly said Search
-does not use it, and its AI-features guidance states no special
-machine-readable file is needed. Adoption sits near 10% of domains after
-18 months, and one study found the overwhelming majority of published files
-receive no AI requests at all. It does have real use by **coding agents**
-reading documentation — a developer-tooling case, worth framing separately.
-Never present it as a search or citation tactic.
+The ceiling worth stating out loud: on general consumer queries a handful
+of platforms — Reddit, Wikipedia, YouTube — take most citations. A business
+site will not displace a popular forum thread on a head term. The winnable
+ground is specific, technical, branded, or niche questions where no such
+thread exists.
 
-**Whether AI crawlers can reach the site at all** is upstream of everything
-here, and it's where people accidentally lock themselves out — blocking
-`GPTBot` does not remove you from ChatGPT's answers, but blocking
-`OAI-SearchBot` does. See `references/ai-crawlers.md`.
+### Two things upstream of all of it
+
+**Can the AI crawlers reach the site?** This is where people lock
+themselves out by accident: blocking `GPTBot` does not remove you from
+ChatGPT's answers, but blocking `OAI-SearchBot` does. Check before
+diagnosing anything else — `references/ai-crawlers.md`.
+
+**`llms.txt` is not a citation lever.** Google has said Search does not use
+it, and its AI-features guidance states no special machine-readable file is
+needed. Adoption sits near 10% of domains after 18 months, and one study
+found the large majority of published files receive no AI requests at all.
+It does have real use by **coding agents** reading documentation — frame
+that separately. Never present it as a search or citation tactic.
 
 ## Hebrew and RTL
 
