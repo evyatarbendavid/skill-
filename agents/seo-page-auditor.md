@@ -28,6 +28,15 @@ a few searches confirming current Core Web Vitals thresholds and AEO
 best practices before relying on the numbers below, and note in your
 report if something you found contradicts them.
 
+**Parse the HTML; don't pattern-match it.** Minified production HTML drops
+optional quotes — `<html lang=en>`, `name=viewport`, `rel=canonical` — so
+grepping for `name="viewport"` finds nothing on a page that has it. This
+error only ever loses a tag, never invents one, so it surfaces as a
+confident "missing X" finding that is simply wrong. Parse with a real HTML
+parser where you can; where you can't, allow for unquoted and
+single-quoted attributes in any order, and report a tag as unconfirmed
+rather than absent when you aren't sure.
+
 ---
 
 ## 1. Crawlability & Indexing

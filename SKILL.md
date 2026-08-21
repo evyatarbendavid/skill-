@@ -154,6 +154,22 @@ A page failing any of these cannot rank, no matter how good the content is.
 5. **Core Web Vitals pass** — all three, at the 75th percentile of real
    users, on mobile and desktop separately.
 
+**Read HTML by parsing it, not by pattern-matching it.** Production HTML is
+minified, and minifiers drop optional quotes: `<html lang=en>`,
+`name=viewport`, `rel=canonical`. A search for `name="viewport"` finds
+nothing on such a page and you conclude the tag is missing. Checked against
+one real documentation page, that mistake reported a missing canonical, a
+missing viewport, a missing meta description, and missing Open Graph tags —
+all four were present, all four unquoted.
+
+The failure is one-directional and that's what makes it dangerous: it never
+invents a tag, it only loses one, so every error lands as a confident false
+finding in your report. If you have a shell, parse the HTML (Python's
+`html.parser` handles this correctly). If you're reading it by eye, allow
+for unquoted, single-quoted, and double-quoted forms, and for attributes in
+any order. If you are not certain a tag is absent, say you couldn't confirm
+it rather than reporting it missing.
+
 `robots.txt` controls **crawling**, not indexing. A blocked URL can still
 appear in results as a bare link — and because Googlebot never fetched it,
 it will never see a `noindex` on that page. To keep a page out of the

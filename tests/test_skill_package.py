@@ -305,6 +305,14 @@ class TestAgentSkillAgreement(unittest.TestCase):
             self.auditor, r"(76%|not the predictor|entry ticket)",
             "auditor must carry the corrected top-10 framing")
 
+    def test_auditor_warns_against_regex_reading_of_html(self):
+        # Minified HTML drops optional quotes, so a quote-assuming search
+        # reports present tags as missing — a one-directional error that
+        # always lands as a false finding.
+        flat = " ".join(self.auditor.split())
+        self.assertRegex(flat, r"(lang=en|name=viewport|rel=canonical)")
+        self.assertRegex(flat, r"(unconfirmed|not.{0,12}absent|parse)")
+
     def test_auditor_checks_ai_retrieval_crawlers(self):
         for bot in ("OAI-SearchBot", "PerplexityBot"):
             self.assertIn(bot, self.auditor,
