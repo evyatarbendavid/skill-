@@ -335,6 +335,19 @@ class TestAgentSkillAgreement(unittest.TestCase):
             "auditor must carry the schema/citation correction verbatim")
 
 
+class TestNoDevUrlsInSource(unittest.TestCase):
+    """A canonical pointing at someone's laptop is worse than no canonical.
+    The skill, the fixer agent, and the CLI all have to refuse it — the CLI
+    wrote one before this was checked."""
+
+    def test_skill_and_fixer_both_refuse_dev_urls(self):
+        for path in (SKILL_MD, AGENTS / "seo-fixer.md"):
+            flat = " ".join(path.read_text(encoding="utf-8").split())
+            self.assertRegex(flat, r"localhost:\d+",
+                             f"{path.name} should name the address this is about")
+            self.assertIn("TODO", flat, path.name)
+
+
 class TestAgents(unittest.TestCase):
     """The agents are optional (Claude Code only) but must stay loadable."""
 

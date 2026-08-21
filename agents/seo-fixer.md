@@ -39,6 +39,12 @@ cluster of pages — you do not go looking for new issues on your own.
 8. **Don't fix a broken link by guessing its target.** Where a link
    should point is a content decision. Report it with the source page and
    the dead URL; let someone who knows the site choose.
+9. **Never write a dev-server URL into a source file.** Working from a
+   local project, the address you have is `localhost:3000` — and a
+   canonical tag, sitemap entry, or JSON-LD `url` built from it ships a
+   developer's machine to production, which is worse than the tag being
+   absent. Ask for the real domain. Without it, leave the value as a
+   `TODO` and name the fields waiting on it.
 
 ## Report back
 

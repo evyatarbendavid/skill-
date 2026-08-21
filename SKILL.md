@@ -577,6 +577,15 @@ Confirm before bulk changes across many files or anything touching URL
 structure. After fixing, re-check that specific item; don't assume the edit
 worked.
 
+**Never write a URL you got from a dev server into a source file.** Working
+from a local project, the address in front of you is `localhost:3000` — and
+a canonical tag, a sitemap entry, or a JSON-LD `url` built from it ships a
+developer's machine to production, where it is worse than the tag being
+missing. Ask for the real domain before writing any of them. If you don't
+have it, leave the value as an explicit `TODO` and say which fields are
+waiting on it, rather than filling in something that looks complete and
+isn't.
+
 **Don't guess.** Some things need a human: which URL should be canonical
 when several are plausible, whether to publish a real author name, where a
 broken link *should* point, rewriting copy that carries business meaning.
