@@ -222,7 +222,19 @@ def run_section_a(ctx: Context, result: AuditResult) -> None:
 
     # A1 - HTTP 200, no redirect chain
     hops = page.redirect_chain
-    if page.error:
+    if page.error and page.blocked_locally:
+        # Our network, not their server. Calling this a gate failure would
+        # report a site as unreachable to the world on the strength of an
+        # egress policy on this machine.
+        result.add(Finding(
+            "A1", "Returns HTTP 200", NA,
+            reason=f"could not reach the URL from here ({page.error}). That is "
+                   f"this machine's network refusing the connection, not "
+                   f"evidence about the site — a blocking proxy returns a 403 "
+                   f"that looks exactly like a 403 from the origin. Check the "
+                   f"URL from an unrestricted network, or in Search Console's "
+                   f"URL Inspection, before telling anyone their page is down."))
+    elif page.error:
         result.add(Finding("A1", "Returns HTTP 200", FAIL,
                            detail=f"request failed: {page.error}"))
     elif page.ok and len(hops) <= 1:
@@ -1090,8 +1102,21 @@ def run_audit(args) -> AuditResult:
     result.final_url = ctx.page.final_url
 
     if ctx.page.error and not ctx.page.status:
-        result.add(Finding("A1", "Returns HTTP 200", FAIL,
-                           detail=f"could not reach the URL: {ctx.page.error}"))
+        if ctx.page.blocked_locally:
+            # This machine's network refused the connection. A blocking proxy
+            # returns a 403 indistinguishable from one the origin sent, so
+            # calling it a gate failure would report someone's live site as
+            # down on the strength of our own egress policy.
+            result.add(Finding(
+                "A1", "Returns HTTP 200", NA,
+                reason=f"could not reach the URL from here ({ctx.page.error}) — "
+                       f"that is this machine's network refusing the "
+                       f"connection, not evidence about the site. Verify from "
+                       f"an unrestricted network or in Search Console's URL "
+                       f"Inspection before telling anyone their page is down."))
+        else:
+            result.add(Finding("A1", "Returns HTTP 200", FAIL,
+                               detail=f"could not reach the URL: {ctx.page.error}"))
         result.errors.append(f"fetch failed: {ctx.page.error}")
         return result
 

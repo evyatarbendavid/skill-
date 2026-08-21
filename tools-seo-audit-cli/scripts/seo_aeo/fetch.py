@@ -42,6 +42,33 @@ class FetchResult:
         return self.status is not None and 200 <= self.status < 300
 
     @property
+    def blocked_locally(self) -> bool:
+        """Whether the failure was our own network rather than their server.
+
+        A proxy that refuses a CONNECT returns a 403 that looks exactly like a
+        403 from the origin — same status line, plausible headers, often an
+        empty body. Reporting that as "this page returns 403" states something
+        about someone else's site on the strength of our own egress policy,
+        which is the worst kind of wrong an audit can be: confident, specific,
+        and about the wrong machine.
+        """
+        if not self.error:
+            return False
+        blob = self.error.lower()
+        return any(marker in blob for marker in (
+            "tunnel connection failed",
+            "proxy",
+            "cannot connect to proxy",
+            "connection refused",
+            "name or service not known",
+            "temporary failure in name resolution",
+            "nodename nor servname",
+            "no route to host",
+            "network is unreachable",
+            "certificate verify failed",
+        ))
+
+    @property
     def is_html(self) -> bool:
         return "html" in self.content_type.lower()
 

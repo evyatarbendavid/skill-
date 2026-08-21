@@ -58,8 +58,18 @@ Common options (full list via `--help`):
 | `--skip-cwv` | Skip the PageSpeed Insights call. |
 | `--pagespeed-key KEY` | Or set `PAGESPEED_API_KEY`. |
 
-Exit code is `1` if a **GATE** section (A Crawlability, D Performance) has any
-FAIL, else `0`.
+Exit code is `1` if any **gate** item FAILs, else `0`. The gates are five
+things a page cannot rank without: **A1** HTTP 200, **A2** not blocked in
+robots.txt, **A3** no `noindex`, **A8** content present in the served HTML,
+and **D** Core Web Vitals. Nothing else gates — a missing canonical or an
+absent sitemap entry is a real finding and neither one stops a page ranking.
+
+**A run that could not reach the site exits `0`,** with the reason under
+"Checks that could not run". That is deliberate: a network here refusing the
+connection says nothing about the site, and a blocking proxy returns a `403`
+that looks exactly like a `403` from the origin. In CI, treat an empty report
+as inconclusive rather than green — grep the output for "could not run" if the
+distinction matters to your pipeline.
 
 ## Workflow
 

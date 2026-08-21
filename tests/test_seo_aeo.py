@@ -30,6 +30,7 @@ from seo_aeo import (  # noqa: E402
 )
 from seo_aeo.fetch import _decode_body, normalize_url, same_host  # noqa: E402
 import audit  # noqa: E402
+from seo_aeo import fetch as fetch_mod  # noqa: E402
 from seo_aeo.models import (  # noqa: E402
     CRITICAL, FAIL, HUMAN_JUDGMENT, LOW, NA, PASS, WARN,
     AuditResult, Finding,
@@ -259,6 +260,38 @@ class TestPathmap(unittest.TestCase):
     def test_server_rendered_extension_is_refused(self):
         reason = pathmap.explain_failure(self.dir, "https://x.com/page.php")
         self.assertIn("non-HTML extension", reason)
+
+
+class TestBlockedNetworkIsNotASiteFailure(unittest.TestCase):
+    """A blocking proxy answers a CONNECT with a 403 that looks exactly like a
+    403 from the origin — same status line, plausible headers, empty body.
+    Reporting that as "this page returns 403" makes a confident, specific
+    claim about the wrong machine."""
+
+    def _result(self, error):
+        return fetch_mod.FetchResult(url="https://example.com/", error=error)
+
+    def test_proxy_and_dns_failures_are_recognized_as_local(self):
+        for error in (
+            "URLError: Tunnel connection failed: 403 Forbidden",
+            "URLError: <urlopen error [Errno 111] Connection refused>",
+            "URLError: [Errno -2] Name or service not known",
+            "URLError: [Errno -3] Temporary failure in name resolution",
+            "OSError: [Errno 113] No route to host",
+            "URLError: certificate verify failed: unable to get local issuer",
+        ):
+            self.assertTrue(self._result(error).blocked_locally, error)
+
+    def test_a_real_server_response_is_not_treated_as_local(self):
+        # An origin 404 or 500 is evidence about the site and must still fail.
+        self.assertFalse(fetch_mod.FetchResult(
+            url="https://example.com/", status=404).blocked_locally)
+        self.assertFalse(
+            self._result("HTTPError: 500 Internal Server Error").blocked_locally)
+
+    def test_no_error_is_not_a_block(self):
+        self.assertFalse(fetch_mod.FetchResult(
+            url="https://example.com/", status=200).blocked_locally)
 
 
 class TestFrameworkProjects(unittest.TestCase):
