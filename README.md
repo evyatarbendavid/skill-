@@ -37,8 +37,15 @@ cp -r agents/* ~/.claude/agents/          # optional — see below
 For one project rather than every project, use `.claude/skills/seo-aeo/`
 inside that project instead.
 
+**These are two separate installs — doing one does not cover the other.**
+If you set up Claude Code but then talk to claude.ai or the Desktop app,
+that conversation has never seen this skill, because they load skills from
+completely different places. Set up whichever ones you actually talk to.
+
 **Then just work.** You don't have to invoke it by name. Ask about a page,
-paste a URL or a component, or start building one, and it loads itself.
+paste a URL or a component, ask to build one, or ask for a check that has
+nothing to do with "SEO" in the wording — broken links, duplicate content,
+a Hebrew page rendering backwards — and it loads itself.
 
 ## What's here
 

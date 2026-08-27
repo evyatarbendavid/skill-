@@ -1,8 +1,69 @@
 # Working in code
 
 Read this when there is code in front of you — a pasted component, a local
-repo, a framework project. The page-level rules in `SKILL.md` still apply;
-this is what changes when you can see and edit the source.
+repo, a framework project — or when there's no page yet and you're writing
+one. The page-level rules in `SKILL.md` still apply; this is what changes
+when you can see and edit the source.
+
+---
+
+## Building a new page from scratch
+
+Nothing to audit yet. This needs no web access at all — no fetch, no live
+URL, nothing a blocked network can interrupt. The check sections in
+`SKILL.md` are the spec; this is the order to bake them in while writing,
+so a page ships right instead of getting a retrofit pass later.
+
+**1. The `<head>`, complete, before any content is written.** Cheap now,
+expensive as a rewrite once the page exists:
+
+```html
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><!-- primary term first, 50-60 chars --></title>
+  <meta name="description" content="<!-- 140-160 chars, click-through copy, not a summary -->">
+  <link rel="canonical" href="<!-- this page's own real URL — never a dev address -->">
+  <meta property="og:title" content="<!-- can match <title> -->">
+  <meta property="og:description" content="<!-- can match the meta description -->">
+  <meta property="og:image" content="<!-- 1200x630 -->">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
+```
+
+**2. One `<h1>` stating the page's purpose**, subheadings phrased the way
+someone would actually ask — `SKILL.md`'s AEO section covers what
+"question-shaped" means and when a plain label is correct instead.
+
+**3. The opening paragraph answers before it explains.** Two sentences,
+direct, before any scene-setting — this is the single highest-leverage AEO
+decision and it costs nothing while the page is still being drafted.
+`references/examples.md` §1 has the before/after.
+
+**4. `Organization` JSON-LD, sitewide, from the first page.** Fill only
+what is actually known; leave the rest `TODO` rather than inventing a
+value — fabricated markup is a spam-policy violation even on a page that
+hasn't launched yet:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "TODO",
+  "url": "TODO: the real domain, not localhost",
+  "logo": { "@type": "ImageObject", "url": "TODO" },
+  "sameAs": ["TODO: real profile URLs, or remove this array entirely"]
+}
+```
+
+**5. Images ship with `alt`, `width`, and `height` from the first commit.**
+Adding these across a site nobody built with them in mind is the expensive
+version of a decision that takes five seconds now.
+
+**6. Use the framework's own metadata API, not raw `<head>` HTML, once the
+framework is known.** The table below has the mapping — the skeleton above
+is the *content* every one of those APIs needs; only the syntax changes.
 
 ---
 

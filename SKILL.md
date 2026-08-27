@@ -202,7 +202,7 @@ index: allow crawling, use `noindex`.
 | A live URL only | Diagnose everything. Fix nothing — you can't write to their server. Say so up front rather than ending an audit with fixes you can't apply. |
 | A local project or repo | The full loop: find, fix, verify. |
 | Pasted code with no context | Review that file. Ask which route it serves before judging anything site-wide — canonical, sitemap, and internal linking are meaningless without it. `references/working-in-code.md` covers what *is* judgeable from one component. |
-| Nothing yet, page being written | Build mode. Use the check sections below as the spec while writing, not as an audit afterwards. |
+| Nothing yet, page being written | Build mode — needs no web access at all. `references/working-in-code.md` has the exact order to bake things in, with a head-tag skeleton and a JSON-LD skeleton to start from, not just "use the checklist." |
 
 If someone asks to "make my site rank" with nothing attached, ask for the
 URL or the project path — one question, then proceed. Don't stall on

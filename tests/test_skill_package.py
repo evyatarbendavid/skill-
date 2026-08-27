@@ -650,6 +650,35 @@ class TestRtlGuidanceIsOperationalized(unittest.TestCase):
                 self.assertTrue(token in flat, f"{path.name} missing {token!r}")
 
 
+class TestBuildModeIsConcrete(unittest.TestCase):
+    """"Use the checklist as the spec" is not scaffolding — it sends someone
+    who asked "build me a page" back to a general-purpose list with no
+    starting point. Build mode needs an actual head-tag and JSON-LD skeleton
+    to hand over, and it needs to say plainly that it needs no web access,
+    because the alternative reading — "this skill can only check existing
+    sites" — is the exact confusion that prompted this test."""
+
+    def setUp(self):
+        self.flat = " ".join((ROOT / "references" / "working-in-code.md")
+                             .read_text(encoding="utf-8").split())
+
+    def test_has_a_real_head_tag_skeleton_to_start_from(self):
+        for tag in ("<title>", "og:image", 'rel="canonical"'):
+            self.assertIn(tag, self.flat, tag)
+
+    def test_has_a_jsonld_skeleton_with_todo_not_fabricated_values(self):
+        self.assertIn('"@type": "Organization"', self.flat)
+        self.assertIn('"name": "TODO"', self.flat)
+
+    def test_says_it_needs_no_web_access(self):
+        self.assertRegex(self.flat, r"needs no web access")
+
+    def test_skill_points_here_for_build_mode_not_just_the_checklist(self):
+        flat = " ".join(SKILL_MD.read_text(encoding="utf-8").split())
+        self.assertRegex(flat, r"Build mode.{0,200}needs no web access")
+        self.assertIn("working-in-code.md", flat)
+
+
 class TestFrameworkGuidance(unittest.TestCase):
     """A sitemap.xml written to a framework project's repo root is not served.
     The fix looks applied and changes nothing, which is worse than no fix."""
